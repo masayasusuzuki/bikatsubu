@@ -334,13 +334,27 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     // Escape basic HTML after decoration processing
     htmlContent = htmlContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    // Re-convert the processed decoration HTML back to valid HTML
+    // Re-convert the processed decoration and table HTML back to valid HTML
     htmlContent = htmlContent.replace(/&lt;div style="([^"]*)"&gt;/g, '<div style="$1">');
     htmlContent = htmlContent.replace(/&lt;\/div&gt;/g, '</div>');
     htmlContent = htmlContent.replace(/&lt;span style="([^"]*)"&gt;/g, '<span style="$1">');
     htmlContent = htmlContent.replace(/&lt;\/span&gt;/g, '</span>');
     htmlContent = htmlContent.replace(/&lt;strong style="([^"]*)"&gt;/g, '<strong style="$1">');
     htmlContent = htmlContent.replace(/&lt;\/strong&gt;/g, '</strong>');
+
+    // Table tags
+    htmlContent = htmlContent.replace(/&lt;table class="([^"]*)"&gt;/g, '<table class="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/table&gt;/g, '</table>');
+    htmlContent = htmlContent.replace(/&lt;thead&gt;/g, '<thead>');
+    htmlContent = htmlContent.replace(/&lt;\/thead&gt;/g, '</thead>');
+    htmlContent = htmlContent.replace(/&lt;tbody&gt;/g, '<tbody>');
+    htmlContent = htmlContent.replace(/&lt;\/tbody&gt;/g, '</tbody>');
+    htmlContent = htmlContent.replace(/&lt;tr&gt;/g, '<tr>');
+    htmlContent = htmlContent.replace(/&lt;\/tr&gt;/g, '</tr>');
+    htmlContent = htmlContent.replace(/&lt;th class="([^"]*)"&gt;/g, '<th class="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/th&gt;/g, '</th>');
+    htmlContent = htmlContent.replace(/&lt;td class="([^"]*)"&gt;/g, '<td class="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/td&gt;/g, '</td>');
 
     // Images ![alt](url)
     htmlContent = htmlContent.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto my-4" />');
@@ -364,6 +378,38 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     });
     // Horizontal rule
     htmlContent = htmlContent.replace(/^---$/gm, '<hr class="my-6" />');
+
+    // Table処理 (Markdown table)
+    // テーブルブロック全体を処理
+    htmlContent = htmlContent.replace(/(?:^\|.+\|\s*$\n?)+/gm, (tableBlock) => {
+      const lines = tableBlock.trim().split('\n').map(line => line.trim());
+      if (lines.length < 2) return tableBlock;
+
+      // セパレーター行を見つける
+      const separatorIndex = lines.findIndex(line => /^\|[\s\-\|:]+\|$/.test(line));
+      if (separatorIndex === -1) return tableBlock;
+
+      const headerLine = lines[separatorIndex - 1];
+      const dataLines = lines.slice(separatorIndex + 1);
+
+      if (!headerLine) return tableBlock;
+
+      // ヘッダー行を処理
+      const headerCells = headerLine.split('|').slice(1, -1).map(cell => cell.trim());
+      const headerHtml = headerCells.map(cell => `<th class="px-4 py-2 bg-gray-100 font-semibold text-left border border-gray-300">${cell}</th>`).join('');
+
+      // データ行を処理
+      const dataRowsHtml = dataLines.map(line => {
+        const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
+        const cellsHtml = cells.map(cell => `<td class="px-4 py-2 border border-gray-300">${cell}</td>`).join('');
+        return `<tr>${cellsHtml}</tr>`;
+      }).join('');
+
+      return `<table class="w-full border-collapse border border-gray-300 my-4">
+        <thead><tr>${headerHtml}</tr></thead>
+        <tbody>${dataRowsHtml}</tbody>
+      </table>`;
+    });
     // Paragraphs: convert remaining line breaks with proper empty paragraph handling
     // Split by double line breaks to create paragraphs
     const paragraphs = htmlContent.split(/\n\s*\n/);

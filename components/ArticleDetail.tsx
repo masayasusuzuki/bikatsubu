@@ -98,6 +98,20 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     html = html.replace(/&lt;div style="([^"]*)"&gt;/g, '<div style="$1">');
     html = html.replace(/&lt;\/div&gt;/g, '</div>');
 
+    // Table tags
+    html = html.replace(/&lt;table class="([^"]*)"&gt;/g, '<table class="$1">');
+    html = html.replace(/&lt;\/table&gt;/g, '</table>');
+    html = html.replace(/&lt;thead&gt;/g, '<thead>');
+    html = html.replace(/&lt;\/thead&gt;/g, '</thead>');
+    html = html.replace(/&lt;tbody&gt;/g, '<tbody>');
+    html = html.replace(/&lt;\/tbody&gt;/g, '</tbody>');
+    html = html.replace(/&lt;tr&gt;/g, '<tr>');
+    html = html.replace(/&lt;\/tr&gt;/g, '</tr>');
+    html = html.replace(/&lt;th class="([^"]*)"&gt;/g, '<th class="$1">');
+    html = html.replace(/&lt;\/th&gt;/g, '</th>');
+    html = html.replace(/&lt;td class="([^"]*)"&gt;/g, '<td class="$1">');
+    html = html.replace(/&lt;\/td&gt;/g, '</td>');
+
     // 画像 ![alt](url)
     html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto my-4" />');
     // リンク [text](url)
@@ -120,6 +134,38 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     });
     // 罫線
     html = html.replace(/^---$/gm, '<hr class="my-6" />');
+
+    // Table処理 (Markdown table)
+    // テーブルブロック全体を処理
+    html = html.replace(/(?:^\|.+\|\s*$\n?)+/gm, (tableBlock) => {
+      const lines = tableBlock.trim().split('\n').map(line => line.trim());
+      if (lines.length < 2) return tableBlock;
+
+      // セパレーター行を見つける
+      const separatorIndex = lines.findIndex(line => /^\|[\s\-\|:]+\|$/.test(line));
+      if (separatorIndex === -1) return tableBlock;
+
+      const headerLine = lines[separatorIndex - 1];
+      const dataLines = lines.slice(separatorIndex + 1);
+
+      if (!headerLine) return tableBlock;
+
+      // ヘッダー行を処理
+      const headerCells = headerLine.split('|').slice(1, -1).map(cell => cell.trim());
+      const headerHtml = headerCells.map(cell => `<th class="px-4 py-2 bg-gray-100 font-semibold text-left border border-gray-300">${cell}</th>`).join('');
+
+      // データ行を処理
+      const dataRowsHtml = dataLines.map(line => {
+        const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
+        const cellsHtml = cells.map(cell => `<td class="px-4 py-2 border border-gray-300">${cell}</td>`).join('');
+        return `<tr>${cellsHtml}</tr>`;
+      }).join('');
+
+      return `<table class="w-full border-collapse border border-gray-300 my-4">
+        <thead><tr>${headerHtml}</tr></thead>
+        <tbody>${dataRowsHtml}</tbody>
+      </table>`;
+    });
     // 段落/改行の処理を大幅に改善
 
     // まず、連続する改行を処理
