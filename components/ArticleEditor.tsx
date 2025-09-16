@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { articlesAPI, CreateArticle } from '../src/lib/supabase';
+import { fetchCloudinaryImages, CloudinaryImage } from '../src/api/cloudinary';
 
 interface ArticleData {
   title: string;
@@ -40,6 +41,8 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
   const [isPreview, setIsPreview] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [cloudinaryImages, setCloudinaryImages] = useState<CloudinaryImage[]>([]);
+  const [loadingCloudinary, setLoadingCloudinary] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -55,6 +58,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     if (articleId) {
       loadArticle();
     }
+    loadCloudinaryImages();
   }, [articleId]);
 
   const loadArticle = async () => {
@@ -84,6 +88,18 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       alert('記事の読み込みに失敗しました');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCloudinaryImages = async () => {
+    try {
+      setLoadingCloudinary(true);
+      const images = await fetchCloudinaryImages();
+      setCloudinaryImages(images);
+    } catch (error) {
+      console.error('Cloudinary画像の読み込みに失敗:', error);
+    } finally {
+      setLoadingCloudinary(false);
     }
   };
 
@@ -707,6 +723,69 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                   </div>
                 </div>
               )}
+
+              {/* Cloudinary画像ライブラリ */}
+              <div className="bg-white border border-gray-200 p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-sm font-medium text-slate-700">
+                    Cloudinary画像ライブラリ
+                    <span className="ml-2 text-xs text-gray-500">({cloudinaryImages.length}件)</span>
+                  </h3>
+                  <button
+                    onClick={loadCloudinaryImages}
+                    className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                    disabled={loadingCloudinary}
+                  >
+                    {loadingCloudinary ? '読み込み中...' : '🔄 更新'}
+                  </button>
+                </div>
+                {cloudinaryImages.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {cloudinaryImages.map((image) => (
+                      <div key={image.public_id} className="relative group">
+                        <div className="aspect-video bg-gray-100 border border-gray-200 rounded overflow-hidden">
+                          <img
+                            src={image.secure_url}
+                            alt={image.public_id}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.parentElement!.innerHTML = '<div class="w-full h-full bg-gray-100 flex items-center justify-center text-xs text-slate-500">画像を読み込めません</div>';
+                            }}
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded">
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() => navigator.clipboard.writeText(`![画像の説明](${image.secure_url})`)}
+                              className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded"
+                            >
+                              マークダウンをコピー
+                            </button>
+                            <button
+                              onClick={() => insertImageIntoContent(image.secure_url)}
+                              className="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded"
+                            >
+                              本文に挿入
+                            </button>
+                          </div>
+                        </div>
+                        <div className="absolute bottom-1 left-1 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                          {Math.round(image.bytes / 1024)}KB
+                        </div>
+                        <div className="absolute top-1 right-1 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                          {image.width}×{image.height}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500">
+                    {loadingCloudinary ? 'Cloudinary画像を読み込み中...' : 'Cloudinary画像が見つかりません'}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* SEO Settings Sidebar */}
