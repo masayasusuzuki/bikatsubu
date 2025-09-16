@@ -301,20 +301,35 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     let htmlContent = article.content;
 
     // 装飾ボックスの処理（エスケープ前に実行）
-    htmlContent = htmlContent.replace(/<div class="decoration-info">(.*?)<\/div>/gs,
-      '<div style="border: 2px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 6px solid #1d4ed8; color: #1e3a8a;">$1</div>');
+    htmlContent = htmlContent.replace(/<div class="decoration-info" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #1d4ed8;">${title}</div>` : '';
+        return `<div style="border: 2px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 6px solid #1d4ed8; color: #1e3a8a;">${titleHtml}${content}</div>`;
+      });
 
-    htmlContent = htmlContent.replace(/<div class="decoration-warning">(.*?)<\/div>/gs,
-      '<div style="border: 2px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 6px solid #d97706; color: #78350f;">$1</div>');
+    htmlContent = htmlContent.replace(/<div class="decoration-warning" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #d97706;">${title}</div>` : '';
+        return `<div style="border: 2px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 6px solid #d97706; color: #78350f;">${titleHtml}${content}</div>`;
+      });
 
-    htmlContent = htmlContent.replace(/<div class="decoration-success">(.*?)<\/div>/gs,
-      '<div style="border: 2px solid #10b981; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 6px solid #047857; color: #064e3b;">$1</div>');
+    htmlContent = htmlContent.replace(/<div class="decoration-success" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #047857;">${title}</div>` : '';
+        return `<div style="border: 2px solid #10b981; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 6px solid #047857; color: #064e3b;">${titleHtml}${content}</div>`;
+      });
 
-    htmlContent = htmlContent.replace(/<div class="decoration-error">(.*?)<\/div>/gs,
-      '<div style="border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left: 6px solid #dc2626; color: #7f1d1d;">$1</div>');
+    htmlContent = htmlContent.replace(/<div class="decoration-error" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #dc2626;">${title}</div>` : '';
+        return `<div style="border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left: 6px solid #dc2626; color: #7f1d1d;">${titleHtml}${content}</div>`;
+      });
 
-    htmlContent = htmlContent.replace(/<div class="decoration-quote">(.*?)<\/div>/gs,
-      '<div style="border: 2px solid #6b7280; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-left: 6px solid #374151; color: #4b5563; font-style: italic;">$1</div>');
+    htmlContent = htmlContent.replace(/<div class="decoration-quote" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #374151;">${title}</div>` : '';
+        return `<div style="border: 2px solid #6b7280; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-left: 6px solid #374151; color: #4b5563; font-style: italic;">${titleHtml}${content}</div>`;
+      });
 
     // Escape basic HTML after decoration processing
     htmlContent = htmlContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -573,7 +588,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                   value={article.content}
                   onChange={(e) => setArticle(prev => ({ ...prev, content: e.target.value }))}
                   placeholder="記事の内容を入力してください。画像を挿入するには上の「画像をアップロード」ボタンを使用してください。"
-                  rows={20}
+                  rows={35}
                   className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500 font-mono"
                 />
                 <div className="mt-2 text-xs text-slate-500">
@@ -838,8 +853,16 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                   <div className="text-green-700 text-xs">
                     https://bikatsu-bu.com/articles/{article.slug || 'url-slug'}
                   </div>
-                  <div className="text-gray-700 text-sm">
-                    {article.metaDescription || 'メタディスクリプションを入力してください'}
+                  <div className="text-gray-700 text-sm leading-5">
+                    {(() => {
+                      const description = article.metaDescription || 'メタディスクリプションを入力してください';
+                      const maxLength = 155; // Googleの推奨文字数
+                      if (description.length <= maxLength) {
+                        return description;
+                      }
+                      // 155文字で切って「...」を追加
+                      return description.substring(0, maxLength) + '...';
+                    })()}
                   </div>
                 </div>
               </div>

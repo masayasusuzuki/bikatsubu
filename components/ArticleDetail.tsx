@@ -29,23 +29,44 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
   }, [articleId]);
 
   const renderContent = (content: string) => {
-    // 安全のため基本エスケープ→必要なMarkdownだけHTML化
-    let html = content
+    let html = content;
+
+    // 装飾機能の処理（エスケープ前に処理）
+    html = html.replace(/<div class="decoration-info" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #1d4ed8;">${title}</div>` : '';
+        return `<div style="border: 2px solid #3b82f6; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e3a8a; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #1d4ed8;">${titleHtml}${content}</div>`;
+      });
+    html = html.replace(/<div class="decoration-warning" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #d97706;">${title}</div>` : '';
+        return `<div style="border: 2px solid #f59e0b; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #78350f; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #d97706;">${titleHtml}${content}</div>`;
+      });
+    html = html.replace(/<div class="decoration-success" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #047857;">${title}</div>` : '';
+        return `<div style="border: 2px solid #10b981; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #064e3b; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #047857;">${titleHtml}${content}</div>`;
+      });
+    html = html.replace(/<div class="decoration-error" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #dc2626;">${title}</div>` : '';
+        return `<div style="border: 2px solid #ef4444; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #7f1d1d; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #dc2626;">${titleHtml}${content}</div>`;
+      });
+    html = html.replace(/<div class="decoration-quote" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #374151;">${title}</div>` : '';
+        return `<div style="border: 2px solid #6b7280; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); color: #4b5563; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #374151; font-style: italic;">${titleHtml}${content}</div>`;
+      });
+
+    // 安全のため基本エスケープ→必要なMarkdownだけHTML化（装飾処理後に実行）
+    html = html
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
-    // 装飾機能の処理（エスケープ前の内容で処理）
-    html = html.replace(/<div class="decoration-info">(.*?)<\/div>/g,
-      '<div style="border: 2px solid #3b82f6; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e3a8a; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #1d4ed8;">$1</div>');
-    html = html.replace(/<div class="decoration-warning">(.*?)<\/div>/g,
-      '<div style="border: 2px solid #f59e0b; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #78350f; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #d97706;">$1</div>');
-    html = html.replace(/<div class="decoration-success">(.*?)<\/div>/g,
-      '<div style="border: 2px solid #10b981; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #064e3b; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #047857;">$1</div>');
-    html = html.replace(/<div class="decoration-error">(.*?)<\/div>/g,
-      '<div style="border: 2px solid #ef4444; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #7f1d1d; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #dc2626;">$1</div>');
-    html = html.replace(/<div class="decoration-quote">(.*?)<\/div>/g,
-      '<div style="border: 2px solid #6b7280; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); color: #4b5563; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #374151; font-style: italic;">$1</div>');
+    // 装飾HTMLタグを復元
+    html = html.replace(/&lt;div style="([^"]*)"&gt;/g, '<div style="$1">');
+    html = html.replace(/&lt;\/div&gt;/g, '</div>');
 
     // 画像 ![alt](url)
     html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto my-4" />');
