@@ -35,6 +35,18 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
+    // 装飾機能の処理（エスケープ前の内容で処理）
+    html = html.replace(/<div class="decoration-info">(.*?)<\/div>/g,
+      '<div style="border: 2px solid #3b82f6; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e3a8a; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #1d4ed8;">$1</div>');
+    html = html.replace(/<div class="decoration-warning">(.*?)<\/div>/g,
+      '<div style="border: 2px solid #f59e0b; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #78350f; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #d97706;">$1</div>');
+    html = html.replace(/<div class="decoration-success">(.*?)<\/div>/g,
+      '<div style="border: 2px solid #10b981; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #064e3b; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #047857;">$1</div>');
+    html = html.replace(/<div class="decoration-error">(.*?)<\/div>/g,
+      '<div style="border: 2px solid #ef4444; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #7f1d1d; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #dc2626;">$1</div>');
+    html = html.replace(/<div class="decoration-quote">(.*?)<\/div>/g,
+      '<div style="border: 2px solid #6b7280; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); color: #4b5563; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #374151; font-style: italic;">$1</div>');
+
     // 画像 ![alt](url)
     html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto my-4" />');
     // リンク [text](url)
@@ -57,8 +69,22 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     });
     // 罫線
     html = html.replace(/^---$/gm, '<hr class="my-6" />');
-    // 段落/改行
-    html = html.replace(/\n{2,}/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>').replace(/\n/g, '<br />');
+    // 段落/改行の処理を大幅に改善
+
+    // まず、連続する改行を処理
+    // 2つ以上の改行を段落区切りとして扱う
+    const paragraphs = html.split(/\n\s*\n/);
+
+    // 各段落を処理
+    html = paragraphs.map(paragraph => {
+      if (!paragraph.trim()) {
+        // 完全に空の段落は空白段落として表示
+        return '<p style="margin-bottom: 1.5rem; height: 1.5rem;">&nbsp;</p>';
+      }
+      // 段落内の単一改行はbrタグに変換
+      const processedParagraph = paragraph.replace(/\n/g, '<br />');
+      return `<p style="margin-bottom: 1.5rem; line-height: 1.7;">${processedParagraph}</p>`;
+    }).join('');
 
     return { __html: html };
   };
@@ -105,7 +131,15 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
                 </div>
               )}
 
-              <div className="prose max-w-none" dangerouslySetInnerHTML={renderContent(article.content)} />
+              <div
+                className="max-w-none article-content"
+                dangerouslySetInnerHTML={renderContent(article.content)}
+                style={{
+                  lineHeight: '1.7',
+                  fontSize: '16px',
+                  color: '#374151'
+                }}
+              />
             </article>
           )}
         </div>

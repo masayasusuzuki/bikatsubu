@@ -238,6 +238,49 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     }
   };
 
+  // 装飾機能
+  const applyDecoration = (type: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = article.content.substring(start, end);
+
+    if (!selectedText) {
+      alert('装飾を適用するテキストを選択してください');
+      return;
+    }
+
+    // タイトルと本文を入力してもらう
+    const title = prompt('囲い線のタイトルを入力してください（空白可）:', '');
+    if (title === null) return; // キャンセルされた場合
+
+    const decorations = {
+      'info': `<div class="decoration-info" data-title="${title}">${selectedText}</div>`,
+      'warning': `<div class="decoration-warning" data-title="${title}">${selectedText}</div>`,
+      'success': `<div class="decoration-success" data-title="${title}">${selectedText}</div>`,
+      'error': `<div class="decoration-error" data-title="${title}">${selectedText}</div>`,
+      'quote': `<div class="decoration-quote" data-title="${title}">${selectedText}</div>`
+    };
+
+    const decoratedText = decorations[type as keyof typeof decorations];
+    if (!decoratedText) return;
+
+    const newContent =
+      article.content.substring(0, start) +
+      decoratedText +
+      article.content.substring(end);
+
+    setArticle(prev => ({ ...prev, content: newContent }));
+
+    setTimeout(() => {
+      textarea.focus();
+      const newPos = start + decoratedText.length;
+      textarea.setSelectionRange(newPos, newPos);
+    }, 0);
+  };
+
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
@@ -257,8 +300,32 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   const renderPreview = () => {
     let htmlContent = article.content;
 
-    // Escape basic HTML
+    // 装飾ボックスの処理（エスケープ前に実行）
+    htmlContent = htmlContent.replace(/<div class="decoration-info">(.*?)<\/div>/gs,
+      '<div style="border: 2px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 6px solid #1d4ed8; color: #1e3a8a;">$1</div>');
+
+    htmlContent = htmlContent.replace(/<div class="decoration-warning">(.*?)<\/div>/gs,
+      '<div style="border: 2px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 6px solid #d97706; color: #78350f;">$1</div>');
+
+    htmlContent = htmlContent.replace(/<div class="decoration-success">(.*?)<\/div>/gs,
+      '<div style="border: 2px solid #10b981; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 6px solid #047857; color: #064e3b;">$1</div>');
+
+    htmlContent = htmlContent.replace(/<div class="decoration-error">(.*?)<\/div>/gs,
+      '<div style="border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left: 6px solid #dc2626; color: #7f1d1d;">$1</div>');
+
+    htmlContent = htmlContent.replace(/<div class="decoration-quote">(.*?)<\/div>/gs,
+      '<div style="border: 2px solid #6b7280; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-left: 6px solid #374151; color: #4b5563; font-style: italic;">$1</div>');
+
+    // Escape basic HTML after decoration processing
     htmlContent = htmlContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Re-convert the processed decoration HTML back to valid HTML
+    htmlContent = htmlContent.replace(/&lt;div style="([^"]*)"&gt;/g, '<div style="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/div&gt;/g, '</div>');
+    htmlContent = htmlContent.replace(/&lt;span style="([^"]*)"&gt;/g, '<span style="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/span&gt;/g, '</span>');
+    htmlContent = htmlContent.replace(/&lt;strong style="([^"]*)"&gt;/g, '<strong style="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/strong&gt;/g, '</strong>');
 
     // Images ![alt](url)
     htmlContent = htmlContent.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto my-4" />');
@@ -282,8 +349,18 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     });
     // Horizontal rule
     htmlContent = htmlContent.replace(/^---$/gm, '<hr class="my-6" />');
-    // Paragraphs: convert remaining line breaks
-    htmlContent = htmlContent.replace(/\n{2,}/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>').replace(/\n/g, '<br />');
+    // Paragraphs: convert remaining line breaks with proper empty paragraph handling
+    // Split by double line breaks to create paragraphs
+    const paragraphs = htmlContent.split(/\n\s*\n/);
+    htmlContent = paragraphs.map(paragraph => {
+      if (!paragraph.trim()) {
+        // Empty paragraph - create visible empty space
+        return '<p style="margin-bottom: 1.5rem; height: 1.5rem;">&nbsp;</p>';
+      }
+      // Process single line breaks within paragraphs
+      const processedParagraph = paragraph.replace(/\n/g, '<br />');
+      return `<p style="margin-bottom: 1.5rem; line-height: 1.7;">${processedParagraph}</p>`;
+    }).join('');
 
     return (
       <article className="bg-white border border-gray-200 p-6">
@@ -307,7 +384,14 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
           </div>
         )}
 
-        <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <div
+          className="max-w-none"
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+          style={{
+            fontSize: '16px',
+            color: '#374151'
+          }}
+        />
       </article>
     );
   };
@@ -376,7 +460,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="bg-white border-b border-gray-300 shadow-sm">
+      <header className="bg-white border-b border-gray-300 shadow-sm fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
@@ -420,7 +504,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 pt-24">
         {isPreview ? (
           <div className="container mx-auto px-4 py-10 max-w-4xl">
             {renderPreview()}
@@ -458,6 +542,16 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                     <button onClick={() => insertAtMultipleLines('1. ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">1. リスト</button>
                     <button onClick={() => wrapSelection('[', '](https://)')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">リンク</button>
                     <button onClick={() => insertAtLineStart('---\n')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">——</button>
+
+                    {/* 装飾ボタン */}
+                    <div className="border-l border-gray-300 mx-2"></div>
+                    <button onClick={() => applyDecoration('info')} className="px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs border border-blue-300 rounded">💡 情報</button>
+                    <button onClick={() => applyDecoration('warning')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 text-xs border border-yellow-300 rounded">⚠️ 注意</button>
+                    <button onClick={() => applyDecoration('success')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs border border-green-300 rounded">✅ ポイント</button>
+                    <button onClick={() => applyDecoration('error')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs border border-red-300 rounded">❌ 警告</button>
+                    <button onClick={() => applyDecoration('quote')} className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs border border-gray-300 rounded">💬 引用</button>
+
+                    <div className="border-l border-gray-300 mx-2"></div>
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 text-sm font-medium transition-colors"
