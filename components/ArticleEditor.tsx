@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { articlesAPI, CreateArticle, supabase } from '../src/lib/supabase';
+import { articlesAPI, CreateArticle } from '../src/lib/supabase';
 
 interface ArticleData {
   title: string;
@@ -161,17 +161,40 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     const file = files[0];
     setIsUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      // 環境変数の確認
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dmxlepoau';
+      console.log('Cloud Name:', cloudName);
+      console.log('All env vars:', process.env);
 
-      const { error: uploadError } = await supabase.storage
-        .from('article-images')
-        .upload(filePath, file, { upsert: false });
+      if (!cloudName) {
+        throw new Error('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME が設定されていません');
+      }
 
-      if (uploadError) throw uploadError;
+      // Cloudinaryにアップロード
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'ml_default');
 
-      const { data } = supabase.storage.from('article-images').getPublicUrl(filePath);
-      const publicUrl = data.publicUrl;
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+      console.log('Upload URL:', uploadUrl);
+
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Upload error response:', errorText);
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Upload success:', data);
+      const publicUrl = data.secure_url;
 
       setUploadedImages(prev => [...prev, publicUrl]);
       insertImageIntoContent(publicUrl);
@@ -192,17 +215,38 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     setIsUploadingFeatured(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `featured-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      // 環境変数の確認
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dmxlepoau';
+      console.log('Featured Image Cloud Name:', cloudName);
 
-      const { error: uploadError } = await supabase.storage
-        .from('article-images')
-        .upload(filePath, file, { upsert: false });
+      if (!cloudName) {
+        throw new Error('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME が設定されていません');
+      }
 
-      if (uploadError) throw uploadError;
+      // Cloudinaryにアップロード
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'ml_default');
 
-      const { data } = supabase.storage.from('article-images').getPublicUrl(filePath);
-      const publicUrl = data.publicUrl;
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+      console.log('Featured Image Upload URL:', uploadUrl);
+
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('Featured Image Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Featured Image Upload error response:', errorText);
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Featured Image Upload success:', data);
+      const publicUrl = data.secure_url;
 
       setArticle(prev => ({ ...prev, featuredImage: publicUrl }));
     } catch (e) {
