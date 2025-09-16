@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import { articlesAPI, Article } from '../src/lib/supabase';
+import { articlesAPI, pageSectionsAPI, Article } from '../src/lib/supabase';
 
 interface ArticleDetailProps {
   articleId: string;
@@ -11,13 +11,43 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [latestArticles, setLatestArticles] = useState<Article[]>([]);
+  const [sameCategoyArticles, setSameCategoryArticles] = useState<Article[]>([]);
 
   useEffect(() => {
-    const fetchArticle = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await articlesAPI.getArticleById(articleId);
-        setArticle(data);
+
+        // 記事データを取得
+        const articleData = await articlesAPI.getArticleById(articleId);
+        setArticle(articleData);
+
+        // 最新の公開記事を取得（現在の記事を除く）
+        const allArticles = await articlesAPI.getAllArticles();
+        console.log('全記事:', allArticles);
+        console.log('現在の記事:', articleData);
+
+        const latestPublishedArticles = allArticles
+          .filter(a => a.status === 'published' && a.id !== articleData.id)
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+          .slice(0, 3);
+        console.log('最新の公開記事:', latestPublishedArticles);
+        setLatestArticles(latestPublishedArticles);
+
+        // 同じカテゴリーの記事を取得
+        const sameCategoryArticles = allArticles
+          .filter(a => a.category === articleData.category && a.id !== articleData.id && a.status === 'published')
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+          .slice(0, 3);
+        console.log('同じカテゴリーの記事:', sameCategoryArticles);
+        console.log('フィルター条件:', {
+          category: articleData.category,
+          excludeId: articleData.id,
+          status: 'published'
+        });
+        setSameCategoryArticles(sameCategoryArticles);
+
         setError(null);
       } catch (e) {
         setError('記事が見つかりませんでした');
@@ -25,7 +55,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
         setLoading(false);
       }
     };
-    fetchArticle();
+    fetchData();
   }, [articleId]);
 
   const renderContent = (content: string) => {
@@ -110,59 +140,118 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     return { __html: html };
   };
 
+  const renderArticleCard = (article: Article) => (
+    <div key={article.id} className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
+      <a href={`/article/${article.id}`} className="block hover:opacity-80 transition-opacity">
+        <div className="flex gap-3">
+          {article.featured_image && (
+            <div className="w-20 h-20 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
+              <img
+                src={article.featured_image}
+                alt={article.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-[#d11a68] mb-1">{article.category}</div>
+            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-2 leading-tight">{article.title}</h3>
+            <div className="text-xs text-gray-500">
+              {new Date(article.created_at).toLocaleDateString('ja-JP')}
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  );
+
   return (
     <div className="bg-gray-100 font-sans">
       <Header />
       <main>
-        <div className="container mx-auto px-4 py-10 max-w-4xl">
-          {loading && (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#d11a68]"></div>
-              <p className="mt-4 text-gray-600">読み込み中...</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="text-center py-20">
-              <div className="text-red-500 text-4xl mb-4">⚠️</div>
-              <h1 className="text-2xl font-bold text-gray-700 mb-2">{error}</h1>
-              <a href="/" className="text-[#d11a68] hover:underline">トップに戻る</a>
-            </div>
-          )}
-
-          {!loading && !error && article && (
-            <article className="bg-white border border-gray-200 p-6">
-              <div className="mb-6">
-                <a href={`/category/${encodeURIComponent(article.category)}`} className="text-xs text-[#d11a68]">{article.category}</a>
-                <h1 className="text-3xl font-bold text-gray-900 mt-2">{article.title}</h1>
-                <div className="text-gray-500 text-sm mt-2">
-                  {new Date(article.created_at).toLocaleDateString('ja-JP')}
-                </div>
+        <div className="container mx-auto px-4 py-10 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {loading && (
+              <div className="lg:col-span-4 text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#d11a68]"></div>
+                <p className="mt-4 text-gray-600">読み込み中...</p>
               </div>
+            )}
 
-              {article.featured_image && (
-                <div className="rounded overflow-hidden mb-6">
-                  <div className="relative bg-gray-100" style={{ paddingBottom: '52.36%' }}>
-                    <img
-                      src={article.featured_image}
-                      alt={article.title}
-                      className="absolute inset-0 w-full h-full object-cover"
+            {error && (
+              <div className="lg:col-span-4 text-center py-20">
+                <div className="text-red-500 text-4xl mb-4">⚠️</div>
+                <h1 className="text-2xl font-bold text-gray-700 mb-2">{error}</h1>
+                <a href="/" className="text-[#d11a68] hover:underline">トップに戻る</a>
+              </div>
+            )}
+
+            {!loading && !error && article && (
+              <>
+                {/* メインコンテンツ */}
+                <div className="lg:col-span-3">
+                  <article className="bg-white border border-gray-200 p-6">
+                    <div className="mb-6">
+                      <a href={`/category/${encodeURIComponent(article.category)}`} className="text-xs text-[#d11a68]">{article.category}</a>
+                      <h1 className="text-3xl font-bold text-gray-900 mt-2">{article.title}</h1>
+                      <div className="text-gray-500 text-sm mt-2">
+                        {new Date(article.created_at).toLocaleDateString('ja-JP')}
+                      </div>
+                    </div>
+
+                    {article.featured_image && (
+                      <div className="rounded overflow-hidden mb-6">
+                        <div className="relative bg-gray-100" style={{ paddingBottom: '52.36%' }}>
+                          <img
+                            src={article.featured_image}
+                            alt={article.title}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div
+                      className="max-w-none article-content"
+                      dangerouslySetInnerHTML={renderContent(article.content)}
+                      style={{
+                        lineHeight: '1.7',
+                        fontSize: '16px',
+                        color: '#374151'
+                      }}
                     />
+                  </article>
+                </div>
+
+                {/* サイドバー */}
+                <div className="lg:col-span-1">
+                  {/* 最新の記事 */}
+                  <div className="bg-white border border-gray-200 p-4 mb-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-4">最新の記事を読む</h2>
+                    <div className="space-y-4">
+                      {latestArticles.length > 0 ? (
+                        latestArticles.map(renderArticleCard)
+                      ) : (
+                        <p className="text-gray-500 text-sm">記事がありません</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 同じカテゴリーの記事 */}
+                  <div className="bg-white border border-gray-200 p-4">
+                    <h2 className="text-lg font-bold text-gray-900 mb-4">同じカテゴリーの記事を読む</h2>
+                    <div className="space-y-4">
+                      {sameCategoyArticles.length > 0 ? (
+                        sameCategoyArticles.map(renderArticleCard)
+                      ) : (
+                        <p className="text-gray-500 text-sm">同じカテゴリーの記事がありません</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              )}
-
-              <div
-                className="max-w-none article-content"
-                dangerouslySetInnerHTML={renderContent(article.content)}
-                style={{
-                  lineHeight: '1.7',
-                  fontSize: '16px',
-                  color: '#374151'
-                }}
-              />
-            </article>
-          )}
+              </>
+            )}
+          </div>
         </div>
       </main>
       <Footer />

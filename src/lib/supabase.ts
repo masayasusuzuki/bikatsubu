@@ -137,6 +137,18 @@ export const articlesAPI = {
 
   // 記事を削除
   async deleteArticle(id: string) {
+    // まず、page_sectionsで使用されている場合は参照を削除
+    const { error: sectionError } = await supabase
+      .from('page_sections')
+      .update({ article_id: null })
+      .eq('article_id', id)
+
+    if (sectionError) {
+      console.warn('ページセクションからの参照削除に失敗:', sectionError)
+      // 参照削除に失敗してもメイン削除は続行
+    }
+
+    // 記事を削除
     const { error } = await supabase
       .from('articles')
       .delete()
