@@ -113,9 +113,11 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       article.content.substring(0, start) + before + selected + after + article.content.substring(end);
     setArticle(prev => ({ ...prev, content: newContent }));
     setTimeout(() => {
+      const scrollTop = textarea.scrollTop;
       textarea.focus();
       const cursor = start + before.length + selected.length + after.length;
       textarea.setSelectionRange(cursor, cursor);
+      textarea.scrollTop = scrollTop;
     }, 0);
   };
 
@@ -127,9 +129,11 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     const newContent = article.content.substring(0, lineStart) + prefix + article.content.substring(lineStart);
     setArticle(prev => ({ ...prev, content: newContent }));
     setTimeout(() => {
+      const scrollTop = textarea.scrollTop;
       textarea.focus();
       const pos = start + prefix.length;
       textarea.setSelectionRange(pos, pos);
+      textarea.scrollTop = scrollTop;
     }, 0);
   };
 
@@ -164,9 +168,11 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     setArticle(prev => ({ ...prev, content: newContent }));
 
     setTimeout(() => {
+      const scrollTop = textarea.scrollTop;
       textarea.focus();
       const newEnd = start + newSelectedText.length;
       textarea.setSelectionRange(start, newEnd);
+      textarea.scrollTop = scrollTop;
     }, 0);
   };
 
@@ -289,13 +295,69 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       setArticle(prev => ({ ...prev, content: newContent }));
 
       setTimeout(() => {
+        const scrollTop = textarea.scrollTop;
         textarea.focus();
         textarea.setSelectionRange(
           start + imageMarkdown.length,
           start + imageMarkdown.length
         );
+        textarea.scrollTop = scrollTop;
       }, 0);
     }
+  };
+
+  // 目次生成機能
+  const generateTableOfContents = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    // 記事内容から見出しを抽出
+    const headingRegex = /^(#{1,3})\s+(.+)$/gm;
+    const headings: { level: number; text: string; id: string }[] = [];
+    let match;
+
+    while ((match = headingRegex.exec(article.content)) !== null) {
+      const level = match[1].length; // #の数
+      const text = match[2].trim();
+      const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      headings.push({ level, text, id });
+    }
+
+    if (headings.length === 0) {
+      alert('見出し（# ## ###）が見つかりません。先に見出しを作成してください。');
+      return;
+    }
+
+    // 目次のマークダウンを生成（専用の装飾タグを使用）
+    let tocMarkdown = '\n<div class="table-of-contents">\n';
+    tocMarkdown += '<div class="toc-title">📋 目次</div>\n';
+    tocMarkdown += '<ul class="toc-list">\n';
+    headings.forEach(heading => {
+      tocMarkdown += `<li class="toc-level-${heading.level}"><a href="#${heading.id}">${heading.text}</a></li>\n`;
+    });
+    tocMarkdown += '</ul>\n';
+    tocMarkdown += '</div>\n\n';
+
+    // カーソル位置に目次を挿入
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    const newContent =
+      article.content.substring(0, start) +
+      tocMarkdown +
+      article.content.substring(end);
+
+    setArticle(prev => ({ ...prev, content: newContent }));
+
+    setTimeout(() => {
+      const scrollTop = textarea.scrollTop;
+      textarea.focus();
+      textarea.setSelectionRange(
+        start + tocMarkdown.length,
+        start + tocMarkdown.length
+      );
+      textarea.scrollTop = scrollTop;
+    }, 0);
   };
 
   // 装飾機能
@@ -312,16 +374,21 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       return;
     }
 
-    // タイトルと本文を入力してもらう
-    const title = prompt('囲い線のタイトルを入力してください（空白可）:', '');
-    if (title === null) return; // キャンセルされた場合
+    // 吹き出しはタイトル不要、その他はタイトル入力
+    let title = '';
+    if (type !== 'speech-bubble') {
+      const defaultTitle = type === 'success' ? '💡ミライのひとことアドバイス' : '';
+      title = prompt('囲い線のタイトルを入力してください（空白可）:', defaultTitle);
+      if (title === null) return; // キャンセルされた場合
+    }
 
     const decorations = {
       'info': `<div class="decoration-info" data-title="${title}">${selectedText}</div>`,
       'warning': `<div class="decoration-warning" data-title="${title}">${selectedText}</div>`,
       'success': `<div class="decoration-success" data-title="${title}">${selectedText}</div>`,
       'error': `<div class="decoration-error" data-title="${title}">${selectedText}</div>`,
-      'quote': `<div class="decoration-quote" data-title="${title}">${selectedText}</div>`
+      'quote': `<div class="decoration-quote" data-title="${title}">${selectedText}</div>`,
+      'speech-bubble': `<div class="decoration-speech-bubble" data-title="">${selectedText}</div>`
     };
 
     const decoratedText = decorations[type as keyof typeof decorations];
@@ -335,13 +402,30 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     setArticle(prev => ({ ...prev, content: newContent }));
 
     setTimeout(() => {
+      const scrollTop = textarea.scrollTop;
       textarea.focus();
       const newPos = start + decoratedText.length;
       textarea.setSelectionRange(newPos, newPos);
+      textarea.scrollTop = scrollTop;
     }, 0);
   };
 
   const generateSlug = (title: string) => {
+    // 日本語タイトルの場合、日付ベースのSlugを生成
+    const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(title);
+
+    if (hasJapanese) {
+      // 日本語が含まれる場合は日付ベースのSlugを生成
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hour = String(now.getHours()).padStart(2, '0');
+      const minute = String(now.getMinutes()).padStart(2, '0');
+      return `article-${year}${month}${day}-${hour}${minute}`;
+    }
+
+    // 英数字の場合は従来通り
     return title
       .toLowerCase()
       .replace(/[^\w\s-]/g, '')
@@ -359,6 +443,51 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
   const renderPreview = () => {
     let htmlContent = article.content;
+
+    // 自動目次生成（記事内容から見出しを抽出して冒頭に挿入）
+    const headingRegex = /^(#{1,3})\s+(.+)$/gm;
+    const headings: { level: number; text: string; id: string }[] = [];
+    let match;
+
+    while ((match = headingRegex.exec(htmlContent)) !== null) {
+      const level = match[1].length;
+      const text = match[2].trim();
+      // HTMLで使用されるIDと同じ生成ロジックを使用
+      const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      headings.push({ level, text, id });
+    }
+
+    // 見出しが2個以上ある場合のみ目次を自動生成
+    if (headings.length >= 2) {
+      const tocItems = headings.map((heading, index) => {
+        const indent = (heading.level - 1) * 16;
+        const fontSize = heading.level === 1 ? '14px' : heading.level === 2 ? '13px' : '12px';
+        const fontWeight = heading.level === 1 ? '700' : heading.level === 2 ? '600' : '500';
+        const color = heading.level === 1 ? '#1e293b' : heading.level === 2 ? '#475569' : '#64748b';
+        const marginTop = index === 0 ? '0' : (heading.level === 1 ? '1px' : '0px');
+        const levelIcon = heading.level === 1 ? '📍' : heading.level === 2 ? '▸' : '•';
+
+        return `<li style="margin: ${marginTop} 0 0 ${indent}px; padding: 0; line-height: 1; display: block;">
+          <a href="#${heading.id}" style="color: ${color}; text-decoration: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: ${fontSize}; font-weight: ${fontWeight}; display: flex; align-items: center; padding: 2px 6px; border-radius: 4px; position: relative;" onclick="event.preventDefault(); document.getElementById('${heading.id}')?.scrollIntoView({behavior: 'smooth', block: 'start'});" onmouseover="this.style.color='#2563eb'; this.style.backgroundColor='#f1f5f9'; this.style.transform='translateX(2px)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)';" onmouseout="this.style.color='${color}'; this.style.backgroundColor='transparent'; this.style.transform='translateX(0)'; this.style.boxShadow='none';"><span style="margin-right: 6px; font-size: 10px; opacity: 0.7;">${levelIcon}</span>${heading.text}</a>
+        </li>`;
+      }).join('');
+
+      const autoToc = `<div style="background: linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 24px; margin: 24px auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05); max-width: 750px; width: fit-content; min-width: 400px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); opacity: 0.6;"></div>
+        <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #cbd5e1; letter-spacing: 0.3px; display: flex; align-items: center;"><span style="margin-right: 8px; font-size: 16px;">📋</span>目次</div>
+        <ul style="list-style: none; padding: 0; margin: 0; line-height: 1.2;">${tocItems}</ul>
+      </div>`;
+
+      // 最初の見出しの前に目次を挿入
+      const firstHeadingMatch = htmlContent.match(/^#{1,3}\s+.+$/m);
+      if (firstHeadingMatch) {
+        const firstHeadingIndex = htmlContent.indexOf(firstHeadingMatch[0]);
+        htmlContent = htmlContent.substring(0, firstHeadingIndex) + autoToc + '\n\n' + htmlContent.substring(firstHeadingIndex);
+      }
+    }
+
+    // 古い手動目次タグを除去
+    htmlContent = htmlContent.replace(/<div class="table-of-contents">[\s\S]*?<\/div>/g, '');
 
     // 装飾ボックスの処理（エスケープ前に実行）
     htmlContent = htmlContent.replace(/<div class="decoration-info" data-title="([^"]*)">(.*?)<\/div>/gs,
@@ -391,16 +520,51 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         return `<div style="border: 2px solid #6b7280; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-left: 6px solid #374151; color: #4b5563; font-style: italic;">${titleHtml}${content}</div>`;
       });
 
+    htmlContent = htmlContent.replace(/<div class="decoration-speech-bubble" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 14px; font-weight: bold; margin-bottom: 4px; color: white;">${title}</div>` : '';
+        return `<div style="position: relative; background: linear-gradient(135deg, #e91e63 0%, #d81b60 100%); color: white; padding: 2px 12px; border-radius: 8px; margin: 2px 0; box-shadow: 0 1px 3px rgba(233, 30, 99, 0.2); max-width: 300px; display: inline-block; line-height: 1.2; font-size: 14px;">
+          ${titleHtml}${content}
+          <div style="position: absolute; bottom: -4px; left: 16px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid #d81b60;"></div>
+        </div>`;
+      });
+
+
     // Escape basic HTML after decoration processing
     htmlContent = htmlContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     // Re-convert the processed decoration and table HTML back to valid HTML
     htmlContent = htmlContent.replace(/&lt;div style="([^"]*)"&gt;/g, '<div style="$1">');
+    htmlContent = htmlContent.replace(/&lt;div class="([^"]*)"&gt;/g, '<div class="$1">');
     htmlContent = htmlContent.replace(/&lt;\/div&gt;/g, '</div>');
     htmlContent = htmlContent.replace(/&lt;span style="([^"]*)"&gt;/g, '<span style="$1">');
     htmlContent = htmlContent.replace(/&lt;\/span&gt;/g, '</span>');
     htmlContent = htmlContent.replace(/&lt;strong style="([^"]*)"&gt;/g, '<strong style="$1">');
     htmlContent = htmlContent.replace(/&lt;\/strong&gt;/g, '</strong>');
+    htmlContent = htmlContent.replace(/&lt;ul style="([^"]*)"&gt;/g, '<ul style="$1">');
+    htmlContent = htmlContent.replace(/&lt;ul class="([^"]*)"&gt;/g, '<ul class="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/ul&gt;/g, '</ul>');
+    htmlContent = htmlContent.replace(/&lt;li style="([^"]*)"&gt;/g, '<li style="$1">');
+    htmlContent = htmlContent.replace(/&lt;li class="([^"]*)"&gt;/g, '<li class="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/li&gt;/g, '</li>');
+
+    // aタグの復元（目次のリンクなど）
+    htmlContent = htmlContent.replace(/&lt;a ([^&]*)&gt;/g, (match, attributes) => {
+      // クォートも復元
+      const restoredAttributes = attributes.replace(/&quot;/g, '"');
+      return `<a ${restoredAttributes}>`;
+    });
+    htmlContent = htmlContent.replace(/&lt;\/a&gt;/g, '</a>');
+
+    // ulとliタグの復元（目次用）
+    htmlContent = htmlContent.replace(/&lt;ul style="([^"]*)"&gt;/g, '<ul style="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/ul&gt;/g, '</ul>');
+    htmlContent = htmlContent.replace(/&lt;li style="([^"]*)"&gt;/g, '<li style="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/li&gt;/g, '</li>');
+
+    // spanタグの復元（目次アイコン用）
+    htmlContent = htmlContent.replace(/&lt;span style="([^"]*)"&gt;/g, '<span style="$1">');
+    htmlContent = htmlContent.replace(/&lt;\/span&gt;/g, '</span>');
 
     // Table tags
     htmlContent = htmlContent.replace(/&lt;table class="([^"]*)"&gt;/g, '<table class="$1">');
@@ -422,22 +586,34 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     htmlContent = htmlContent.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-blue-600 underline">$1<\/a>');
     // Bold **text**
     htmlContent = htmlContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1<\/strong>');
-    // Headings ###, ##, #
-    htmlContent = htmlContent.replace(/^###\s+(.+)$/gm, '<h3 class="text-xl font-semibold mt-6 mb-2">$1<\/h3>');
-    htmlContent = htmlContent.replace(/^##\s+(.+)$/gm, '<h2 class="text-2xl font-bold mt-8 mb-3">$1<\/h2>');
-    htmlContent = htmlContent.replace(/^#\s+(.+)$/gm, '<h1 class="text-3xl font-bold mt-10 mb-4">$1<\/h1>');
-    // Unordered list
-    htmlContent = htmlContent.replace(/^(?:-\s.+\n?)+/gm, (block) => {
-      const items = block.trim().split(/\n/).map(l => l.replace(/^-\s+/, '').trim()).map(li => `<li class="list-disc ml-6">${li}<\/li>`).join('');
-      return `<ul class="my-4">${items}<\/ul>`;
+    // Headings ###, ##, #（IDを追加してアンカーリンクに対応）
+    htmlContent = htmlContent.replace(/^###\s+(.+)$/gm, (match, title) => {
+      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h3 id="${id}" class="text-xl font-semibold mt-6 mb-2">${title}<\/h3>`;
     });
-    // Ordered list
+    htmlContent = htmlContent.replace(/^##\s+(.+)$/gm, (match, title) => {
+      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h2 id="${id}" class="text-2xl font-bold mt-8 mb-3">${title}<\/h2>`;
+    });
+    htmlContent = htmlContent.replace(/^#\s+(.+)$/gm, (match, title) => {
+      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h1 id="${id}" class="text-3xl font-bold mt-10 mb-4">${title}<\/h1>`;
+    });
+    // Unordered list（改良されたデザイン）
+    htmlContent = htmlContent.replace(/^(?:-\s.+\n?)+/gm, (block) => {
+      const items = block.trim().split(/\n/).map(l => l.replace(/^-\s+/, '').trim()).map(li => `<li style="position: relative; padding-left: 20px; margin-bottom: 8px; line-height: 1.6;"><span style="position: absolute; left: 0; top: 0; color: #e91e63; font-weight: bold;">•</span>${li}<\/li>`).join('');
+      return `<ul style="margin: 16px 0; padding: 0; list-style: none;">${items}<\/ul>`;
+    });
+    // Ordered list（改良されたデザイン）
     htmlContent = htmlContent.replace(/^(?:\d+\.\s.+\n?)+/gm, (block) => {
-      const items = block.trim().split(/\n/).map(l => l.replace(/^\d+\.\s+/, '').trim()).map(li => `<li class="list-decimal ml-6">${li}<\/li>`).join('');
-      return `<ol class="my-4">${items}<\/ol>`;
+      const items = block.trim().split(/\n/).map((l, index) => {
+        const text = l.replace(/^\d+\.\s+/, '').trim();
+        return `<li style="position: relative; padding-left: 28px; margin-bottom: 8px; line-height: 1.6;"><span style="position: absolute; left: 0; top: 0; color: #e91e63; font-weight: bold; background: #fce4ec; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">${index + 1}</span>${text}<\/li>`;
+      }).join('');
+      return `<ol style="margin: 16px 0; padding: 0; list-style: none;">${items}<\/ol>`;
     });
     // Horizontal rule
-    htmlContent = htmlContent.replace(/^---$/gm, '<hr class="my-6" />');
+    htmlContent = htmlContent.replace(/^---$/gm, '<hr style="border: none; height: 3px; background: linear-gradient(to right, #e5e5e5, #999, #e5e5e5); margin: 24px 0; border-radius: 2px;" />');
 
     // Table処理 (Markdown table)
     // テーブルブロック全体を処理
@@ -470,18 +646,9 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         <tbody>${dataRowsHtml}</tbody>
       </table>`;
     });
-    // Paragraphs: convert remaining line breaks with proper empty paragraph handling
-    // Split by double line breaks to create paragraphs
-    const paragraphs = htmlContent.split(/\n\s*\n/);
-    htmlContent = paragraphs.map(paragraph => {
-      if (!paragraph.trim()) {
-        // Empty paragraph - create visible empty space
-        return '<p style="margin-bottom: 1.5rem; height: 1.5rem;">&nbsp;</p>';
-      }
-      // Process single line breaks within paragraphs
-      const processedParagraph = paragraph.replace(/\n/g, '<br />');
-      return `<p style="margin-bottom: 1.5rem; line-height: 1.7;">${processedParagraph}</p>`;
-    }).join('');
+
+    // シンプルな改行処理: 全ての改行をbrタグに変換
+    htmlContent = htmlContent.replace(/\n/g, '<br />');
 
     return (
       <article className="bg-white border border-gray-200 p-6">
@@ -521,6 +688,13 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     if (!article.title || !article.content) {
       alert('タイトルと本文は必須です');
       return;
+    }
+
+    // Slugが空の場合は再生成
+    if (!article.slug) {
+      const newSlug = generateSlug(article.title);
+      setArticle(prev => ({ ...prev, slug: newSlug }));
+      console.warn('Slugが空だったため再生成しました:', newSlug);
     }
 
     setIsSaving(true);
@@ -651,9 +825,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
               {/* Content Editor */}
               <div className="bg-white border border-gray-200 p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <label className="block text-sm font-medium text-slate-700">
-                    記事本文
-                  </label>
+                  <div></div>
                   <div className="flex flex-wrap gap-2">
                     <button onClick={() => insertAtLineStart('# ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H1</button>
                     <button onClick={() => insertAtLineStart('## ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H2</button>
@@ -668,9 +840,11 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                     <div className="border-l border-gray-300 mx-2"></div>
                     <button onClick={() => applyDecoration('info')} className="px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs border border-blue-300 rounded">💡 情報</button>
                     <button onClick={() => applyDecoration('warning')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 text-xs border border-yellow-300 rounded">⚠️ 注意</button>
-                    <button onClick={() => applyDecoration('success')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs border border-green-300 rounded">✅ ポイント</button>
+                    <button onClick={() => applyDecoration('success')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs border border-green-300 rounded">💡ミライのひとことアドバイス</button>
                     <button onClick={() => applyDecoration('error')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs border border-red-300 rounded">❌ 警告</button>
                     <button onClick={() => applyDecoration('quote')} className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs border border-gray-300 rounded">💬 引用</button>
+                    <button onClick={() => applyDecoration('speech-bubble')} className="px-2 py-1 bg-pink-100 hover:bg-pink-200 text-pink-700 text-xs border border-pink-300 rounded">💭 吹き出し</button>
+
 
                     <div className="border-l border-gray-300 mx-2"></div>
                     <button

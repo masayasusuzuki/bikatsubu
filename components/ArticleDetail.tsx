@@ -61,6 +61,51 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
   const renderContent = (content: string) => {
     let html = content;
 
+    // 自動目次生成（記事内容から見出しを抽出して冒頭に挿入）
+    const headingRegex = /^(#{1,3})\s+(.+)$/gm;
+    const headings: { level: number; text: string; id: string }[] = [];
+    let match;
+
+    while ((match = headingRegex.exec(html)) !== null) {
+      const level = match[1].length;
+      const text = match[2].trim();
+      // HTMLで使用されるIDと同じ生成ロジックを使用
+      const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      headings.push({ level, text, id });
+    }
+
+    // 見出しが2個以上ある場合のみ目次を自動生成
+    if (headings.length >= 2) {
+      const tocItems = headings.map((heading, index) => {
+        const indent = (heading.level - 1) * 16;
+        const fontSize = heading.level === 1 ? '14px' : heading.level === 2 ? '13px' : '12px';
+        const fontWeight = heading.level === 1 ? '700' : heading.level === 2 ? '600' : '500';
+        const color = heading.level === 1 ? '#1e293b' : heading.level === 2 ? '#475569' : '#64748b';
+        const marginTop = index === 0 ? '0' : (heading.level === 1 ? '1px' : '0px');
+        const levelIcon = heading.level === 1 ? '📍' : heading.level === 2 ? '▸' : '•';
+
+        return `<li style="margin: ${marginTop} 0 0 ${indent}px; padding: 0; line-height: 1; display: block;">
+          <a href="#${heading.id}" style="color: ${color}; text-decoration: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: ${fontSize}; font-weight: ${fontWeight}; display: flex; align-items: center; padding: 2px 6px; border-radius: 4px; position: relative;" onclick="event.preventDefault(); document.getElementById('${heading.id}')?.scrollIntoView({behavior: 'smooth', block: 'start'});" onmouseover="this.style.color='#2563eb'; this.style.backgroundColor='#f1f5f9'; this.style.transform='translateX(2px)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)';" onmouseout="this.style.color='${color}'; this.style.backgroundColor='transparent'; this.style.transform='translateX(0)'; this.style.boxShadow='none';"><span style="margin-right: 6px; font-size: 10px; opacity: 0.7;">${levelIcon}</span>${heading.text}</a>
+        </li>`;
+      }).join('');
+
+      const autoToc = `<div style="background: linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 24px; margin: 24px auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05); max-width: 750px; width: fit-content; min-width: 400px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); opacity: 0.6;"></div>
+        <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #cbd5e1; letter-spacing: 0.3px; display: flex; align-items: center;"><span style="margin-right: 8px; font-size: 16px;">📋</span>目次</div>
+        <ul style="list-style: none; padding: 0; margin: 0; line-height: 1.2;">${tocItems}</ul>
+      </div>`;
+
+      // 最初の見出しの前に目次を挿入
+      const firstHeadingMatch = html.match(/^#{1,3}\s+.+$/m);
+      if (firstHeadingMatch) {
+        const firstHeadingIndex = html.indexOf(firstHeadingMatch[0]);
+        html = html.substring(0, firstHeadingIndex) + autoToc + '\n\n' + html.substring(firstHeadingIndex);
+      }
+    }
+
+    // 古い手動目次タグを除去
+    html = html.replace(/<div class="table-of-contents">[\s\S]*?<\/div>/g, '');
+
     // 装飾機能の処理（エスケープ前に処理）
     html = html.replace(/<div class="decoration-info" data-title="([^"]*)">(.*?)<\/div>/gs,
       (match, title, content) => {
@@ -88,6 +133,16 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
         return `<div style="border: 2px solid #6b7280; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); color: #4b5563; padding: 16px; margin: 16px 0; border-radius: 8px; border-left: 6px solid #374151; font-style: italic;">${titleHtml}${content}</div>`;
       });
 
+    // 吹き出し装飾
+    html = html.replace(/<div class="decoration-speech-bubble" data-title="([^"]*)">(.*?)<\/div>/gs,
+      (match, title, content) => {
+        const titleHtml = title ? `<div style="font-size: 14px; font-weight: bold; margin-bottom: 4px; color: white;">${title}</div>` : '';
+        return `<div style="position: relative; background: linear-gradient(135deg, #e91e63 0%, #d81b60 100%); color: white; padding: 2px 12px; border-radius: 8px; margin: 2px 0; box-shadow: 0 1px 3px rgba(233, 30, 99, 0.2); max-width: 300px; display: inline-block; line-height: 1.2; font-size: 14px;">
+          ${titleHtml}${content}
+          <div style="position: absolute; bottom: -4px; left: 16px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid #d81b60;"></div>
+        </div>`;
+      });
+
     // 安全のため基本エスケープ→必要なMarkdownだけHTML化（装飾処理後に実行）
     html = html
       .replace(/&/g, '&amp;')
@@ -97,6 +152,24 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     // 装飾HTMLタグを復元
     html = html.replace(/&lt;div style="([^"]*)"&gt;/g, '<div style="$1">');
     html = html.replace(/&lt;\/div&gt;/g, '</div>');
+
+    // ulとliタグの復元（目次用）
+    html = html.replace(/&lt;ul style="([^"]*)"&gt;/g, '<ul style="$1">');
+    html = html.replace(/&lt;\/ul&gt;/g, '</ul>');
+    html = html.replace(/&lt;li style="([^"]*)"&gt;/g, '<li style="$1">');
+    html = html.replace(/&lt;\/li&gt;/g, '</li>');
+
+    // spanタグの復元（目次アイコン用）
+    html = html.replace(/&lt;span style="([^"]*)"&gt;/g, '<span style="$1">');
+    html = html.replace(/&lt;\/span&gt;/g, '</span>');
+
+    // aタグの復元（目次のリンクなど）
+    html = html.replace(/&lt;a ([^&]*)&gt;/g, (match, attributes) => {
+      // クォートも復元
+      const restoredAttributes = attributes.replace(/&quot;/g, '"');
+      return `<a ${restoredAttributes}>`;
+    });
+    html = html.replace(/&lt;\/a&gt;/g, '</a>');
 
     // Table tags
     html = html.replace(/&lt;table class="([^"]*)"&gt;/g, '<table class="$1">');
@@ -118,22 +191,34 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     html = html.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-blue-600 underline">$1<\/a>');
     // 太字 **text**
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1<\/strong>');
-    // 見出し ###, ##, #（順序に注意）
-    html = html.replace(/^###\s+(.+)$/gm, '<h3 class="text-xl font-semibold mt-6 mb-2">$1<\/h3>');
-    html = html.replace(/^##\s+(.+)$/gm, '<h2 class="text-2xl font-bold mt-8 mb-3">$1<\/h2>');
-    html = html.replace(/^#\s+(.+)$/gm, '<h1 class="text-3xl font-bold mt-10 mb-4">$1<\/h1>');
-    // 箇条書き
+    // 見出し ###, ##, #（IDを追加してアンカーリンクに対応）
+    html = html.replace(/^###\s+(.+)$/gm, (match, title) => {
+      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h3 id="${id}" class="text-xl font-semibold mt-6 mb-2">${title}<\/h3>`;
+    });
+    html = html.replace(/^##\s+(.+)$/gm, (match, title) => {
+      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h2 id="${id}" class="text-2xl font-bold mt-8 mb-3">${title}<\/h2>`;
+    });
+    html = html.replace(/^#\s+(.+)$/gm, (match, title) => {
+      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h1 id="${id}" class="text-3xl font-bold mt-10 mb-4">${title}<\/h1>`;
+    });
+    // 箇条書き（改良されたデザイン）
     html = html.replace(/^(?:-\s.+\n?)+/gm, (block) => {
-      const items = block.trim().split(/\n/).map(l => l.replace(/^-\s+/, '').trim()).map(li => `<li class=\"list-disc ml-6\">${li}<\/li>`).join('');
-      return `<ul class=\"my-4\">${items}<\/ul>`;
+      const items = block.trim().split(/\n/).map(l => l.replace(/^-\s+/, '').trim()).map(li => `<li style="position: relative; padding-left: 20px; margin-bottom: 8px; line-height: 1.6;"><span style="position: absolute; left: 0; top: 0; color: #e91e63; font-weight: bold;">•</span>${li}<\/li>`).join('');
+      return `<ul style="margin: 16px 0; padding: 0; list-style: none;">${items}<\/ul>`;
     });
-    // 番号付きリスト
+    // 番号付きリスト（改良されたデザイン）
     html = html.replace(/^(?:\d+\.\s.+\n?)+/gm, (block) => {
-      const items = block.trim().split(/\n/).map(l => l.replace(/^\d+\.\s+/, '').trim()).map(li => `<li class=\"list-decimal ml-6\">${li}<\/li>`).join('');
-      return `<ol class=\"my-4\">${items}<\/ol>`;
+      const items = block.trim().split(/\n/).map((l, index) => {
+        const text = l.replace(/^\d+\.\s+/, '').trim();
+        return `<li style="position: relative; padding-left: 28px; margin-bottom: 8px; line-height: 1.6;"><span style="position: absolute; left: 0; top: 0; color: #e91e63; font-weight: bold; background: #fce4ec; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">${index + 1}</span>${text}<\/li>`;
+      }).join('');
+      return `<ol style="margin: 16px 0; padding: 0; list-style: none;">${items}<\/ol>`;
     });
-    // 罫線
-    html = html.replace(/^---$/gm, '<hr class="my-6" />');
+    // 罫線（太い線に変更）
+    html = html.replace(/^---$/gm, '<hr style="border: none; height: 3px; background: linear-gradient(to right, #e5e5e5, #999, #e5e5e5); margin: 24px 0; border-radius: 2px;" />');
 
     // Table処理 (Markdown table)
     // テーブルブロック全体を処理
@@ -166,22 +251,8 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
         <tbody>${dataRowsHtml}</tbody>
       </table>`;
     });
-    // 段落/改行の処理を大幅に改善
-
-    // まず、連続する改行を処理
-    // 2つ以上の改行を段落区切りとして扱う
-    const paragraphs = html.split(/\n\s*\n/);
-
-    // 各段落を処理
-    html = paragraphs.map(paragraph => {
-      if (!paragraph.trim()) {
-        // 完全に空の段落は空白段落として表示
-        return '<p style="margin-bottom: 1.5rem; height: 1.5rem;">&nbsp;</p>';
-      }
-      // 段落内の単一改行はbrタグに変換
-      const processedParagraph = paragraph.replace(/\n/g, '<br />');
-      return `<p style="margin-bottom: 1.5rem; line-height: 1.7;">${processedParagraph}</p>`;
-    }).join('');
+    // シンプルな改行処理: 全ての改行をbrタグに変換
+    html = html.replace(/\n/g, '<br />');
 
     return { __html: html };
   };
