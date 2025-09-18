@@ -13,8 +13,8 @@ const MostReadArticle: React.FC<{ article: Article }> = ({ article }) => (
   >
     <img src={article.imageUrl} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
     <div>
-      <p className="text-xs bg-yellow-400 inline-block px-2 py-0.5 font-bold mb-1 rounded">{article.category}</p>
-      <p className="text-sm font-semibold text-gray-800 leading-tight">{article.title}</p>
+      <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-[#d11a68]">{article.title}</p>
+      <p className="text-xs text-gray-500 mt-1">{article.category || article.date}</p>
     </div>
   </div>
 );
