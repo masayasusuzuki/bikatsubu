@@ -43,6 +43,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [cloudinaryImages, setCloudinaryImages] = useState<CloudinaryImage[]>([]);
   const [loadingCloudinary, setLoadingCloudinary] = useState(false);
+
+  // 編集モードとプレビューモードのスクロール位置を独立管理
+  const [editScrollTop, setEditScrollTop] = useState(0);
+  const [previewScrollTop, setPreviewScrollTop] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -780,7 +784,25 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                 <span className="text-green-600 text-sm font-medium">{saveMessage}</span>
               )}
               <button
-                onClick={() => setIsPreview(!isPreview)}
+                onClick={() => {
+                  // 現在のページスクロール位置を保存
+                  if (isPreview) {
+                    setPreviewScrollTop(window.scrollY);
+                  } else {
+                    setEditScrollTop(window.scrollY);
+                  }
+
+                  setIsPreview(!isPreview);
+
+                  // モード切り替え後にスクロール位置を復元
+                  setTimeout(() => {
+                    if (!isPreview) {
+                      window.scrollTo(0, previewScrollTop);
+                    } else {
+                      window.scrollTo(0, editScrollTop);
+                    }
+                  }, 50);
+                }}
                 className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 text-sm font-medium transition-colors"
                 disabled={isSaving}
               >

@@ -169,7 +169,7 @@ export const articlesAPI = {
     const { data, error } = await supabase
       .from('articles')
       .select('featured_image, title, created_at, content')
-      .or('featured_image.like.%res.cloudinary.com%,content.like.%res.cloudinary.com%')
+      .or('featured_image.ilike.%res.cloudinary.com%,content.ilike.%res.cloudinary.com%')
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -191,14 +191,16 @@ export const articlesAPI = {
         }
       }
 
-      // contentから正規表現で抽出
+      // contentから正規表現で抽出（大小文字を区別せず、httpも含む）
       if (article.content) {
-        const urlMatches = article.content.match(/https:\/\/res\.cloudinary\.com\/[^"\s)]+/g)
+        const urlMatches = article.content.match(/https?:\/\/res\.cloudinary\.com\/[^"\s)]+/gi)
         urlMatches?.forEach(url => {
-          if (!imageUrls.has(url)) {
-            imageUrls.add(url)
+          // URLを正規化（小文字に統一、httpをhttpsに変換）
+          const normalizedUrl = url.toLowerCase().replace(/^http:/, 'https:')
+          if (!imageUrls.has(normalizedUrl)) {
+            imageUrls.add(normalizedUrl)
             results.push({
-              image_url: url,
+              image_url: normalizedUrl,
               title: article.title,
               created_at: article.created_at
             })
