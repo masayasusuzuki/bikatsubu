@@ -5,6 +5,7 @@ interface BrandUpdatesProps {
   articles: Article[];
   products: Product[];
   manufacturers: Manufacturer[];
+  popularMedicalBeauty: Article[];
 }
 
 const ArticleCard: React.FC<{ article: Article }> = ({ article }) => (
@@ -25,10 +26,13 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => (
 
 
 const SidebarProduct: React.FC<{ product: Product }> = ({ product }) => (
-    <div className="flex items-start space-x-3 mb-4">
+    <div
+        className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+        onClick={() => window.location.href = `/article/${product.id}`}
+    >
         <img src={product.imageUrl} alt={product.name} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
         <div>
-            <p className="text-sm font-semibold text-gray-800 leading-tight">{product.name}</p>
+            <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-[#d11a68]">{product.name}</p>
             <p className="text-xs text-gray-500 mt-1">{product.subText}</p>
         </div>
     </div>
@@ -45,7 +49,7 @@ const SidebarManufacturer: React.FC<{ manufacturer: Manufacturer }> = ({ manufac
 );
 
 
-const BrandUpdates: React.FC<BrandUpdatesProps> = ({ articles, products, manufacturers }) => {
+const BrandUpdates: React.FC<BrandUpdatesProps> = ({ articles, products, manufacturers, popularMedicalBeauty }) => {
   return (
     <section>
         <div className="text-center mb-8">
@@ -71,10 +75,26 @@ const BrandUpdates: React.FC<BrandUpdatesProps> = ({ articles, products, manufac
         {/* Sidebar */}
         <aside className="w-full lg:w-1/3">
           <div className="mb-8">
-            <h3 className="font-bold text-lg border-b-2 border-gray-300 pb-2 mb-4">人気コスメランキング (Top Cosmetics)</h3>
-            {products.map(product => (
-              <SidebarProduct key={product.id} product={product} />
-            ))}
+            <h3 className="font-bold text-lg border-b-2 border-gray-300 pb-2 mb-4">人気の美容医療ランキング</h3>
+            {popularMedicalBeauty && popularMedicalBeauty.length > 0 ? (
+              popularMedicalBeauty.map((article, index) => (
+                <div
+                  key={article.id}
+                  className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                  onClick={() => window.location.href = `/article/${article.id}`}
+                >
+                  <img src={article.imageUrl} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-[#d11a68]">{article.title}</p>
+                    <p className="text-xs text-gray-500 mt-1">{article.category || article.date}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              products.map(product => (
+                <SidebarProduct key={product.id} product={product} />
+              ))
+            )}
           </div>
         </aside>
       </div>

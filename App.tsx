@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const currentPath = window.location.pathname;
   const [pageData, setPageData] = useState({
     hotCosmetics: [] as Article[],
+    popularMedicalBeauty: [] as Article[],
     brandUpdates: [] as Article[],
     beautyEvents: [] as Article[],
     managementTips: [] as Article[],
@@ -68,6 +69,11 @@ const App: React.FC = () => {
         .sort((a, b) => a.position - b.position)
         .map(s => convertDBArticleToUIArticle(s.article!));
 
+      const popularMedicalBeauty = sections
+        .filter(s => s.section_name === 'popular_medical_beauty' && s.article)
+        .sort((a, b) => a.position - b.position)
+        .map(s => convertDBArticleToUIArticle(s.article!));
+
       const brandUpdates = sections
         .filter(s => s.section_name === 'brand_updates' && s.article)
         .sort((a, b) => a.position - b.position)
@@ -90,6 +96,7 @@ const App: React.FC = () => {
 
       setPageData({
         hotCosmetics,
+        popularMedicalBeauty,
         brandUpdates,
         beautyEvents,
         managementTips,
@@ -100,6 +107,7 @@ const App: React.FC = () => {
       // Fallback to empty arrays
       setPageData({
         hotCosmetics: [],
+        popularMedicalBeauty: [],
         brandUpdates: [],
         beautyEvents: [],
         managementTips: [],
@@ -173,7 +181,7 @@ const App: React.FC = () => {
       <main>
         <HeroCarousel slides={heroSlides} />
         <div className="container mx-auto px-4 py-8">
-           <ProductCarousel products={pageData.hotCosmetics.length > 0 ? pageData.hotCosmetics.map(convertArticleToProduct) : newProducts} />
+           <ProductCarousel products={pageData.hotCosmetics.length > 0 ? pageData.hotCosmetics.map(convertArticleToProduct) : newProducts} mostRead={pageData.mostReadArticles} />
            <div className="my-12 p-8 bg-[#d11a68] text-white text-center rounded-lg">
               <h2 className="text-3xl font-bold">Find Your Perfect Beauty Item</h2>
               <p className="mt-2 mb-6">あなたのための美容製品、テクニック、サロンがきっと見つかる</p>
@@ -192,7 +200,7 @@ const App: React.FC = () => {
           <>
             <div className="bg-white py-12">
                 <div className="container mx-auto px-4">
-                    <BrandUpdates articles={pageData.brandUpdates} products={mostViewedProducts} manufacturers={mostViewedManufacturers}/>
+                    <BrandUpdates articles={pageData.brandUpdates} products={mostViewedProducts} manufacturers={mostViewedManufacturers} popularMedicalBeauty={pageData.popularMedicalBeauty}/>
                 </div>
             </div>
             <div className="bg-[#d11a68] text-white py-12 my-12">
@@ -200,7 +208,7 @@ const App: React.FC = () => {
             </div>
             <div className="bg-gray-200 py-12">
                  <div className="container mx-auto px-4">
-                    <ManagementTips tips={pageData.managementTips} mostRead={pageData.mostReadArticles} />
+                    <ManagementTips tips={pageData.managementTips} />
                 </div>
             </div>
           </>

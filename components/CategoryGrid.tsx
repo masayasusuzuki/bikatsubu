@@ -13,15 +13,13 @@ const CategoryCard: React.FC<{ category: Category }> = ({ category }) => {
         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4">
           <h3 className="text-white text-2xl font-bold text-center leading-tight">{category.title}</h3>
         </div>
-        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-[#d11a68] text-white text-sm font-bold px-4 py-1 rounded-full shadow-md">
-            {category.subtitle}
-        </div>
       </div>
-      <div className="p-6 mt-4">
-        <ul>
+      <div className="p-6">
+        <ul className="space-y-2">
           {category.subcategories.map(sub => (
-            <li key={sub} className="text-sm text-gray-700 mb-2 pl-4 relative before:content-['\\f105'] before:font-awesome before:absolute before:left-0 before:text-[#d11a68]">
-              <a href="#" className="hover:text-[#d11a68]">{sub}</a>
+            <li key={sub} className="text-sm text-gray-700 flex items-center">
+              <span className="inline-block w-2 h-2 bg-[#d11a68] rounded-full mr-3 flex-shrink-0"></span>
+              <a href="#" className="hover:text-[#d11a68] transition-colors">{sub}</a>
             </li>
           ))}
         </ul>

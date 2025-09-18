@@ -1,11 +1,25 @@
 import React, { useState } from 'react';
-import type { Product } from '../types';
+import type { Product, Article } from '../types';
 
 interface ProductCarouselProps {
   products: Product[];
+  mostRead: Article[];
 }
 
-const ProductCarousel: React.FC<ProductCarouselProps> = ({ products }) => {
+const MostReadArticle: React.FC<{ article: Article }> = ({ article }) => (
+  <div
+    className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+    onClick={() => window.location.href = `/article/${article.id}`}
+  >
+    <img src={article.imageUrl} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
+    <div>
+      <p className="text-xs bg-yellow-400 inline-block px-2 py-0.5 font-bold mb-1 rounded">{article.category}</p>
+      <p className="text-sm font-semibold text-gray-800 leading-tight">{article.title}</p>
+    </div>
+  </div>
+);
+
+const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, mostRead }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const itemsPerPage = 4;
   const totalPages = Math.ceil(products.length / itemsPerPage);
@@ -14,45 +28,51 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products }) => {
   const next = () => setCurrentIndex(currentIndex < totalPages - 1 ? currentIndex + 1 : 0);
   
   return (
-    <div className="my-12">
-      <h2 className="text-2xl font-bold mb-6 border-b-2 border-[#d11a68] pb-2">話題のコスメ (Hot New Cosmetics)</h2>
-      <div className="relative">
-        <div className="overflow-hidden">
-          <div
-            className="flex transition-transform duration-500 ease-in-out"
-            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-          >
-            {Array.from({ length: totalPages }).map((_, pageIndex) => (
-              <div key={pageIndex} className="w-full flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                {products.slice(pageIndex * itemsPerPage, (pageIndex + 1) * itemsPerPage).map(product => (
-                  <div
-                    key={product.id}
-                    className="bg-white p-4 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow duration-300"
-                    onClick={() => window.location.href = `/article/${product.id}`}
-                  >
-                    <img src={product.imageUrl} alt={product.name} className="w-full h-40 object-cover rounded-md mb-4" />
-                    <h3 className="font-semibold text-gray-800">{product.name}</h3>
-                    <p className="text-sm text-gray-600">{product.subText}</p>
-                    <p className="text-xs text-gray-400 mt-2">{product.date}</p>
-                  </div>
-                ))}
+    <section>
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold">Hot Medical Beauty</h2>
+        <p className="text-gray-600">話題の美容医療 (Latest Medical Beauty)</p>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Main Content */}
+        <div className="w-full lg:w-2/3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {products.map(product => (
+              <div
+                key={product.id}
+                className="group cursor-pointer"
+                style={{ height: '256px', display: 'flex', flexDirection: 'column' }}
+                onClick={() => window.location.href = `/article/${product.id}`}
+              >
+                <div className="overflow-hidden" style={{ flexShrink: 0 }}>
+                  <img src={product.imageUrl} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"/>
+                </div>
+                <div className="py-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <p className="text-sm font-semibold text-gray-800 group-hover:text-[#d11a68]" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
+                  <p className="text-xs text-gray-500 mt-1">{product.date}</p>
+                </div>
               </div>
             ))}
           </div>
+          <div className="text-center mt-8">
+            <button className="bg-gray-800 text-white font-bold py-3 px-12 hover:bg-gray-700 transition-colors rounded-md">
+              記事一覧を見る
+            </button>
+          </div>
         </div>
-        <button onClick={prev} className="absolute top-1/2 -translate-y-1/2 -left-4 bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200"><i className="fas fa-chevron-left"></i></button>
-        <button onClick={next} className="absolute top-1/2 -translate-y-1/2 -right-4 bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200"><i className="fas fa-chevron-right"></i></button>
-      </div>
-       <div className="flex justify-center mt-6 space-x-2">
-            {Array.from({ length: totalPages }).map((_, index) => (
-                <button
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    className={`w-2.5 h-2.5 rounded-full ${currentIndex === index ? 'bg-[#d11a68]' : 'bg-gray-300'}`}
-                />
+
+        {/* Sidebar */}
+        <aside className="w-full lg:w-1/3">
+          <div className="mb-8">
+            <h3 className="font-bold text-lg border-b-2 border-gray-300 pb-2 mb-4">人気記事ランキング (Most Read Articles)</h3>
+            {mostRead.map(article => (
+              <MostReadArticle key={article.id} article={article} />
             ))}
-        </div>
-    </div>
+          </div>
+        </aside>
+      </div>
+    </section>
   );
 };
 

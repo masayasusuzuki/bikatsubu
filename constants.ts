@@ -15,11 +15,11 @@ export const newProducts: Product[] = [
 ];
 
 export const categories: Category[] = [
-  { title: 'スキンケア', subtitle: 'Skincare', imageUrl: 'https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=400&h=250&fit=crop&auto=format', subcategories: ['クレンジング・洗顔', '化粧水・乳液', '美容液・オイル', 'パック・マスク', 'UVケア'] },
-  { title: 'コスメ', subtitle: 'Cosmetics', imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=250&fit=crop&auto=format', subcategories: ['ベースメイク', 'アイメイク', 'リップ', 'チーク', 'メイクアップツール'] },
-  { title: '美容医療', subtitle: 'Medical Beauty', imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=250&fit=crop&auto=format', subcategories: ['美容皮膚科', '美容外科', 'レーザー治療', 'インジェクション', '美容点滴'] },
-  { title: '睡眠・生活習慣', subtitle: 'Lifestyle & Sleep', imageUrl: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=400&h=250&fit=crop&auto=format', subcategories: ['睡眠改善', '食事・栄養', '運動・ストレッチ', 'ストレス管理', '生活リズム'] },
-  { title: '海外情報', subtitle: 'Global Beauty', imageUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=250&fit=crop&auto=format', subcategories: ['海外コスメ', 'K-Beauty', '最新トレンド', 'セレブビューティー', 'SNS話題'] },
+  { title: '肌育', subtitle: 'Skin Development', imageUrl: 'https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=400&h=250&fit=crop&auto=format', subcategories: ['基礎スキンケア', '肌質改善', 'バリア機能強化', 'ターンオーバー改善', 'インナーケア'] },
+  { title: '最新の美容機器', subtitle: 'Beauty Technology', imageUrl: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop&auto=format', subcategories: ['フェイシャル機器', 'ボディケア機器', '光美容器', 'マッサージ機器', 'AI美容診断'] },
+  { title: 'ホームケア', subtitle: 'Home Care', imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=250&fit=crop&auto=format', subcategories: ['セルフマッサージ', '手作りパック', 'ホームエステ', 'DIYコスメ', 'お家でリラックス'] },
+  { title: 'ペットケア', subtitle: 'Pet Care', imageUrl: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&h=250&fit=crop&auto=format', subcategories: ['ペット用スキンケア', 'グルーミング', 'ペット美容', 'アニマルセラピー', 'ペットとの生活'] },
+  { title: '海外トレンド', subtitle: 'Global Trends', imageUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=250&fit=crop&auto=format', subcategories: ['K-Beauty', '欧米トレンド', '海外インフルエンサー', '世界の美容法', '最新海外コスメ'] },
 ];
 
 export const brandUpdates: Article[] = [

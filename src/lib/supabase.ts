@@ -288,5 +288,35 @@ export const pageSectionsAPI = {
       .eq('id', cardId)
 
     if (error) throw error
+  },
+
+  // セクションを初期化（存在しない場合のみ作成）
+  async initializeSection(sectionName: string, positions: number[]) {
+    // セクションが既に存在するかチェック
+    const { data: existingData, error: existingError } = await supabase
+      .from('page_sections')
+      .select('id')
+      .eq('section_name', sectionName)
+      .limit(1)
+
+    if (existingError) throw existingError
+
+    // 既に存在する場合は何もしない
+    if (existingData && existingData.length > 0) {
+      return
+    }
+
+    // 存在しない場合は初期レコードを作成
+    const insertData = positions.map(position => ({
+      section_name: sectionName,
+      position: position,
+      article_id: null
+    }))
+
+    const { error } = await supabase
+      .from('page_sections')
+      .insert(insertData)
+
+    if (error) throw error
   }
 }
