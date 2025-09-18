@@ -10,66 +10,109 @@ export interface CloudinaryImage {
 
 /**
  * フロントエンド用のAPI関数
- * Cloudinary Admin APIを使用して画像を取得
+ * Supabase記事テーブルからCloudinary画像を取得
  */
 export async function fetchCloudinaryImages(): Promise<CloudinaryImage[]> {
   try {
-    // セキュリティのため、フロントエンドからCloudinary Admin APIを直接呼び出すべきではない
-    // しかし、デモ目的で実装を試す
+    console.log('=== Cloudinary Image Fetch from Supabase ===');
 
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dmxlepoau';
-    const apiKey = import.meta.env.VITE_CLOUDINARY_API_KEY;
-    const apiSecret = import.meta.env.VITE_CLOUDINARY_API_SECRET;
+    // 動的インポートでsupabase関数を取得
+    const { articlesAPI } = await import('../lib/supabase');
 
-    console.log('Cloudinary cloud name:', cloudName);
+    // Supabaseから記事のCloudinary画像を取得
+    const dbImages = await articlesAPI.getCloudinaryImages();
 
-    // 認証情報が設定されていない場合は早期リターン
-    if (!apiKey || !apiSecret) {
-      console.warn('Cloudinary API認証情報が設定されていません');
-      return [];
-    }
+    console.log(`Found ${dbImages.length} Cloudinary images in articles`);
 
-    // 注意：これはセキュリティ上の理由で本番環境では推奨されません
-    // 本来はサーバーサイドAPIエンドポイント経由で呼び出すべきです
+    // CloudinaryImageFromDB を CloudinaryImage に変換
+    const cloudinaryImages: CloudinaryImage[] = dbImages.map(dbImage => {
+      const { publicId, width, height, format } = extractCloudinaryInfo(dbImage.image_url);
 
-    try {
-      // Cloudinary Admin APIの直接呼び出しを試す
-      const { v2: cloudinary } = await import('cloudinary');
+      return {
+        public_id: publicId,
+        secure_url: dbImage.image_url,
+        width,
+        height,
+        format,
+        created_at: dbImage.created_at,
+        bytes: 0, // データベースにはサイズ情報がないため0に設定
+      };
+    });
 
-      cloudinary.config({
-        cloud_name: cloudName,
-        api_key: apiKey,
-        api_secret: apiSecret,
-      });
-
-      const result = await cloudinary.search
-        .expression('resource_type:image')
-        .sort_by('created_at', 'desc')
-        .max_results(100)
-        .execute();
-
-      return result.resources.map((resource: any) => ({
-        public_id: resource.public_id,
-        secure_url: resource.secure_url,
-        width: resource.width,
-        height: resource.height,
-        format: resource.format,
-        created_at: resource.created_at,
-        bytes: resource.bytes,
-      }));
-    } catch (apiError) {
-      console.error('Cloudinary Admin API Error:', apiError);
-
-      // API呼び出しに失敗した場合、空配列を返す
-      console.warn('Cloudinary Admin APIの呼び出しに失敗しました。フロントエンドから直接Admin APIを呼び出すことはセキュリティ上推奨されません。');
-      return [];
-    }
+    console.log(`Converted to ${cloudinaryImages.length} CloudinaryImage objects`);
+    return cloudinaryImages;
 
   } catch (error) {
-    console.error('Failed to fetch Cloudinary images:', error);
+    console.error('Failed to fetch Cloudinary images from Supabase:', error);
     return [];
   }
 }
+
+/**
+ * Cloudinary URLから情報を抽出
+ */
+function extractCloudinaryInfo(url: string): {
+  publicId: string;
+  width: number;
+  height: number;
+  format: string;
+} {
+  try {
+    // URL例: https://res.cloudinary.com/dmxlepoau/image/upload/v1640000000/sample.jpg
+    // または: https://res.cloudinary.com/dmxlepoau/image/upload/c_fill,w_400,h_300/sample.jpg
+
+    const urlParts = url.split('/');
+    const fileName = urlParts[urlParts.length - 1];
+
+    // public_idを抽出（拡張子を除く）
+    const publicId = fileName.includes('.')
+      ? fileName.substring(0, fileName.lastIndexOf('.'))
+      : fileName;
+
+    // 拡張子を抽出
+    const format = fileName.includes('.')
+      ? fileName.substring(fileName.lastIndexOf('.') + 1)
+      : 'jpg';
+
+    // URLからサイズを抽出（変換パラメータがある場合）
+    const widthMatch = url.match(/w_(\d+)/);
+    const heightMatch = url.match(/h_(\d+)/);
+
+    const width = widthMatch ? parseInt(widthMatch[1]) : 400;
+    const height = heightMatch ? parseInt(heightMatch[1]) : 300;
+
+    return {
+      publicId,
+      width,
+      height,
+      format
+    };
+  } catch (error) {
+    console.error('Failed to extract Cloudinary info from URL:', url, error);
+    return {
+      publicId: `unknown_${Date.now()}`,
+      width: 400,
+      height: 300,
+      format: 'jpg'
+    };
+  }
+}
+
+/**
+ * Cloudinaryのリソースオブジェクトを内部フォーマットにマッピング
+ */
+function mapCloudinaryResource(resource: any): CloudinaryImage {
+  return {
+    public_id: resource.public_id || `unknown_${Date.now()}`,
+    secure_url: resource.secure_url || resource.url || `https://res.cloudinary.com/dmxlepoau/image/upload/${resource.public_id}`,
+    width: resource.width || 400,
+    height: resource.height || 300,
+    format: resource.format || 'jpg',
+    created_at: resource.created_at || new Date().toISOString(),
+    bytes: resource.bytes || 0,
+  };
+}
+
 
 /**
  * 実際のCloudinary Admin APIを使用する関数（バックエンド用）

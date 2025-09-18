@@ -893,10 +893,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                           画像プレビュー
                         </div>
                         <button
-                          onClick={() => navigator.clipboard.writeText(`![画像の説明](${url})`)}
+                          onClick={() => navigator.clipboard.writeText(url)}
                           className="absolute inset-0 bg-black bg-opacity-50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                         >
-                          マークダウンをコピー
+                          URLをコピー
                         </button>
                       </div>
                     ))}
@@ -938,10 +938,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                         <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded">
                           <div className="flex flex-col gap-2">
                             <button
-                              onClick={() => navigator.clipboard.writeText(`![画像の説明](${image.secure_url})`)}
+                              onClick={() => navigator.clipboard.writeText(image.secure_url)}
                               className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded"
                             >
-                              マークダウンをコピー
+                              URLをコピー
                             </button>
                             <button
                               onClick={() => insertImageIntoContent(image.secure_url)}
@@ -950,12 +950,6 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                               本文に挿入
                             </button>
                           </div>
-                        </div>
-                        <div className="absolute bottom-1 left-1 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                          {Math.round(image.bytes / 1024)}KB
-                        </div>
-                        <div className="absolute top-1 right-1 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                          {image.width}×{image.height}
                         </div>
                       </div>
                     ))}

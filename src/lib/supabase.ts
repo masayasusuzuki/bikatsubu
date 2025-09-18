@@ -47,6 +47,13 @@ export interface CreateArticle {
   rating?: number
 }
 
+// Cloudinary画像情報の型定義
+export interface CloudinaryImageFromDB {
+  image_url: string;
+  title: string;
+  created_at: string;
+}
+
 // 記事データベース操作関数
 export const articlesAPI = {
   // 公開済み記事を取得
@@ -155,6 +162,52 @@ export const articlesAPI = {
       .eq('id', id)
 
     if (error) throw error
+  },
+
+  // Cloudinary画像URLを記事から取得
+  async getCloudinaryImages(): Promise<CloudinaryImageFromDB[]> {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('featured_image, title, created_at, content')
+      .or('featured_image.like.%res.cloudinary.com%,content.like.%res.cloudinary.com%')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+
+    // URLを抽出して重複除去
+    const imageUrls = new Set<string>()
+    const results: CloudinaryImageFromDB[] = []
+
+    data?.forEach(article => {
+      // featured_imageから取得
+      if (article.featured_image && article.featured_image.includes('res.cloudinary.com')) {
+        if (!imageUrls.has(article.featured_image)) {
+          imageUrls.add(article.featured_image)
+          results.push({
+            image_url: article.featured_image,
+            title: article.title,
+            created_at: article.created_at
+          })
+        }
+      }
+
+      // contentから正規表現で抽出
+      if (article.content) {
+        const urlMatches = article.content.match(/https:\/\/res\.cloudinary\.com\/[^"\s)]+/g)
+        urlMatches?.forEach(url => {
+          if (!imageUrls.has(url)) {
+            imageUrls.add(url)
+            results.push({
+              image_url: url,
+              title: article.title,
+              created_at: article.created_at
+            })
+          }
+        })
+      }
+    })
+
+    return results
   }
 }
 
