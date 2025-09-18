@@ -374,12 +374,18 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       return;
     }
 
-    // 吹き出しはタイトル不要、その他はタイトル入力
+    // 吹き出しはタイトル不要、その他はタイトル設定
     let title = '';
     if (type !== 'speech-bubble') {
-      const defaultTitle = type === 'success' ? '💡ミライのひとことアドバイス' : '';
-      title = prompt('囲い線のタイトルを入力してください（空白可）:', defaultTitle);
-      if (title === null) return; // キャンセルされた場合
+      if (type === 'success') {
+        title = '💡ミライのひとことアドバイス';
+      } else if (type === 'info') {
+        title = '本記事のテーマ';
+      } else {
+        // その他のタイプ（warning, error, quote）は従来通りプロンプト表示
+        title = prompt('囲い線のタイトルを入力してください（空白可）:', '');
+        if (title === null) return; // キャンセルされた場合
+      }
     }
 
     const decorations = {
@@ -838,7 +844,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
                     {/* 装飾ボタン */}
                     <div className="border-l border-gray-300 mx-2"></div>
-                    <button onClick={() => applyDecoration('info')} className="px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs border border-blue-300 rounded">💡 情報</button>
+                    <button onClick={() => applyDecoration('info')} className="px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs border border-blue-300 rounded">💡 本記事のテーマ</button>
                     <button onClick={() => applyDecoration('warning')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 text-xs border border-yellow-300 rounded">⚠️ 注意</button>
                     <button onClick={() => applyDecoration('success')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs border border-green-300 rounded">💡ミライのひとことアドバイス</button>
                     <button onClick={() => applyDecoration('error')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs border border-red-300 rounded">❌ 警告</button>

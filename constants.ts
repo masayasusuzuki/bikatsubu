@@ -16,10 +16,10 @@ export const newProducts: Product[] = [
 
 export const categories: Category[] = [
   { title: 'スキンケア', subtitle: 'Skincare', imageUrl: 'https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=400&h=250&fit=crop&auto=format', subcategories: ['クレンジング・洗顔', '化粧水・乳液', '美容液・オイル', 'パック・マスク', 'UVケア'] },
-  { title: 'メイクアップ', subtitle: 'Makeup', imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=250&fit=crop&auto=format', subcategories: ['ベースメイク', 'アイメイク', 'リップ', 'チーク', 'メイクアップツール'] },
-  { title: 'ヘアケア', subtitle: 'Haircare', imageUrl: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=250&fit=crop&auto=format', subcategories: ['シャンプー・コンディショナー', 'トリートメント', 'ヘアスタイリング', 'ヘアカラー', '頭皮ケア'] },
-  { title: 'ボディケア', subtitle: 'Bodycare', imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop&auto=format', subcategories: ['ボディソープ', 'ボディローション・クリーム', 'ハンドケア・ネイル', 'フットケア', '脱毛・除毛'] },
-  { title: '美容のプロを探す', subtitle: 'Find a Professional', imageUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=250&fit=crop&auto=format', subcategories: ['ヘアサロン', 'エステサロン', 'ネイルサロン', 'アイラッシュサロン', 'クリニック'] },
+  { title: 'コスメ', subtitle: 'Cosmetics', imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=250&fit=crop&auto=format', subcategories: ['ベースメイク', 'アイメイク', 'リップ', 'チーク', 'メイクアップツール'] },
+  { title: '美容医療', subtitle: 'Medical Beauty', imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=250&fit=crop&auto=format', subcategories: ['美容皮膚科', '美容外科', 'レーザー治療', 'インジェクション', '美容点滴'] },
+  { title: '睡眠・生活習慣', subtitle: 'Lifestyle & Sleep', imageUrl: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=400&h=250&fit=crop&auto=format', subcategories: ['睡眠改善', '食事・栄養', '運動・ストレッチ', 'ストレス管理', '生活リズム'] },
+  { title: '海外情報', subtitle: 'Global Beauty', imageUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=250&fit=crop&auto=format', subcategories: ['海外コスメ', 'K-Beauty', '最新トレンド', 'セレブビューティー', 'SNS話題'] },
 ];
 
 export const brandUpdates: Article[] = [

@@ -13,6 +13,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
   const [error, setError] = useState<string | null>(null);
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
   const [sameCategoyArticles, setSameCategoryArticles] = useState<Article[]>([]);
+  const [nextArticle, setNextArticle] = useState<Article | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +48,15 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
           status: 'published'
         });
         setSameCategoryArticles(sameCategoryArticles);
+
+        // 次の記事を取得（アップロード時刻で現在の記事より新しい最初の記事）
+        const publishedArticles = allArticles
+          .filter(a => a.status === 'published' && a.id !== articleData.id)
+          .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+        const currentArticleTime = new Date(articleData.created_at).getTime();
+        const nextArticleData = publishedArticles.find(a => new Date(a.created_at).getTime() > currentArticleTime);
+        setNextArticle(nextArticleData || null);
 
         setError(null);
       } catch (e) {
@@ -337,6 +347,43 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
                         color: '#374151'
                       }}
                     />
+
+                    {/* 次の記事へのリンク */}
+                    {nextArticle && (
+                      <div className="mt-8 pt-6 border-t border-gray-200">
+                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+                          <div className="flex items-center mb-3">
+                            <span className="text-blue-600 text-sm font-medium">次の記事</span>
+                            <span className="ml-2 text-blue-500">→</span>
+                          </div>
+                          <a
+                            href={`/article/${nextArticle.id}`}
+                            className="block hover:opacity-80 transition-opacity"
+                          >
+                            <div className="flex gap-4">
+                              {nextArticle.featured_image && (
+                                <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                                  <img
+                                    src={nextArticle.featured_image}
+                                    alt={nextArticle.title}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs text-blue-600 mb-2">{nextArticle.category}</div>
+                                <h3 className="text-lg font-bold text-gray-900 line-clamp-2 mb-2 leading-tight">
+                                  {nextArticle.title}
+                                </h3>
+                                <div className="text-xs text-gray-500">
+                                  {new Date(nextArticle.created_at).toLocaleDateString('ja-JP')}
+                                </div>
+                              </div>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    )}
                   </article>
                 </div>
 
