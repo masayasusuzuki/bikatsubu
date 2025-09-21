@@ -189,6 +189,14 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     if (!files || files.length === 0) return;
 
     const file = files[0];
+    
+    // ファイルサイズチェック（1MB = 1 * 1024 * 1024 bytes）
+    if (file.size > 1 * 1024 * 1024) {
+      alert('ファイルサイズが大きすぎます。1MB以下のファイルを選択してください。');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    
     setIsUploading(true);
     try {
       // 環境変数の確認
@@ -242,6 +250,14 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     if (!files || files.length === 0) return;
 
     const file = files[0];
+    
+    // ファイルサイズチェック（1MB = 1 * 1024 * 1024 bytes）
+    if (file.size > 1 * 1024 * 1024) {
+      alert('ファイルサイズが大きすぎます。1MB以下のファイルを選択してください。');
+      if (featuredImageInputRef.current) featuredImageInputRef.current.value = '';
+      return;
+    }
+    
     setIsUploadingFeatured(true);
 
     try {
