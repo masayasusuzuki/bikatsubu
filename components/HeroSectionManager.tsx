@@ -16,6 +16,8 @@ const HeroSectionManager: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [editingSlide, setEditingSlide] = useState<HeroSlideUI | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 固定で5枚のスライド
   const HERO_SLIDES_COUNT = 5;
@@ -146,6 +148,66 @@ const HeroSectionManager: React.FC = () => {
     }
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    setIsUploading(true);
+    try {
+      // 環境変数の確認
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dmxlepoau';
+      console.log('Cloud Name:', cloudName);
+
+      if (!cloudName) {
+        throw new Error('VITE_CLOUDINARY_CLOUD_NAME が設定されていません');
+      }
+
+      // Cloudinaryにアップロード
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'ml_default');
+
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+      console.log('Upload URL:', uploadUrl);
+
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Upload error response:', errorText);
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Upload success:', data);
+      const publicUrl = data.secure_url;
+
+      // 編集中のスライドの画像URLを更新
+      if (editingSlide) {
+        setEditingSlide({ ...editingSlide, imageUrl: publicUrl });
+      }
+
+      setMessage('画像をアップロードしました');
+      setTimeout(() => setMessage(null), 3000);
+    } catch (e) {
+      console.error('Image upload error:', e);
+      setMessage(`画像アップロードに失敗しました: ${e instanceof Error ? e.message : 'Unknown error'}`);
+      setTimeout(() => setMessage(null), 5000);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
 
   if (loading) {
     return (
@@ -234,15 +296,40 @@ const HeroSectionManager: React.FC = () => {
               {/* サムネイル設定 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  サムネイル画像URL
+                  サムネイル画像
                 </label>
-                <input
-                  type="url"
-                  value={editingSlide.imageUrl}
-                  onChange={(e) => setEditingSlide({ ...editingSlide, imageUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
-                />
+                <div className="space-y-2">
+                  {/* アップロードボタン */}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleUploadClick}
+                      disabled={isUploading}
+                      className="px-4 py-2 text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+                    >
+                      {isUploading ? 'アップロード中...' : '画像をアップロード'}
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  
+                  {/* URL入力フィールド */}
+                  <input
+                    type="url"
+                    value={editingSlide.imageUrl}
+                    onChange={(e) => setEditingSlide({ ...editingSlide, imageUrl: e.target.value })}
+                    placeholder="https://... または上記ボタンでアップロード"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
+                  />
+                  <p className="text-xs text-gray-500">
+                    画像ファイルをアップロードするか、直接URLを入力してください
+                  </p>
+                </div>
               </div>
 
               {/* ALTテキスト */}
@@ -285,13 +372,13 @@ const HeroSectionManager: React.FC = () => {
               {editingSlide.imageUrl && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    プレビュー
+                    プレビュー (16:9)
                   </label>
-                  <div className="w-full h-32 bg-gray-100 rounded overflow-hidden">
+                  <div className="relative w-full bg-gray-100 rounded overflow-hidden" style={{ aspectRatio: '16/9' }}>
                     <img
                       src={editingSlide.imageUrl}
                       alt={editingSlide.alt}
-                      className="w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                   </div>
                 </div>
