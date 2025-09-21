@@ -35,9 +35,13 @@ const App: React.FC = () => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    // Only load data for the main page
+    // Always load hero slides, but only load page data for the main page
     if (currentPath === '/') {
       loadPageDataWithMinTime();
+    } else {
+      // Load only hero slides for other pages
+      loadHeroSlidesOnly();
+      setInitialLoading(false);
     }
   }, [currentPath]);
 
@@ -84,6 +88,17 @@ const App: React.FC = () => {
       alt: dbSlide.alt_text,
       articleId: dbSlide.article_id || undefined
     };
+  };
+
+  const loadHeroSlidesOnly = async () => {
+    try {
+      const slides = await heroSlidesAPI.getAllSlides();
+      const uiSlides = slides.map(convertDBHeroSlideToUIHeroSlide);
+      setHeroSlides(uiSlides);
+    } catch (heroError) {
+      console.warn('Failed to load hero slides from database, using fallback:', heroError);
+      // Keep using fallbackHeroSlides from initial state
+    }
   };
 
   const loadPageData = async () => {
@@ -242,6 +257,12 @@ const App: React.FC = () => {
       <Header />
       <main>
         <HeroCarousel slides={heroSlides} />
+        {/* Debug: Hero slides count */}
+        {process.env.NODE_ENV === 'development' && (
+          <div style={{position: 'fixed', top: 0, right: 0, background: 'red', color: 'white', padding: '5px', zIndex: 9999}}>
+            Hero slides: {heroSlides.length}
+          </div>
+        )}
         <div className="container mx-auto px-4 py-8">
            <ProductCarousel products={pageData.hotCosmetics.map(convertArticleToProduct)} mostRead={pageData.mostReadArticles} />
            <div className="my-12 p-8 bg-[#d11a68] text-white text-center rounded-lg">

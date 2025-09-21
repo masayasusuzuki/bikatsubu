@@ -4,6 +4,8 @@ export const heroSlides: HeroSlide[] = [
   { id: 1, imageUrl: '/hero/samune1.png', alt: '美活部 - あなたのキレイを応援する美容メディア', articleId: 'd660b75c-d62f-481e-8c46-3889527ecefd' },
   { id: 2, imageUrl: '/hero/samune2.png', alt: '美活部 - メイクアップ特集', articleId: 'd4a59830-89c1-4974-9325-40f791a841e4' },
   { id: 3, imageUrl: 'https://source.unsplash.com/1200x500/?haircare,shiny,hair', alt: 'お悩み別ヘアケア診断' },
+  { id: 4, imageUrl: 'https://source.unsplash.com/1200x500/?skincare,beauty,facial', alt: '美容特集 - スキンケアの基本' },
+  { id: 5, imageUrl: 'https://source.unsplash.com/1200x500/?makeup,cosmetics,beauty', alt: '美容特集 - メイクアップトレンド' },
 ];
 
 export const newProducts: Product[] = [

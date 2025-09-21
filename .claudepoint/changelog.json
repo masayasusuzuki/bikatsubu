@@ -1,5 +1,23 @@
 [
   {
+    "timestamp": "2025-09-21T07:46:56.407Z",
+    "action": "RESTORE_CLAUDEPOINT",
+    "description": "Restored FULL claudepoint: checkpoint_2025-09-21T07-42-12",
+    "details": "Emergency backup: emergency_backup_2025-09-21T07-46-56"
+  },
+  {
+    "timestamp": "2025-09-21T07:46:56.286Z",
+    "action": "CREATE_CLAUDEPOINT",
+    "description": "Created full claudepoint: emergency_backup_2025-09-21T07-46-56_2025-09-21T07-46-56",
+    "details": "Auto-backup before restore"
+  },
+  {
+    "timestamp": "2025-09-21T07:42:12.600Z",
+    "action": "CREATE_CLAUDEPOINT",
+    "description": "Created full claudepoint: checkpoint_2025-09-21T07-42-12",
+    "details": "Manual checkpoint"
+  },
+  {
     "timestamp": "2025-09-21T07:12:38.138Z",
     "action": "CREATE_CLAUDEPOINT",
     "description": "Created full claudepoint: checkpoint_2025-09-21T07-12-38",

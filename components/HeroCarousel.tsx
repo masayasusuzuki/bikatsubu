@@ -48,13 +48,6 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ slides }) => {
             <div className={`absolute inset-0 bg-black rounded-lg transition-opacity duration-1000 ease-in-out ${
               index !== currentIndex ? 'opacity-50' : 'opacity-0'
             }`}></div>
-            {slide.articleId && (
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white bg-opacity-90 text-black px-4 py-2 rounded-lg text-sm font-medium">
-                  記事を読む
-                </div>
-              </div>
-            )}
           </div>
         ))}
       </div>

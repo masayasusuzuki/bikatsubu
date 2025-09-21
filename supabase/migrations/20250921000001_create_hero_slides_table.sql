@@ -35,4 +35,6 @@ USING (auth.role() = 'admin');
 INSERT INTO hero_slides (image_url, alt_text, order_position, article_id) VALUES
 ('/hero/samune1.png', '美活部 - あなたのキレイを応援する美容メディア', 1, 'd660b75c-d62f-481e-8c46-3889527ecefd'),
 ('/hero/samune2.png', '美活部 - メイクアップ特集', 2, 'd4a59830-89c1-4974-9325-40f791a841e4'),
-('https://source.unsplash.com/1200x500/?haircare,shiny,hair', 'お悩み別ヘアケア診断', 3, null);
+('https://source.unsplash.com/1200x500/?haircare,shiny,hair', 'お悩み別ヘアケア診断', 3, null),
+('https://source.unsplash.com/1200x500/?skincare,beauty,facial', '美容特集 - スキンケアの基本', 4, null),
+('https://source.unsplash.com/1200x500/?makeup,cosmetics,beauty', '美容特集 - メイクアップトレンド', 5, null);
