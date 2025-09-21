@@ -51,6 +51,8 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   const [previewScrollTop, setPreviewScrollTop] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isUploadingFeatured, setIsUploadingFeatured] = useState(false);
@@ -90,6 +92,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         releaseDate: data.release_date || '',
         rating: data.rating || 0
       });
+      
+      // 記事読み込み時に保存状態をリセット
+      setLastSaved(new Date());
+      setHasUnsavedChanges(false);
     } catch (error) {
       console.error('記事の読み込みに失敗:', error);
       alert('記事の読み込みに失敗しました');
@@ -472,6 +478,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       title,
       slug: generateSlug(title)
     }));
+    setHasUnsavedChanges(true);
   };
 
   const renderPreview = () => {
@@ -786,8 +793,15 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         savedArticle = await articlesAPI.createArticle(articleData);
         setSaveMessage(`記事を${status === 'draft' ? '下書きとして' : '公開して'}保存しました`);
       }
-      setTimeout(() => setSaveMessage(null), 3000);
+      
       console.log('Saved article:', savedArticle);
+      
+      // 保存状態を更新
+      setLastSaved(new Date());
+      setHasUnsavedChanges(false);
+      
+      // 成功メッセージを表示
+      setTimeout(() => setSaveMessage(null), 3000);
     } catch (error) {
       console.error('Error saving article:', error);
       alert('保存に失敗しました。もう一度お試しください。');
@@ -797,7 +811,9 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   };
 
   const goBack = () => {
-    if (confirm('変更が保存されていない可能性があります。戻りますか？')) {
+    if (hasUnsavedChanges && confirm('変更が保存されていない可能性があります。戻りますか？')) {
+      window.history.back();
+    } else if (!hasUnsavedChanges) {
       window.history.back();
     }
   };
@@ -957,7 +973,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                 <textarea
                   ref={textareaRef}
                   value={article.content}
-                  onChange={(e) => setArticle(prev => ({ ...prev, content: e.target.value }))}
+                  onChange={(e) => {
+                    setArticle(prev => ({ ...prev, content: e.target.value }));
+                    setHasUnsavedChanges(true);
+                  }}
                   placeholder="記事の内容を入力してください。画像を挿入するには上の「画像をアップロード」ボタンを使用してください。"
                   rows={35}
                   className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500 font-mono"

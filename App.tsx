@@ -16,6 +16,7 @@ import UserLogin from './components/UserLogin';
 import CategoryPage from './components/CategoryPage';
 import ArticleDetail from './components/ArticleDetail';
 import SkinDiagnosis from './components/SkinDiagnosis';
+import MediaPage from './components/MediaPage';
 import { heroSlides as fallbackHeroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
 import { pageSectionsAPI, articlesAPI, heroSlidesAPI, Article as DBArticle, HeroSlide as DBHeroSlide } from './src/lib/supabase';
 import type { Article, Product, HeroSlide } from './types';
@@ -245,6 +246,10 @@ const App: React.FC = () => {
 
   if (currentPath === '/skin-diagnosis') {
     return <SkinDiagnosis />;
+  }
+
+  if (currentPath === '/media') {
+    return <MediaPage />;
   }
 
   // トップページの初回ローディング画面

@@ -522,7 +522,10 @@ const AdminDashboard: React.FC = () => {
                           タイトル
                         </th>
                         <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
-                          カテゴリ
+                          カテゴリ1
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                          カテゴリ2
                         </th>
                         <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
                           タイプ
@@ -541,7 +544,7 @@ const AdminDashboard: React.FC = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {loading ? (
                         <tr>
-                          <td colSpan={6} className="px-6 py-8 text-center">
+                          <td colSpan={7} className="px-6 py-8 text-center">
                             <div className="flex justify-center items-center">
                               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
                               <span className="ml-2 text-slate-600">読み込み中...</span>
@@ -550,7 +553,7 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       ) : filteredArticles.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                          <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
                             {searchQuery ? '検索結果が見つかりませんでした' : '記事がありません'}
                           </td>
                         </tr>
@@ -564,7 +567,12 @@ const AdminDashboard: React.FC = () => {
                             </td>
                             <td className="px-6 py-4">
                               <span className="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
-                                {article.category}
+                                {article.category || '-'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                                {article.category2 || '-'}
                               </span>
                             </td>
                             <td className="px-6 py-4">

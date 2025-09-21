@@ -15,8 +15,7 @@ const Header: React.FC = () => {
             </a>
           </div>
           <div className="flex items-center space-x-4 text-sm">
-            <a href="#" className="text-gray-600 hover:text-[#d11a68]">美活部について</a>
-            <a href="#" className="text-gray-600 hover:text-[#d11a68]">お問い合わせ</a>
+            <a href="/media" className="text-gray-600 hover:text-[#d11a68]">美活部に掲載</a>
             <a href="/login" className="bg-[#d11a68] text-white font-bold py-2 px-4 rounded hover:bg-opacity-90">新規登録/ログイン</a>
           </div>
         </div>
