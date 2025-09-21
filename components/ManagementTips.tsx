@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Article } from '../types';
+import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface ManagementTipsProps {
   tips: Article[];
@@ -12,7 +13,7 @@ const TipCard: React.FC<{ tip: Article }> = ({ tip }) => (
         onClick={() => window.location.href = `/article/${tip.id}`}
     >
         <div className="overflow-hidden" style={{ flexShrink: 0 }}>
-            <img src={tip.imageUrl} alt={tip.title} className="w-full h-40 object-cover rounded-t group-hover:scale-105 transition-transform duration-300"/>
+            <img src={optimizeAnyImageUrl(tip.imageUrl, 320, 160)} alt={tip.title} className="w-full h-40 object-cover rounded-t group-hover:scale-105 transition-transform duration-300"/>
         </div>
         <div className="p-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>

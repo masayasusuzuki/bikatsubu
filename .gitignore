@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Image compression tools
+image-optimizer/
+image-compressor/
+compress-tool/

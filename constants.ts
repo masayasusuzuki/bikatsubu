@@ -15,11 +15,11 @@ export const newProducts: Product[] = [
 ];
 
 export const categories: Category[] = [
-  { title: '肌育', subtitle: 'Skin Development', imageUrl: 'https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=400&h=250&fit=crop&auto=format', subcategories: ['基礎スキンケア', '肌質改善', 'バリア機能強化', 'ターンオーバー改善', 'インナーケア'] },
-  { title: '最新の美容機器', subtitle: 'Beauty Technology', imageUrl: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop&auto=format', subcategories: ['フェイシャル機器', 'ボディケア機器', '光美容器', 'マッサージ機器', 'AI美容診断'] },
-  { title: 'ホームケア', subtitle: 'Home Care', imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=250&fit=crop&auto=format', subcategories: ['セルフマッサージ', '手作りパック', 'ホームエステ', 'DIYコスメ', 'お家でリラックス'] },
-  { title: 'ペットケア', subtitle: 'Pet Care', imageUrl: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&h=250&fit=crop&auto=format', subcategories: ['ペット用スキンケア', 'グルーミング', 'ペット美容', 'アニマルセラピー', 'ペットとの生活'] },
-  { title: '海外トレンド', subtitle: 'Global Trends', imageUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=250&fit=crop&auto=format', subcategories: ['K-Beauty', '欧米トレンド', '海外インフルエンサー', '世界の美容法', '最新海外コスメ'] },
+  { title: '肌育', subtitle: 'Skin Development', imageUrl: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758430740/au1m8nxoah22uk4ogu5n.jpg', subcategories: ['基礎スキンケア', '肌質改善', 'バリア機能強化', 'ターンオーバー改善', 'インナーケア'] },
+  { title: '最新の美容機器', subtitle: 'Beauty Technology', imageUrl: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758225206/qlkiruomvvduujr8a9kx.jpg', subcategories: ['フェイシャル機器', 'ボディケア機器', '光美容器', 'マッサージ機器', 'AI美容診断'] },
+  { title: 'ホームケア', subtitle: 'Home Care', imageUrl: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758430743/fxc1lnhoa9h3flyotoj2.jpg', subcategories: ['セルフマッサージ', '手作りパック', 'ホームエステ', 'DIYコスメ', 'お家でリラックス'] },
+  { title: 'サロン経営', subtitle: 'Salon Management', imageUrl: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758431008/j5uscvqffqejezo3spaz.png', subcategories: ['経営戦略', '顧客管理', 'スタッフ教育', 'マーケティング', '売上アップ'] },
+  { title: '海外トレンド', subtitle: 'Global Trends', imageUrl: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758431028/p1jvrsavrqax1mfy7tvs.jpg', subcategories: ['K-Beauty', '欧米トレンド', '海外インフルエンサー', '世界の美容法', '最新海外コスメ'] },
 ];
 
 export const brandUpdates: Article[] = [

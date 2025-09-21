@@ -15,8 +15,7 @@ const PageContentManager: React.FC = () => {
     'popular_medical_beauty': { name: '2. Popular Medical Beauty Ranking', description: '人気の美容医療ランキング（3記事）' },
     'brand_updates': { name: '3. Beauty Topics', description: '最新美容ニュース（6記事）' },
     'beauty_events': { name: '4. Featured Events', description: '注目の美容イベント（4記事）' },
-    'management_tips': { name: "5. Professional's Column", description: 'プロの美容テクニック（3記事）' },
-    'most_read': { name: '6. Most Read Articles', description: '人気記事ランキング（2記事）' }
+    'management_tips': { name: "5. Professional's Column", description: 'プロの美容テクニック（3記事）' }
   };
 
   useEffect(() => {
@@ -146,7 +145,7 @@ const PageContentManager: React.FC = () => {
   }
 
   // セクションの表示順序を定義
-  const sectionOrder = ['hot_cosmetics', 'popular_medical_beauty', 'brand_updates', 'beauty_events', 'management_tips', 'most_read'];
+  const sectionOrder = ['hot_cosmetics', 'popular_medical_beauty', 'brand_updates', 'beauty_events', 'management_tips'];
 
   const filteredSections = selectedSection === 'all'
     ? Object.fromEntries(

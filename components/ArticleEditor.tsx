@@ -11,6 +11,7 @@ interface ArticleData {
   status: 'draft' | 'published';
   featuredImage: string;
   category: string;
+  category2: string;
   articleType: string;
   brand: string;
   price: string;
@@ -31,7 +32,8 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     slug: '',
     status: 'draft',
     featuredImage: '',
-    category: 'シミ・くすみ',
+    category: '',
+    category2: '',
     articleType: 'article',
     brand: '',
     price: '',
@@ -80,7 +82,8 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         slug: data.slug,
         status: data.status,
         featuredImage: data.featured_image || '',
-        category: data.category,
+        category: data.category || '',
+        category2: data.category2 || '',
         articleType: data.article_type || 'article',
         brand: data.brand || '',
         price: data.price || '',
@@ -700,6 +703,12 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       return;
     }
 
+    // カテゴリのバリデーション
+    if (!article.category && !article.category2) {
+      alert('カテゴリ1またはカテゴリ2のうち、最低1つは選択してください');
+      return;
+    }
+
     // Slugが空の場合は再生成
     if (!article.slug) {
       const newSlug = generateSlug(article.title);
@@ -720,6 +729,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         status,
         featured_image: article.featuredImage,
         category: article.category,
+        category2: article.category2,
         article_type: article.articleType,
         brand: article.brand || undefined,
         price: article.price || undefined,
@@ -1002,24 +1012,45 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                       className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
                     >
                       <option value="article">通常記事</option>
-                      <option value="cosmetic">コスメ記事</option>
+                      <option value="event">イベント・その他</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                      カテゴリ
+                      カテゴリ1 <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={article.category}
                       onChange={(e) => setArticle(prev => ({ ...prev, category: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
                     >
+                      <option value="">選択してください</option>
                       <option value="シミ・くすみ">シミ・くすみ</option>
                       <option value="毛穴">毛穴</option>
                       <option value="赤み・赤ら顔">赤み・赤ら顔</option>
                       <option value="たるみ・しわ">たるみ・しわ</option>
                       <option value="ニキビ・ニキビ跡">ニキビ・ニキビ跡</option>
                     </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      カテゴリ2 <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={article.category2}
+                      onChange={(e) => setArticle(prev => ({ ...prev, category2: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
+                    >
+                      <option value="">選択してください</option>
+                      <option value="肌育">肌育</option>
+                      <option value="最新の美容機器">最新の美容機器</option>
+                      <option value="ホームケア">ホームケア</option>
+                      <option value="サロン経営">サロン経営</option>
+                      <option value="海外トレンド">海外トレンド</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      ※ カテゴリ1とカテゴリ2のうち、最低1つは選択してください
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -1084,7 +1115,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                 </div>
               </div>
 
-              {/* Cosmetics Settings - only show when articleType is 'cosmetic' */}
+              {/* Cosmetics Settings - only show when articleType is 'cosmetic' (legacy) */}
               {article.articleType === 'cosmetic' && (
                 <div className="bg-white border border-gray-200 p-6">
                   <h3 className="text-base font-semibold text-slate-700 mb-4 pb-2 border-b border-gray-100">

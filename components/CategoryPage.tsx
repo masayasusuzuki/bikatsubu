@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { articlesAPI, Article } from '../src/lib/supabase';
+import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface CategoryArticle {
   id: string;
@@ -59,6 +60,36 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
         description: 'ニキビの予防から跡のケアまで、クリアな肌を目指すためのソリューション',
         heroImage: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&h=400&fit=crop&auto=format',
         bgColor: 'bg-green-50'
+      },
+      '肌育': {
+        title: '肌育',
+        description: '基礎からしっかりと肌を育てる、正しいスキンケア方法とアイテム選び',
+        heroImage: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758430740/au1m8nxoah22uk4ogu5n.jpg',
+        bgColor: 'bg-pink-50'
+      },
+      '最新の美容機器': {
+        title: '最新の美容機器',
+        description: '革新的な美容テクノロジーで理想の肌を手に入れる最新機器情報',
+        heroImage: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758225206/qlkiruomvvduujr8a9kx.jpg',
+        bgColor: 'bg-indigo-50'
+      },
+      'ホームケア': {
+        title: 'ホームケア',
+        description: 'おうちで実践できる本格的な美容ケアとリラクゼーション方法',
+        heroImage: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758430743/fxc1lnhoa9h3flyotoj2.jpg',
+        bgColor: 'bg-emerald-50'
+      },
+      'サロン経営': {
+        title: 'サロン経営',
+        description: '美容サロンの成功に導く経営戦略と実践的なノウハウ',
+        heroImage: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758431008/j5uscvqffqejezo3spaz.png',
+        bgColor: 'bg-orange-50'
+      },
+      '海外トレンド': {
+        title: '海外トレンド',
+        description: '世界の最新美容トレンドと海外で人気の美容法・コスメ情報',
+        heroImage: 'https://res.cloudinary.com/dmxlepoau/image/upload/v1758431028/p1jvrsavrqax1mfy7tvs.jpg',
+        bgColor: 'bg-violet-50'
       }
     };
 
@@ -243,7 +274,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
       {/* Hero Section */}
       <div className="relative h-96 overflow-hidden">
         <img
-          src={categoryInfo.heroImage}
+          src={optimizeAnyImageUrl(categoryInfo.heroImage, 1200, 400)}
           alt={categoryInfo.title}
           className="w-full h-full object-cover"
         />

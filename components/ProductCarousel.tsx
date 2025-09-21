@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Product, Article } from '../types';
+import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface ProductCarouselProps {
   products: Product[];
@@ -11,7 +12,7 @@ const MostReadArticle: React.FC<{ article: Article }> = ({ article }) => (
     className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
     onClick={() => window.location.href = `/article/${article.id}`}
   >
-    <img src={article.imageUrl} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
+    <img src={optimizeAnyImageUrl(article.imageUrl, 64, 64)} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
     <div>
       <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-[#d11a68]">{article.title}</p>
       <p className="text-xs text-gray-500 mt-1">{article.category || article.date}</p>
@@ -37,35 +38,45 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, mostRead })
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Content */}
         <div className="w-full lg:w-2/3">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {products.map(product => (
-              <div
-                key={product.id}
-                className="group cursor-pointer"
-                style={{ height: '256px', display: 'flex', flexDirection: 'column' }}
-                onClick={() => window.location.href = `/article/${product.id}`}
-              >
-                <div className="overflow-hidden" style={{ flexShrink: 0 }}>
-                  <img src={product.imageUrl} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"/>
+          {products.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {products.map(product => (
+                <div
+                  key={product.id}
+                  className="group cursor-pointer"
+                  style={{ height: '256px', display: 'flex', flexDirection: 'column' }}
+                  onClick={() => window.location.href = `/article/${product.id}`}
+                >
+                  <div className="overflow-hidden" style={{ flexShrink: 0 }}>
+                    <img src={optimizeAnyImageUrl(product.imageUrl, 320, 160)} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"/>
+                  </div>
+                  <div className="py-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <p className="text-sm font-semibold text-gray-800 group-hover:text-[#d11a68]" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
+                    <p className="text-xs text-gray-500 mt-1">{product.date}</p>
+                  </div>
                 </div>
-                <div className="py-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  <p className="text-sm font-semibold text-gray-800 group-hover:text-[#d11a68]" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
-                  <p className="text-xs text-gray-500 mt-1">{product.date}</p>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="text-center mt-8">
-            <button className="bg-gray-800 text-white font-bold py-3 px-12 hover:bg-gray-700 transition-colors rounded-md">
-              記事一覧を見る
-            </button>
-          </div>
+              <div className="text-center mt-8">
+                <button className="bg-gray-800 text-white font-bold py-3 px-12 hover:bg-gray-700 transition-colors rounded-md">
+                  記事一覧を見る
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-gray-400 text-4xl mb-4">📝</div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">記事がありません</h3>
+              <p className="text-gray-500">管理画面から記事を追加してください</p>
+            </div>
+          )}
         </div>
 
         {/* Sidebar */}
         <aside className="w-full lg:w-1/3">
           <div className="mb-8">
-            <h3 className="font-bold text-lg border-b-2 border-gray-300 pb-2 mb-4">人気記事ランキング (Most Read Articles)</h3>
+            <h3 className="font-bold text-lg border-b-2 border-gray-300 pb-2 mb-4">最新の記事一覧</h3>
             {mostRead.map(article => (
               <MostReadArticle key={article.id} article={article} />
             ))}

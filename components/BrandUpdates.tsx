@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Article, Product, Manufacturer } from '../types';
+import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface BrandUpdatesProps {
   articles: Article[];
@@ -15,7 +16,7 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => (
         onClick={() => window.location.href = `/article/${article.id}`}
     >
         <div className="overflow-hidden" style={{ flexShrink: 0 }}>
-          <img src={article.imageUrl} alt={article.title} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"/>
+          <img src={optimizeAnyImageUrl(article.imageUrl, 320, 160)} alt={article.title} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"/>
         </div>
         <div className="py-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <p className="text-sm font-semibold text-gray-800 group-hover:text-[#d11a68]" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{article.title}</p>
@@ -30,7 +31,7 @@ const SidebarProduct: React.FC<{ product: Product }> = ({ product }) => (
         className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
         onClick={() => window.location.href = `/article/${product.id}`}
     >
-        <img src={product.imageUrl} alt={product.name} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
+        <img src={optimizeAnyImageUrl(product.imageUrl, 64, 64)} alt={product.name} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
         <div>
             <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-[#d11a68]">{product.name}</p>
             <p className="text-xs text-gray-500 mt-1">{product.subText}</p>
@@ -83,7 +84,7 @@ const BrandUpdates: React.FC<BrandUpdatesProps> = ({ articles, products, manufac
                   className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
                   onClick={() => window.location.href = `/article/${article.id}`}
                 >
-                  <img src={article.imageUrl} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
+                  <img src={optimizeAnyImageUrl(article.imageUrl, 64, 64)} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
                   <div>
                     <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-[#d11a68]">{article.title}</p>
                     <p className="text-xs text-gray-500 mt-1">{article.category || article.date}</p>

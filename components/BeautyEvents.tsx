@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Article } from '../types';
+import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface BeautyEventsProps {
   events: Article[];
@@ -12,7 +13,7 @@ const EventCard: React.FC<{ event: Article }> = ({ event }) => (
     onClick={() => window.location.href = `/article/${event.id}`}
   >
     <div className="relative" style={{ flexShrink: 0 }}>
-      <img src={event.imageUrl} alt={event.title} className="w-full h-48 object-cover" />
+      <img src={optimizeAnyImageUrl(event.imageUrl, 384, 192)} alt={event.title} className="w-full h-48 object-cover" />
       {event.tag && <span className="absolute top-2 left-2 bg-[#d11a68] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">{event.tag}</span>}
     </div>
     <div className="p-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>

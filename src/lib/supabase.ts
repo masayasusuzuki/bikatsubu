@@ -20,6 +20,7 @@ export interface Article {
   status: 'draft' | 'published'
   featured_image?: string
   category: string
+  category2?: string
   author_id?: string
   article_type?: string
   brand?: string
@@ -40,6 +41,7 @@ export interface CreateArticle {
   status: 'draft' | 'published'
   featured_image?: string
   category: string
+  category2?: string
   article_type?: string
   brand?: string
   price?: string
@@ -86,7 +88,7 @@ export const articlesAPI = {
       .from('articles')
       .select('*')
       .eq('status', 'published')
-      .eq('category', category)
+      .or(`category.eq.${category},category2.eq.${category}`)
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -124,6 +126,19 @@ export const articlesAPI = {
       .from('articles')
       .select('*')
       .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data as Article[]
+  },
+
+  // 最新記事を取得（公開済みのみ、指定件数）
+  async getLatestArticles(limit: number = 5) {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+      .limit(limit)
 
     if (error) throw error
     return data as Article[]

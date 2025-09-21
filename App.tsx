@@ -7,6 +7,7 @@ import BrandUpdates from './components/BrandUpdates';
 import BeautyEvents from './components/BeautyEvents';
 import ManagementTips from './components/ManagementTips';
 import Footer from './components/Footer';
+import LoadingScreen from './components/LoadingScreen';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import ArticleEditor from './components/ArticleEditor';
@@ -16,7 +17,7 @@ import CategoryPage from './components/CategoryPage';
 import ArticleDetail from './components/ArticleDetail';
 import SkinDiagnosis from './components/SkinDiagnosis';
 import { heroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
-import { pageSectionsAPI, Article as DBArticle } from './src/lib/supabase';
+import { pageSectionsAPI, articlesAPI, Article as DBArticle } from './src/lib/supabase';
 import type { Article, Product } from './types';
 
 const App: React.FC = () => {
@@ -30,13 +31,29 @@ const App: React.FC = () => {
     mostReadArticles: [] as Article[]
   });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     // Only load data for the main page
     if (currentPath === '/') {
-      loadPageData();
+      loadPageDataWithMinTime();
     }
   }, [currentPath]);
+
+  const loadPageDataWithMinTime = async () => {
+    const startTime = Date.now();
+
+    await loadPageData();
+
+    // 最低1秒のローディング時間を保証
+    const elapsedTime = Date.now() - startTime;
+    const minLoadingTime = 1000; // 1秒
+    const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+
+    setTimeout(() => {
+      setInitialLoading(false);
+    }, remainingTime);
+  };
 
   const convertDBArticleToUIArticle = (dbArticle: DBArticle): Article => {
     return {
@@ -89,10 +106,9 @@ const App: React.FC = () => {
         .sort((a, b) => a.position - b.position)
         .map(s => convertDBArticleToUIArticle(s.article!));
 
-      const mostReadArticles = sections
-        .filter(s => s.section_name === 'most_read' && s.article)
-        .sort((a, b) => a.position - b.position)
-        .map(s => convertDBArticleToUIArticle(s.article!));
+      // 最新記事を取得（mostReadArticlesの代わり）
+      const latestArticlesData = await articlesAPI.getLatestArticles(5);
+      const mostReadArticles = latestArticlesData.map(convertDBArticleToUIArticle);
 
       setPageData({
         hotCosmetics,
@@ -171,8 +187,34 @@ const App: React.FC = () => {
     return <CategoryPage category="ニキビ・ニキビ跡" />;
   }
 
+  // 新しいカテゴリーページのルーティング
+  if (currentPath === '/category/skin-development') {
+    return <CategoryPage category="肌育" />;
+  }
+
+  if (currentPath === '/category/beauty-technology') {
+    return <CategoryPage category="最新の美容機器" />;
+  }
+
+  if (currentPath === '/category/home-care') {
+    return <CategoryPage category="ホームケア" />;
+  }
+
+  if (currentPath === '/category/salon-management') {
+    return <CategoryPage category="サロン経営" />;
+  }
+
+  if (currentPath === '/category/global-trends') {
+    return <CategoryPage category="海外トレンド" />;
+  }
+
   if (currentPath === '/skin-diagnosis') {
     return <SkinDiagnosis />;
+  }
+
+  // トップページの初回ローディング画面
+  if (currentPath === '/' && initialLoading) {
+    return <LoadingScreen />;
   }
 
   return (
@@ -181,7 +223,7 @@ const App: React.FC = () => {
       <main>
         <HeroCarousel slides={heroSlides} />
         <div className="container mx-auto px-4 py-8">
-           <ProductCarousel products={pageData.hotCosmetics.length > 0 ? pageData.hotCosmetics.map(convertArticleToProduct) : newProducts} mostRead={pageData.mostReadArticles} />
+           <ProductCarousel products={pageData.hotCosmetics.map(convertArticleToProduct)} mostRead={pageData.mostReadArticles} />
            <div className="my-12 p-8 bg-[#d11a68] text-white text-center rounded-lg">
               <h2 className="text-3xl font-bold">Find Your Perfect Beauty Item</h2>
               <p className="mt-2 mb-6">あなたのための美容製品、テクニック、サロンがきっと見つかる</p>
