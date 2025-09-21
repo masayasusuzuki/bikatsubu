@@ -1,0 +1,36 @@
+{
+  "enabled": true,
+  "auto_changelog": false,
+  "triggers": {
+    "before_bulk_edit": {
+      "enabled": true,
+      "tools": [
+        "MultiEdit"
+      ],
+      "description": "Safety checkpoint before bulk file edits (MultiEdit operations)"
+    },
+    "before_major_write": {
+      "enabled": false,
+      "tools": [
+        "Write"
+      ],
+      "description": "Safety checkpoint before major file writes (single file Write operations)"
+    },
+    "before_bash_commands": {
+      "enabled": false,
+      "tools": [
+        "Bash"
+      ],
+      "description": "Safety checkpoint before executing bash commands"
+    },
+    "before_file_operations": {
+      "enabled": false,
+      "tools": [
+        "Edit",
+        "MultiEdit",
+        "Write"
+      ],
+      "description": "Safety checkpoint before any file modification (comprehensive protection)"
+    }
+  }
+}

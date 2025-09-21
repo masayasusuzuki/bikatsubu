@@ -22,6 +22,12 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ slides }) => {
     setCurrentIndex(index);
   };
 
+  const handleSlideClick = (slide: HeroSlide) => {
+    if (slide.articleId) {
+      window.location.href = `/article/${slide.articleId}`;
+    }
+  };
+
   return (
     <div className="relative w-full overflow-hidden py-8">
       <div className="flex transition-transform duration-1000 ease-in-out"
@@ -29,18 +35,26 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ slides }) => {
         {slides.map((slide, index) => (
           <div
             key={slide.id}
-            className="flex-shrink-0 relative"
+            className={`flex-shrink-0 relative ${slide.articleId ? 'cursor-pointer' : ''}`}
             style={{
               width: '65vw',
               aspectRatio: '16/9',
               marginLeft: '1vw',
               marginRight: '1vw'
             }}
+            onClick={() => handleSlideClick(slide)}
           >
             <img src={slide.imageUrl.replace('/upload/', '/upload/c_fill,w_1200,h_675,q_auto,f_auto/')} alt={slide.alt} className="w-full h-full object-cover rounded-lg" />
             <div className={`absolute inset-0 bg-black rounded-lg transition-opacity duration-1000 ease-in-out ${
               index !== currentIndex ? 'opacity-50' : 'opacity-0'
             }`}></div>
+            {slide.articleId && (
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white bg-opacity-90 text-black px-4 py-2 rounded-lg text-sm font-medium">
+                  記事を読む
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>

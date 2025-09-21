@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PageContentManager from './PageContentManager';
+import HeroSlideManager from './HeroSlideManager';
 import { articlesAPI, Article } from '../src/lib/supabase';
 
 const AdminDashboard: React.FC = () => {
@@ -430,6 +431,16 @@ const AdminDashboard: React.FC = () => {
               >
                 ページ管理
               </button>
+              <button
+                onClick={() => setActiveTab('hero')}
+                className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'hero'
+                    ? 'border-slate-800 text-slate-800 bg-slate-50'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                }`}
+              >
+                ヒーロー管理
+              </button>
             </nav>
           </div>
 
@@ -685,6 +696,10 @@ const AdminDashboard: React.FC = () => {
 
             {activeTab === 'pages' && (
               <PageContentManager />
+            )}
+
+            {activeTab === 'hero' && (
+              <HeroSlideManager />
             )}
 
           </div>

@@ -5,7 +5,9 @@
       "WebFetch(domain:www.cosme.net)",
       "Bash(npm run dev:*)",
       "Bash(npm install:*)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(claudepoint:*)"
     ],
     "deny": [],
     "ask": []

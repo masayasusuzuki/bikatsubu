@@ -1,0 +1,248 @@
+# ClaudePoint 使い方ガイド (日本語)
+
+## 概要
+ClaudePoint は Claude Code での作業履歴を管理し、コード変更を安全に実行できる「時間旅行」ツールです。
+チェックポイントを作成して、いつでも瞬時に元の状態に戻すことができます。
+
+### チェックポイント = セーブポイント
+**ゲームのセーブポイントと同じ概念です：**
+
+1. **セーブ（チェックポイント作成）** - 現在のプロジェクト全体の状態を保存
+2. **ロード（復元）** - 最後のセーブポイントに戻る
+
+### 実行方法
+**ターミナルで実行します：**
+```bash
+# 現在の状態をセーブ
+claudepoint create
+
+# コードを変更...（実験、新機能追加など）
+
+# 問題があれば最後のセーブポイントに戻る
+claudepoint undo
+```
+
+## 基本コマンド
+
+### チェックポイント作成
+```bash
+claudepoint create
+```
+- 現在のプロジェクト状態をスナップショットとして保存
+- 69ファイル、3.8MBなどの詳細情報を表示
+
+### 最後のチェックポイントに復元
+```bash
+claudepoint undo
+```
+- 直前のチェックポイントに即座に復元
+- 復元前に緊急バックアップを自動作成
+- ファイルの追加、削除、変更がすべて元に戻る
+
+### チェックポイント一覧表示
+```bash
+claudepoint list
+```
+- 作成済みのすべてのチェックポイントを表示
+- 作成日時、ファイル数、サイズを確認可能
+
+### 変更内容確認
+```bash
+claudepoint changes
+```
+- 最後のチェックポイント以降の変更を確認
+
+### 特定のチェックポイントに復元
+```bash
+claudepoint restore <checkpoint-name>
+```
+- 指定したチェックポイントに復元
+
+## Claude Code スラッシュコマンド
+
+Claude Code 内で利用できるスラッシュコマンド：
+
+- `/create-checkpoint` - 新しいチェックポイントを作成
+- `/restore-checkpoint` - インタラクティブ選択で復元
+- `/list-checkpoints` - 全チェックポイント一覧
+- `/checkpoint-status` - 現在の状態を表示
+
+## 実用的な使用例
+
+### 1. 実験的なコード変更前
+```bash
+claudepoint create
+# 実験的なコードを書く
+# 問題があれば...
+claudepoint undo
+```
+
+### 2. 大規模リファクタリング前
+```bash
+claudepoint create
+# リファクタリング実行
+# 問題なければそのまま、問題があれば...
+claudepoint undo
+```
+
+### 3. 新機能開発の節目
+```bash
+claudepoint create  # 機能完成時
+claudepoint create  # テスト完了時
+claudepoint create  # デプロイ準備完了時
+```
+
+### 4. 実際の使用例
+```bash
+# 1. 重要な変更前にセーブ
+claudepoint create
+✅ checkpoint_2025-09-21T15-45-32 [DEPLOYED]
+
+# 2. 実験的なコードを書く
+# （ファイル編集、新機能追加など）
+
+# 3. 問題があった場合
+claudepoint undo
+✅ 元の状態に完全復元！
+
+# 4. セーブポイント一覧確認
+claudepoint list
+📦 Total claudepoints: 2
+  1. checkpoint_2025-09-21T15-45-32
+  2. checkpoint_2025-09-21T16-00-15
+```
+
+## Claude Code内でも使える
+
+Claude Code内でスラッシュコマンドとしても使えます：
+
+- `/create-checkpoint` - セーブ
+- `/restore-checkpoint` - ロード（選択式）
+- `/list-checkpoints` - セーブデータ一覧
+
+**つまり、ゲームのクイックセーブ/ロード機能をコーディングで使える**ということです！
+
+## 安全機能
+
+### 自動バックアップ
+- `undo` 実行時に緊急バックアップを自動作成
+- データ損失のリスクを最小化
+
+### スパム防止
+- 30秒間のクールダウン機能
+- 連続実行による不要なチェックポイント作成を防止
+
+### 自動クリーンアップ
+- 古いチェックポイントの自動削除機能
+
+## 設定とカスタマイズ
+
+### 設定確認
+```bash
+claudepoint config
+```
+
+### フック管理
+```bash
+claudepoint hooks status    # フック状態確認
+claudepoint hooks enable    # フック有効化
+claudepoint hooks disable   # フック無効化
+```
+
+## ファイル構造とディレクトリの違い
+
+### .claude ディレクトリ
+**Claude Code の設定とコマンドが格納される場所**
+
+```
+.claude/
+├── claudepoint-usage-jp.txt   # 日本語使い方ガイド（このファイル）
+├── commands/                  # スラッシュコマンド定義ファイル
+│   ├── claudepoint.md        # /claudepoint コマンド
+│   ├── undo.md               # /undo コマンド
+│   └── その他のコマンド...
+└── settings.local.json        # ローカル設定
+```
+
+**見るべきファイル:**
+- `claudepoint-usage-jp.txt` - 使い方ガイド
+- `commands/` - Claude Code で使える `/` コマンド一覧
+
+### .claudepoint ディレクトリ
+**ClaudePoint の実際のデータが格納される場所**
+
+```
+.claudepoint/
+├── config.json               # ClaudePoint設定
+├── hooks.json                # 自動フック設定
+├── changelog.json            # 変更履歴
+└── snapshots/                # 実際のチェックポイントデータ
+    ├── checkpoint_xxx/       # チェックポイント1
+    └── emergency_backup_xxx/ # 緊急バックアップ
+```
+
+**見るべきファイル:**
+- `config.json` - ClaudePoint の基本設定
+- `changelog.json` - 作業履歴
+- `snapshots/` - 実際に保存されたチェックポイント
+
+### 推奨の確認方法
+
+1. **使い方を知りたい時:**
+   ```bash
+   cat .claude/claudepoint-usage-jp.txt
+   ```
+
+2. **チェックポイント一覧確認:**
+   ```bash
+   claudepoint list
+   ```
+
+3. **現在の設定確認:**
+   ```bash
+   cat .claudepoint/config.json
+   ```
+
+4. **作業履歴確認:**
+   ```bash
+   cat .claudepoint/changelog.json
+   ```
+
+**基本的には `.claude/` は設定とドキュメント、`.claudepoint/` は実際のデータ** と覚えておけば大丈夫です！
+
+## トラブルシューティング
+
+### MCP設定の確認
+```bash
+claudepoint check-mcp
+```
+
+### ClaudePoint削除（必要時）
+```bash
+claudepoint uninstall
+```
+
+## ベストプラクティス
+
+1. **重要な変更前にチェックポイント作成**
+   - 大きなリファクタリング
+   - 新機能の実装
+   - 依存関係の変更
+
+2. **定期的なチェックポイント作成**
+   - 作業セッションの開始時
+   - 重要な機能が完成した時
+   - 一日の終わり
+
+3. **チェックポイントの整理**
+   - 定期的に `claudepoint list` で確認
+   - 不要なチェックポイントは削除
+
+## 注意事項
+
+- チェックポイントはローカルに保存されます
+- Gitとは独立した機能です
+- バイナリファイルや大きなファイルも含まれます
+- `.gitignore` されたファイルも保存対象です
+
+これで Claude Code での作業が安全かつ効率的になります！

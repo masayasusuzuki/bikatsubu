@@ -3,6 +3,7 @@ export interface HeroSlide {
   id: number;
   imageUrl: string;
   alt: string;
+  articleId?: string; // 記事IDを追加
 }
 
 export interface Product {

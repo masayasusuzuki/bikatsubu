@@ -16,9 +16,9 @@ import UserLogin from './components/UserLogin';
 import CategoryPage from './components/CategoryPage';
 import ArticleDetail from './components/ArticleDetail';
 import SkinDiagnosis from './components/SkinDiagnosis';
-import { heroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
-import { pageSectionsAPI, articlesAPI, Article as DBArticle } from './src/lib/supabase';
-import type { Article, Product } from './types';
+import { heroSlides as fallbackHeroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
+import { pageSectionsAPI, articlesAPI, heroSlidesAPI, Article as DBArticle, HeroSlide as DBHeroSlide } from './src/lib/supabase';
+import type { Article, Product, HeroSlide } from './types';
 
 const App: React.FC = () => {
   const currentPath = window.location.pathname;
@@ -30,6 +30,7 @@ const App: React.FC = () => {
     managementTips: [] as Article[],
     mostReadArticles: [] as Article[]
   });
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(fallbackHeroSlides);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
@@ -76,10 +77,29 @@ const App: React.FC = () => {
     };
   };
 
+  const convertDBHeroSlideToUIHeroSlide = (dbSlide: DBHeroSlide): HeroSlide => {
+    return {
+      id: parseInt(dbSlide.id.split('-')[0], 16) % 1000, // Convert UUID to number for backward compatibility
+      imageUrl: dbSlide.image_url,
+      alt: dbSlide.alt_text,
+      articleId: dbSlide.article_id || undefined
+    };
+  };
+
   const loadPageData = async () => {
     try {
       setLoading(true);
       const sections = await pageSectionsAPI.getAllSections();
+
+      // Try to load hero slides from database, fallback to constants if fails
+      try {
+        const slides = await heroSlidesAPI.getAllSlides();
+        const uiSlides = slides.map(convertDBHeroSlideToUIHeroSlide);
+        setHeroSlides(uiSlides);
+      } catch (heroError) {
+        console.warn('Failed to load hero slides from database, using fallback:', heroError);
+        // Keep using fallbackHeroSlides from initial state
+      }
 
       const hotCosmetics = sections
         .filter(s => s.section_name === 'hot_cosmetics' && s.article)

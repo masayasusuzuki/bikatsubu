@@ -390,3 +390,88 @@ export const pageSectionsAPI = {
     if (error) throw error
   }
 }
+
+// Hero slides types and API
+export interface HeroSlide {
+  id: string
+  image_url: string
+  alt_text: string
+  order_position: number
+  article_id?: string
+  created_at: string
+  updated_at: string
+  article?: Article
+}
+
+export interface CreateHeroSlide {
+  image_url: string
+  alt_text: string
+  order_position: number
+  article_id?: string | null
+}
+
+export const heroSlidesAPI = {
+  // 全てのヒーロースライドを取得（記事情報も含む）
+  async getAllSlides(): Promise<HeroSlide[]> {
+    const { data, error } = await supabase
+      .from('hero_slides')
+      .select(`
+        *,
+        article:articles(*)
+      `)
+      .order('order_position')
+
+    if (error) throw error
+    return data as HeroSlide[]
+  },
+
+  // ヒーロースライドを作成
+  async createSlide(slide: CreateHeroSlide): Promise<HeroSlide> {
+    const { data, error } = await supabase
+      .from('hero_slides')
+      .insert([slide])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as HeroSlide
+  },
+
+  // ヒーロースライドを更新
+  async updateSlide(id: string, updates: Partial<CreateHeroSlide>): Promise<HeroSlide> {
+    const { data, error } = await supabase
+      .from('hero_slides')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as HeroSlide
+  },
+
+  // ヒーロースライドを削除
+  async deleteSlide(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('hero_slides')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+  },
+
+  // スライドの順序を一括更新
+  async updateSlidesOrder(updates: { id: string; order_position: number }[]): Promise<void> {
+    const promises = updates.map(update =>
+      supabase
+        .from('hero_slides')
+        .update({ order_position: update.order_position })
+        .eq('id', update.id)
+    )
+
+    const results = await Promise.all(promises)
+    const errors = results.filter(result => result.error).map(result => result.error)
+
+    if (errors.length > 0) throw errors[0]
+  }
+}
