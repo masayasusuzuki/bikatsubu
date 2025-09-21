@@ -1,8 +1,12 @@
 import React from 'react';
+import Header from './Header';
+import Footer from './Footer';
 
 const MediaPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-100 font-sans">
+      <Header />
+      <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-[#d11a68] to-[#e91e63] text-white py-16">
         <div className="container mx-auto px-4 text-center">
@@ -127,6 +131,8 @@ const MediaPage: React.FC = () => {
           </div>
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 };
