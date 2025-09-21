@@ -183,6 +183,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     }, 0);
   };
 
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -886,43 +887,55 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
               {/* Content Editor */}
               <div className="bg-white border border-gray-200 p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <div></div>
-                  <div className="flex flex-wrap gap-2">
-                    <button onClick={() => insertAtLineStart('# ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H1</button>
-                    <button onClick={() => insertAtLineStart('## ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H2</button>
-                    <button onClick={() => insertAtLineStart('### ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H3</button>
-                    <button onClick={() => wrapSelection('**', '**')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">太字</button>
-                    <button onClick={() => insertAtMultipleLines('- ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">• リスト</button>
-                    <button onClick={() => insertAtMultipleLines('1. ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">1. リスト</button>
-                    <button onClick={() => wrapSelection('[', '](https://)')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">リンク</button>
-                    <button onClick={() => insertAtLineStart('---\n')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">——</button>
+                <div className="mb-4">
+                  <div className="flex flex-col gap-2">
+                    {/* 1行目：装飾タグ関連 */}
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => insertAtLineStart('# ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H1</button>
+                      <button onClick={() => insertAtLineStart('## ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H2</button>
+                      <button onClick={() => insertAtLineStart('### ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H3</button>
+                      <button onClick={() => wrapSelection('**', '**')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">太字</button>
+                      <button onClick={() => insertAtMultipleLines('- ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">• リスト</button>
+                      <button onClick={() => insertAtMultipleLines('1. ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">1. リスト</button>
+                      <button onClick={() => wrapSelection('[', '](https://)')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">リンク</button>
+                      <button onClick={() => insertAtLineStart('---\n')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">——</button>
+                    </div>
 
-                    {/* 装飾ボタン */}
-                    <div className="border-l border-gray-300 mx-2"></div>
-                    <button onClick={() => applyDecoration('info')} className="px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs border border-blue-300 rounded">💡 本記事のテーマ</button>
-                    <button onClick={() => applyDecoration('warning')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 text-xs border border-yellow-300 rounded">⚠️ 注意</button>
-                    <button onClick={() => applyDecoration('success')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs border border-green-300 rounded">💡ミライのひとことアドバイス</button>
-                    <button onClick={() => applyDecoration('error')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs border border-red-300 rounded">❌ 警告</button>
-                    <button onClick={() => applyDecoration('quote')} className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs border border-gray-300 rounded">💬 引用</button>
-                    <button onClick={() => applyDecoration('speech-bubble')} className="px-2 py-1 bg-pink-100 hover:bg-pink-200 text-pink-700 text-xs border border-pink-300 rounded">💭 吹き出し</button>
+                    {/* 2行目：囲いタグ関連 */}
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => applyDecoration('info')} className="px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs border border-blue-300 rounded">💡 本記事のテーマ</button>
+                      <button onClick={() => applyDecoration('warning')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 text-xs border border-yellow-300 rounded">⚠️ 注意</button>
+                      <button onClick={() => applyDecoration('success')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs border border-green-300 rounded">💡ミライのひとことアドバイス</button>
+                      <button onClick={() => applyDecoration('error')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs border border-red-300 rounded">❌ 警告</button>
+                      <button onClick={() => applyDecoration('quote')} className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs border border-gray-300 rounded">💬 引用</button>
+                      <button onClick={() => applyDecoration('speech-bubble')} className="px-2 py-1 bg-pink-100 hover:bg-pink-200 text-pink-700 text-xs border border-pink-300 rounded">💭 吹き出し</button>
+                    </div>
 
-
-                    <div className="border-l border-gray-300 mx-2"></div>
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 text-sm font-medium transition-colors"
-                      disabled={isUploading}
-                    >
-                      {isUploading ? 'アップロード中...' : '画像をアップロード'}
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
+                    {/* 3行目：画像関連 */}
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 text-sm font-medium transition-colors"
+                        disabled={isUploading}
+                      >
+                        {isUploading ? 'アップロード中...' : '画像をアップロード'}
+                      </button>
+                      <a
+                        href="https://www.iloveimg.com/ja/compress-image"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm font-medium rounded transition-colors"
+                      >
+                        画像変換サイト
+                      </a>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </div>
                   </div>
                 </div>
                 <textarea

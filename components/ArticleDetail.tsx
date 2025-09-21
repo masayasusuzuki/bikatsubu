@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { articlesAPI, pageSectionsAPI, Article } from '../src/lib/supabase';
+import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface ArticleDetailProps {
   articleId: string;
@@ -351,7 +352,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
                       <div className="rounded overflow-hidden mb-6">
                         <div className="relative bg-gray-100" style={{ paddingBottom: '52.36%' }}>
                           <img
-                            src={article.featured_image}
+                            src={optimizeAnyImageUrl(article.featured_image, 800, 419)}
                             alt={article.title}
                             className="absolute inset-0 w-full h-full object-cover"
                           />
