@@ -72,12 +72,16 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     let html = content;
 
     // 自動目次生成（記事内容から見出しを抽出して冒頭に挿入）
-    const headingRegex = /^(#{1,3})\s+(.+)$/gm;
+    // H1（#）とH2（##）のみを対象とする
+    const headingRegex = /^(#{1,2})\s+(.+)$/gm;
     const headings: { level: number; text: string; id: string }[] = [];
     let match;
 
     while ((match = headingRegex.exec(html)) !== null) {
       const level = match[1].length;
+      // H3（###）は目次に含めない
+      if (level > 2) continue;
+      
       const text = match[2].trim();
       // HTMLで使用されるIDと同じ生成ロジックを使用
       const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
@@ -88,11 +92,11 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     if (headings.length >= 2) {
       const tocItems = headings.map((heading, index) => {
         const indent = (heading.level - 1) * 16;
-        const fontSize = heading.level === 1 ? '14px' : heading.level === 2 ? '13px' : '12px';
-        const fontWeight = heading.level === 1 ? '700' : heading.level === 2 ? '600' : '500';
-        const color = heading.level === 1 ? '#1e293b' : heading.level === 2 ? '#475569' : '#64748b';
+        const fontSize = heading.level === 1 ? '14px' : '13px';
+        const fontWeight = heading.level === 1 ? '700' : '600';
+        const color = heading.level === 1 ? '#1e293b' : '#475569';
         const marginTop = index === 0 ? '0' : (heading.level === 1 ? '1px' : '0px');
-        const levelIcon = heading.level === 1 ? '📍' : heading.level === 2 ? '▸' : '•';
+        const levelIcon = heading.level === 1 ? '📍' : '▸';
 
         return `<li style="margin: ${marginTop} 0 0 ${indent}px; padding: 0; line-height: 1; display: block;">
           <a href="#${heading.id}" style="color: ${color}; text-decoration: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: ${fontSize}; font-weight: ${fontWeight}; display: flex; align-items: center; padding: 2px 6px; border-radius: 4px; position: relative;" onclick="event.preventDefault(); document.getElementById('${heading.id}')?.scrollIntoView({behavior: 'smooth', block: 'start'});" onmouseover="this.style.color='#2563eb'; this.style.backgroundColor='#f1f5f9'; this.style.transform='translateX(2px)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)';" onmouseout="this.style.color='${color}'; this.style.backgroundColor='transparent'; this.style.transform='translateX(0)'; this.style.boxShadow='none';"><span style="margin-right: 6px; font-size: 10px; opacity: 0.7;">${levelIcon}</span>${heading.text}</a>
@@ -112,6 +116,23 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
         html = html.substring(0, firstHeadingIndex) + autoToc + '\n\n' + html.substring(firstHeadingIndex);
       }
     }
+
+    // 見出しにIDを追加（目次クリック用）
+    html = html.replace(/^(#{1,2})\s+(.+)$/gm, (match, hashes, text) => {
+      const level = hashes.length;
+      if (level > 2) return match; // H3はスキップ
+      
+      // 既にIDが設定されている場合はスキップ
+      if (text.includes('{#')) return match;
+      
+      const cleanText = text.trim();
+      if (!cleanText) return match; // 空の見出しはスキップ
+      
+      const id = cleanText.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/^-+|-+$/g, '');
+      if (!id) return match; // IDが生成できない場合はスキップ
+      
+      return `${hashes} ${cleanText} {#${id}}`;
+    });
 
     // 古い手動目次タグを除去
     html = html.replace(/<div class="table-of-contents">[\s\S]*?<\/div>/g, '');
