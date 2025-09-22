@@ -206,12 +206,12 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     setIsUploading(true);
     try {
       // 環境変数の確認
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dmxlepoau';
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dmxlepoau';
       console.log('Cloud Name:', cloudName);
-      console.log('All env vars:', process.env);
+      console.log('All env vars:', import.meta.env);
 
       if (!cloudName) {
-        throw new Error('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME が設定されていません');
+        throw new Error('VITE_CLOUDINARY_CLOUD_NAME が設定されていません');
       }
 
       // Cloudinaryにアップロード
@@ -268,11 +268,11 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
     try {
       // 環境変数の確認
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dmxlepoau';
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dmxlepoau';
       console.log('Featured Image Cloud Name:', cloudName);
 
       if (!cloudName) {
-        throw new Error('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME が設定されていません');
+        throw new Error('VITE_CLOUDINARY_CLOUD_NAME が設定されていません');
       }
 
       // Cloudinaryにアップロード
