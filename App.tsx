@@ -17,6 +17,12 @@ import CategoryPage from './components/CategoryPage';
 import ArticleDetail from './components/ArticleDetail';
 import SkinDiagnosis from './components/SkinDiagnosis';
 import MediaPage from './components/MediaPage';
+import ArticlesListPage from './components/ArticlesListPage';
+import UserGuide from './components/UserGuide';
+import FAQ from './components/FAQ';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfService from './components/TermsOfService';
+import CommercialTransactionAct from './components/CommercialTransactionAct';
 import { heroSlides as fallbackHeroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
 import { pageSectionsAPI, articlesAPI, heroSlidesAPI, Article as DBArticle, HeroSlide as DBHeroSlide } from './src/lib/supabase';
 import type { Article, Product, HeroSlide } from './types';
@@ -250,6 +256,44 @@ const App: React.FC = () => {
 
   if (currentPath === '/media') {
     return <MediaPage />;
+  }
+
+  // Articles list pages routing
+  if (currentPath === '/articles/hot-cosmetics') {
+    return <ArticlesListPage sectionType="hot_cosmetics" />;
+  }
+
+  if (currentPath === '/articles/beauty-topics') {
+    return <ArticlesListPage sectionType="brand_updates" />;
+  }
+
+  if (currentPath === '/articles/professional-column') {
+    return <ArticlesListPage sectionType="management_tips" />;
+  }
+
+  if (currentPath === '/articles/events') {
+    return <ArticlesListPage sectionType="beauty_events" />;
+  }
+
+  // Footer pages routing
+  if (currentPath === '/guide') {
+    return <UserGuide />;
+  }
+
+  if (currentPath === '/faq') {
+    return <FAQ />;
+  }
+
+  if (currentPath === '/privacy') {
+    return <PrivacyPolicy />;
+  }
+
+  if (currentPath === '/terms') {
+    return <TermsOfService />;
+  }
+
+  if (currentPath === '/commercial-transaction') {
+    return <CommercialTransactionAct />;
   }
 
   // トップページの初回ローディング画面

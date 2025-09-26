@@ -59,7 +59,10 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, mostRead })
                 ))}
               </div>
               <div className="text-center mt-8">
-                <button className="bg-gray-800 text-white font-bold py-3 px-12 hover:bg-gray-700 transition-colors rounded-md">
+                <button 
+                  className="bg-gray-800 text-white font-bold py-3 px-12 hover:bg-gray-700 transition-colors rounded-md"
+                  onClick={() => window.location.href = '/articles/hot-cosmetics'}
+                >
                   記事一覧を見る
                 </button>
               </div>

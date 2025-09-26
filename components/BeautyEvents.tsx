@@ -30,8 +30,8 @@ const BeautyEvents: React.FC<BeautyEventsProps> = ({ events }) => {
   const displayedEvents = events.slice(0, 4);
 
   const handleViewAllEvents = () => {
-    // 別ページに遷移（後で実装）
-    window.location.href = '/events';
+    // 記事一覧ページに遷移
+    window.location.href = '/articles/events';
   };
 
   return (

@@ -16,8 +16,17 @@ const Footer: React.FC = () => {
       { name: 'サロン経営', href: '/category/salon-management' },
       { name: '海外トレンド', href: '/category/global-trends' }
     ],
-    '美活部について': ['美活部とは', '運営会社', 'お問い合わせ', '広告掲載について'],
-    'サポート': ['ご利用ガイド', 'よくある質問', 'プライバシーポリシー', '利用規約'],
+    '美活部について': [
+      '株式会社LOGICA', 
+      'お問い合わせ', 
+      { name: '広告掲載について', href: '/media' }
+    ],
+    'サポート': [
+      { name: 'ご利用ガイド', href: '/guide' },
+      { name: 'よくある質問', href: '/faq' },
+      { name: 'プライバシーポリシー', href: '/privacy' },
+      { name: '利用規約', href: '/terms' }
+    ],
   };
 
   return (
@@ -56,7 +65,7 @@ const Footer: React.FC = () => {
         <div className="text-sm mt-12 border-t border-white/30 pt-6 text-center">
             <div className="flex justify-center space-x-4">
                 <a href="#">サイトマップ</a>
-                <a href="#">特定商取引法に基づく表示</a>
+                <a href="/commercial-transaction">特定商取引法に基づく表示</a>
             </div>
         </div>
       </div>
