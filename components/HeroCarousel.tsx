@@ -44,20 +44,22 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ slides }) => {
             }}
             onClick={() => handleSlideClick(slide)}
           >
-            <img src={slide.imageUrl.replace('/upload/', '/upload/c_fill,w_1200,h_675,q_auto,f_auto/')} alt={slide.alt} className="w-full h-full object-cover rounded-lg" />
-            <div className={`absolute inset-0 bg-black rounded-lg transition-opacity duration-1000 ease-in-out ${
-              index !== currentIndex ? 'opacity-50' : 'opacity-0'
+            <img src={slide.imageUrl.replace('/upload/', '/upload/c_fill,w_1200,h_675,q_auto,f_auto/')} alt={slide.alt} className="w-full h-full object-cover" />
+            <div className={`absolute inset-0 bg-black transition-opacity duration-1000 ease-in-out ${
+              index !== currentIndex ? 'opacity-30' : 'opacity-0'
             }`}></div>
           </div>
         ))}
       </div>
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-3 bg-black/30 backdrop-blur-sm px-4 py-2">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full ${
-              currentIndex === index ? 'bg-white' : 'bg-gray-400'
+            className={`w-2 h-2 transition-all duration-300 ${
+              currentIndex === index 
+                ? 'bg-white scale-125' 
+                : 'bg-white/60 hover:bg-white/80'
             }`}
           ></button>
         ))}
