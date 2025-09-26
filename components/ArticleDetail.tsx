@@ -224,17 +224,20 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     // 太字 **text**
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1<\/strong>');
     // 見出し ###, ##, #（IDを追加してアンカーリンクに対応）
-    html = html.replace(/^###\s+(.+)$/gm, (match, title) => {
-      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      return `<h3 id="${id}" class="text-xl font-semibold mt-6 mb-2">${title}<\/h3>`;
+    html = html.replace(/^###\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
+      const cleanTitle = title.trim();
+      const id = customId || cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h3 id="${id}" class="text-xl font-semibold mt-6 mb-2">${cleanTitle}<\/h3>`;
     });
-    html = html.replace(/^##\s+(.+)$/gm, (match, title) => {
-      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      return `<h2 id="${id}" class="text-2xl font-bold mt-8 mb-3">${title}<\/h2>`;
+    html = html.replace(/^##\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
+      const cleanTitle = title.trim();
+      const id = customId || cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h2 id="${id}" class="text-2xl font-bold mt-8 mb-3">${cleanTitle}<\/h2>`;
     });
-    html = html.replace(/^#\s+(.+)$/gm, (match, title) => {
-      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      return `<h1 id="${id}" class="text-3xl font-bold mt-10 mb-4">${title}<\/h1>`;
+    html = html.replace(/^#\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
+      const cleanTitle = title.trim();
+      const id = customId || cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h1 id="${id}" class="text-3xl font-bold mt-10 mb-4">${cleanTitle}<\/h1>`;
     });
     // 箇条書き（改良されたデザイン）
     html = html.replace(/^(?:-\s.+\n?)+/gm, (block) => {

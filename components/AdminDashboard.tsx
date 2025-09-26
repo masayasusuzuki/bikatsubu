@@ -43,6 +43,18 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleToggleStatus = async (articleId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+    
+    try {
+      await articlesAPI.updateArticle(articleId, { status: newStatus as 'draft' | 'published' });
+      await loadArticles(); // Reload articles
+    } catch (error) {
+      console.error('記事のステータス更新に失敗:', error);
+      alert('記事のステータス更新に失敗しました');
+    }
+  };
+
   const handleLogout = () => {
     if (confirm('ログアウトしますか？')) {
       window.location.href = '/';
@@ -585,13 +597,34 @@ const AdminDashboard: React.FC = () => {
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                                article.status === 'published'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {article.status === 'published' ? '公開中' : '下書き'}
-                              </span>
+                              <label className="inline-flex items-center">
+                                <div className="relative">
+                                  <input
+                                    type="checkbox"
+                                    className="sr-only"
+                                    checked={article.status === 'published'}
+                                    onChange={() => handleToggleStatus(article.id, article.status)}
+                                  />
+                                  <div className={`w-12 h-6 rounded-full transition-colors cursor-pointer ${
+                                    article.status === 'published' 
+                                      ? 'bg-emerald-500' 
+                                      : 'bg-gray-300'
+                                  }`}>
+                                    <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                                      article.status === 'published' 
+                                        ? 'translate-x-6' 
+                                        : 'translate-x-0.5'
+                                    } mt-0.5`}></div>
+                                  </div>
+                                </div>
+                                <span className={`ml-2 text-xs font-medium ${
+                                  article.status === 'published'
+                                    ? 'text-emerald-800'
+                                    : 'text-gray-600'
+                                }`}>
+                                  {article.status === 'published' ? '公開中' : '下書き'}
+                                </span>
+                              </label>
                             </td>
                             <td className="px-6 py-4 text-sm text-slate-500">
                               {new Date(article.created_at).toLocaleDateString('ja-JP')}

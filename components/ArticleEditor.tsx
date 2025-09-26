@@ -648,17 +648,20 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     // Bold **text**
     htmlContent = htmlContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1<\/strong>');
     // Headings ###, ##, #（IDを追加してアンカーリンクに対応）
-    htmlContent = htmlContent.replace(/^###\s+(.+)$/gm, (match, title) => {
-      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      return `<h3 id="${id}" class="text-xl font-semibold mt-6 mb-2">${title}<\/h3>`;
+    htmlContent = htmlContent.replace(/^###\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
+      const cleanTitle = title.trim();
+      const id = customId || cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h3 id="${id}" class="text-xl font-semibold mt-6 mb-2">${cleanTitle}<\/h3>`;
     });
-    htmlContent = htmlContent.replace(/^##\s+(.+)$/gm, (match, title) => {
-      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      return `<h2 id="${id}" class="text-2xl font-bold mt-8 mb-3">${title}<\/h2>`;
+    htmlContent = htmlContent.replace(/^##\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
+      const cleanTitle = title.trim();
+      const id = customId || cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h2 id="${id}" class="text-2xl font-bold mt-8 mb-3">${cleanTitle}<\/h2>`;
     });
-    htmlContent = htmlContent.replace(/^#\s+(.+)$/gm, (match, title) => {
-      const id = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      return `<h1 id="${id}" class="text-3xl font-bold mt-10 mb-4">${title}<\/h1>`;
+    htmlContent = htmlContent.replace(/^#\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
+      const cleanTitle = title.trim();
+      const id = customId || cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      return `<h1 id="${id}" class="text-3xl font-bold mt-10 mb-4">${cleanTitle}<\/h1>`;
     });
     // Unordered list（改良されたデザイン）
     htmlContent = htmlContent.replace(/^(?:-\s.+\n?)+/gm, (block) => {
