@@ -11,8 +11,6 @@ import LoadingScreen from './components/LoadingScreen';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import ArticleEditor from './components/ArticleEditor';
-import UserMyPage from './components/UserMyPage';
-import UserLogin from './components/UserLogin';
 import CategoryPage from './components/CategoryPage';
 import ArticleDetail from './components/ArticleDetail';
 import SkinDiagnosis from './components/SkinDiagnosis';
@@ -40,6 +38,7 @@ const App: React.FC = () => {
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(fallbackHeroSlides);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [showSkinDiagnosisCard, setShowSkinDiagnosisCard] = useState(true);
 
   useEffect(() => {
     // Always load hero slides, but only load page data for the main page
@@ -194,14 +193,6 @@ const App: React.FC = () => {
     return <ArticleEditor articleId={articleId} />;
   }
 
-  if (currentPath === '/login') {
-    return <UserLogin />;
-  }
-
-  if (currentPath === '/mypage') {
-    return <UserMyPage />;
-  }
-
   // Category pages routing
   // Article detail routing: /article/<id>
   if (currentPath.startsWith('/article/')) {
@@ -340,6 +331,58 @@ const App: React.FC = () => {
           </>
         )}
       </main>
+
+      {/* Fixed Skin Diagnosis Button */}
+      {showSkinDiagnosisCard && (
+        <div className="fixed bottom-8 right-8 z-40">
+          <div className="group relative">
+            {/* Close button */}
+            <button
+              onClick={() => setShowSkinDiagnosisCard(false)}
+              className="absolute -top-2 -right-2 z-50 bg-white hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center shadow-md transition-colors"
+              aria-label="閉じる"
+            >
+              <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <a
+              href="/skin-diagnosis"
+              className="block"
+            >
+              {/* Glow effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-500 animate-pulse"></div>
+
+              {/* Main button */}
+              <div className="relative bg-white rounded-3xl shadow-lg overflow-hidden w-72">
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-purple-50 opacity-50"></div>
+                <div className="relative p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-left flex-1">
+                      <div className="text-sm font-bold text-pink-600 mb-1">30秒でわかる！</div>
+                      <div className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">肌タイプ診断</div>
+                    </div>
+                    <div className="flex-shrink-0 text-slate-400 group-hover:text-pink-500 transition-colors">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="w-full">
+                    <img
+                      src="/card/skin-diagnosis.png"
+                      alt="肌タイプ診断"
+                      className="w-full h-40 object-cover rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
