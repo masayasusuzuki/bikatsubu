@@ -21,12 +21,14 @@ import FAQ from './components/FAQ';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import CommercialTransactionAct from './components/CommercialTransactionAct';
+import PasswordGate from './components/PasswordGate';
 import { heroSlides as fallbackHeroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
 import { pageSectionsAPI, articlesAPI, heroSlidesAPI, Article as DBArticle, HeroSlide as DBHeroSlide } from './src/lib/supabase';
 import type { Article, Product, HeroSlide } from './types';
 
 const App: React.FC = () => {
   const currentPath = window.location.pathname;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pageData, setPageData] = useState({
     hotCosmetics: [] as Article[],
     popularMedicalBeauty: [] as Article[],
@@ -39,6 +41,12 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [showSkinDiagnosisCard, setShowSkinDiagnosisCard] = useState(true);
+
+  useEffect(() => {
+    // Check authentication status
+    const authenticated = sessionStorage.getItem('authenticated');
+    setIsAuthenticated(authenticated === 'true');
+  }, []);
 
   useEffect(() => {
     // Always load hero slides, but only load page data for the main page
@@ -174,6 +182,11 @@ const App: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Password gate for non-admin pages
+  if (!isAuthenticated && !currentPath.startsWith('/admin')) {
+    return <PasswordGate onSuccess={() => setIsAuthenticated(true)} />;
+  }
 
   // Simple routing
   if (currentPath === '/admin') {
