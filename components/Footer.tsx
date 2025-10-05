@@ -37,10 +37,9 @@ const Footer: React.FC = () => {
                 <h2 className="text-3xl font-bold">美活部</h2>
             </div>
             <div className="flex space-x-4">
-                <a href="#" className="text-xl p-2 bg-white text-[#d11a68] rounded-full w-10 h-10 flex items-center justify-center"><i className="fab fa-instagram"></i></a>
-                <a href="#" className="text-xl p-2 bg-white text-[#d11a68] rounded-full w-10 h-10 flex items-center justify-center"><i className="fab fa-x-twitter"></i></a>
+                <a href="https://x.com/bikatsubu_mirai" target="_blank" rel="noopener noreferrer" className="text-xl p-2 bg-white text-[#d11a68] rounded-full w-10 h-10 flex items-center justify-center"><i className="fab fa-x-twitter"></i></a>
+                <a href="https://www.tiktok.com/@bikatsubu_mirai" target="_blank" rel="noopener noreferrer" className="text-xl p-2 bg-white text-[#d11a68] rounded-full w-10 h-10 flex items-center justify-center"><i className="fab fa-tiktok"></i></a>
             </div>
-             <a href="#" className="bg-white text-[#d11a68] font-bold py-2 px-4 rounded hover:bg-opacity-90">新規登録/ログイン →</a>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-white/30 pt-8">
           {Object.entries(footerLinks).map(([title, links]) => (
