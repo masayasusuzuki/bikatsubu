@@ -153,36 +153,54 @@ const SkinDiagnosis: React.FC = () => {
 
           {/* Image Upload Section */}
           {!uploadedImage ? (
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">肌画像をアップロード</h2>
-
-              <div
-                className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-pink-400 transition-colors cursor-pointer"
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white text-2xl">📷</span>
+            <div className="space-y-6">
+              {/* 撮影方法ガイド */}
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+                <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">撮影方法ガイド</h2>
+                <div className="flex justify-center mb-4">
+                  <img
+                    src="/diagnosis/写真撮影方法.jpg"
+                    alt="写真撮影方法のガイド"
+                    className="max-w-full rounded-lg border border-gray-200"
+                  />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-800 mb-2">
-                  画像をドラッグ&ドロップまたはクリックして選択
-                </h3>
-                <p className="text-slate-600 mb-6">
-                  JPG、PNG、WEBP形式に対応（最大20MB）
+                <p className="text-slate-600 text-center">
+                  正確な診断のため、明るい場所で正面から撮影してください
                 </p>
-                <button className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 font-semibold rounded-lg transition-all transform hover:scale-105">
-                  画像を選択
-                </button>
               </div>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
+              {/* アップロードエリア */}
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+                <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">肌画像をアップロード</h2>
+
+                <div
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-pink-400 transition-colors cursor-pointer"
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white text-2xl">📷</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                    画像をドラッグ&ドロップまたはクリックして選択
+                  </h3>
+                  <p className="text-slate-600 mb-6">
+                    JPG、PNG、WEBP形式に対応（最大20MB）
+                  </p>
+                  <button className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 font-semibold rounded-lg transition-all transform hover:scale-105">
+                    画像を選択
+                  </button>
+                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </div>
             </div>
           ) : (
             <div className="space-y-6">
