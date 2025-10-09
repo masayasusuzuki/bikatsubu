@@ -124,14 +124,14 @@ const SkinDiagnosis: React.FC = () => {
       {/* 撮影ガイドモーダル */}
       {showGuideModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-8">
               <h2 className="text-3xl font-bold text-slate-800 mb-6 text-center">撮影方法ガイド</h2>
-              <div className="mb-6">
+              <div className="mb-6 flex justify-center">
                 <img
                   src="/diagnosis/写真撮影方法.jpg"
                   alt="写真撮影方法のガイド"
-                  className="w-full rounded-lg border border-gray-200"
+                  className="w-1/2 rounded-lg border border-gray-200"
                 />
               </div>
               <p className="text-slate-600 text-center mb-6 text-lg">
@@ -155,16 +155,13 @@ const SkinDiagnosis: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-pink-50"></div>
         <div className="relative container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-pink-100 text-pink-800 rounded-full text-sm font-medium mb-6">
-              ✨ 科学的アプローチによる肌質診断
-            </div>
             <h1 className="text-5xl font-bold text-slate-900 mb-6 leading-tight">
               あなたの肌タイプを
-              <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">正確に</span>
+              <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">30秒で</span>
               診断
             </h1>
-            <p className="text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">
-              画像アップロードで専門的な見解から肌質タイプ診断と改善サポートを提案できます。
+            <p className="text-sm text-slate-500 max-w-2xl mx-auto">
+              ※ この診断は参考情報としてご利用ください。専門的な医療アドバイスに代わるものではありません。
             </p>
           </div>
         </div>
