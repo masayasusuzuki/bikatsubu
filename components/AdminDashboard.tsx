@@ -74,9 +74,9 @@ const AdminDashboard: React.FC = () => {
     const reportData = {
       period: '2024年8月',
       totalArticles: 156,
-      totalUsers: 2430,
       monthlyPV: 58920,
-      newRegistrations: 89,
+      avgSessionDuration: '3:24',
+      bounceRate: '42.3%',
       topCategories: [
         { name: 'スキンケア', percentage: 34, views: 20073 },
         { name: 'メイクアップ', percentage: 28, views: 16498 },
@@ -87,15 +87,7 @@ const AdminDashboard: React.FC = () => {
         { title: '【2024年版】30代におすすめのエイジングケア美容液TOP5', views: 2543, engagement: '8.2%' },
         { title: '初心者でも簡単！きれいな眉毛の描き方完全ガイド', views: 2201, engagement: '7.8%' },
         { title: 'プロが解説！崩れない夏ベースメイクの作り方', views: 1987, engagement: '9.1%' }
-      ],
-      userDemographics: {
-        ageGroups: [
-          { range: '20-29歳', percentage: 35 },
-          { range: '30-39歳', percentage: 42 },
-          { range: '40-49歳', percentage: 18 },
-          { range: '50歳以上', percentage: 5 }
-        ]
-      }
+      ]
     };
 
     // Background
@@ -129,9 +121,9 @@ const AdminDashboard: React.FC = () => {
     yPos += 40;
     const stats = [
       { label: '総記事数', value: `${reportData.totalArticles}記事`, color: '#3b82f6' },
-      { label: '総ユーザー数', value: `${reportData.totalUsers.toLocaleString()}人`, color: '#10b981' },
-      { label: '月間PV', value: `${reportData.monthlyPV.toLocaleString()}PV`, color: '#8b5cf6' },
-      { label: '新規登録', value: `${reportData.newRegistrations}人`, color: '#f59e0b' }
+      { label: '月間PV', value: `${reportData.monthlyPV.toLocaleString()}PV`, color: '#10b981' },
+      { label: '平均滞在時間', value: reportData.avgSessionDuration, color: '#8b5cf6' },
+      { label: '直帰率', value: reportData.bounceRate, color: '#f59e0b' }
     ];
 
     stats.forEach((stat, index) => {
@@ -237,36 +229,6 @@ const AdminDashboard: React.FC = () => {
       yPos += 85;
     });
 
-    yPos += 40;
-
-    // User demographics section
-    ctx.fillStyle = '#1e293b';
-    ctx.font = 'bold 18px Arial';
-    ctx.fillText('ユーザー年齢層', 40, yPos);
-
-    yPos += 40;
-    reportData.userDemographics.ageGroups.forEach((group, index) => {
-      const barWidth = (group.percentage / 100) * 250;
-
-      ctx.fillStyle = '#374151';
-      ctx.font = '14px Arial';
-      ctx.fillText(`${group.range}`, 40, yPos + 15);
-
-      ctx.fillStyle = '#64748b';
-      ctx.font = '12px Arial';
-      ctx.fillText(`${group.percentage}%`, 150, yPos + 15);
-
-      // Progress bar background
-      ctx.fillStyle = '#e5e7eb';
-      ctx.fillRect(200, yPos + 5, 250, 15);
-
-      // Progress bar
-      const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6'];
-      ctx.fillStyle = colors[index];
-      ctx.fillRect(200, yPos + 5, barWidth, 15);
-
-      yPos += 35;
-    });
 
     // Convert canvas to blob and download
     canvas.toBlob((blob) => {
@@ -295,14 +257,6 @@ const AdminDashboard: React.FC = () => {
       icon: 'document-text'
     },
     {
-      title: '総ユーザー数',
-      value: '2,430',
-      change: '+8.2%',
-      trend: 'up',
-      description: 'Total Users',
-      icon: 'users'
-    },
-    {
       title: '月間PV',
       value: '58,920',
       change: '+23.1%',
@@ -311,12 +265,20 @@ const AdminDashboard: React.FC = () => {
       icon: 'chart-bar'
     },
     {
-      title: '新規登録(今月)',
-      value: '89',
-      change: '-2.4%',
-      trend: 'down',
-      description: 'New Registrations',
-      icon: 'user-plus'
+      title: '平均滞在時間',
+      value: '3:24',
+      change: '+5.3%',
+      trend: 'up',
+      description: 'Avg. Session Duration',
+      icon: 'clock'
+    },
+    {
+      title: '直帰率',
+      value: '42.3%',
+      change: '-8.1%',
+      trend: 'up',
+      description: 'Bounce Rate',
+      icon: 'chart-line'
     },
   ];
 
@@ -325,11 +287,6 @@ const AdminDashboard: React.FC = () => {
     article.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const recentUsers = [
-    { id: 1, name: '田中美咲', email: 'tanaka@example.com', registered: '2024.08.20' },
-    { id: 2, name: '佐藤花子', email: 'sato@example.com', registered: '2024.08.19' },
-    { id: 3, name: '山田麗子', email: 'yamada@example.com', registered: '2024.08.18' },
-  ];
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -394,6 +351,9 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
+              <div className="px-6 pb-4">
+                <p className="text-xs text-slate-400">※ 本番環境移行後にGA4連携で実データ表示</p>
+              </div>
             </div>
           ))}
         </div>
@@ -423,16 +383,6 @@ const AdminDashboard: React.FC = () => {
                 記事管理
               </button>
               <button
-                onClick={() => setActiveTab('users')}
-                className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'users'
-                    ? 'border-slate-800 text-slate-800 bg-slate-50'
-                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                }`}
-              >
-                ユーザー管理
-              </button>
-              <button
                 onClick={() => setActiveTab('pages')}
                 className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === 'pages'
@@ -459,12 +409,12 @@ const AdminDashboard: React.FC = () => {
                           <span className="font-semibold text-slate-800">24記事</span>
                         </div>
                         <div className="flex justify-between items-center py-2">
-                          <span className="text-sm text-slate-600">平均エンゲージメント</span>
+                          <span className="text-sm text-slate-600">平均エンゲージメント率</span>
                           <span className="font-semibold text-emerald-600">+15.8%</span>
                         </div>
                         <div className="flex justify-between items-center py-2">
-                          <span className="text-sm text-slate-600">コメント数</span>
-                          <span className="font-semibold text-slate-800">1,240件</span>
+                          <span className="text-sm text-slate-600">新規訪問率</span>
+                          <span className="font-semibold text-slate-800">68.4%</span>
                         </div>
                       </div>
                     </div>
@@ -648,76 +598,6 @@ const AdminDashboard: React.FC = () => {
                           </tr>
                         ))
                       )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'users' && (
-              <div>
-                <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-200">
-                  <h2 className="text-lg font-bold text-slate-800">ユーザー管理</h2>
-                  <div className="flex space-x-3">
-                    <input
-                      type="search"
-                      placeholder="ユーザーを検索..."
-                      className="px-4 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
-                    />
-                    <select className="px-4 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500">
-                      <option>全て</option>
-                      <option>アクティブ</option>
-                      <option>非アクティブ</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="bg-white border border-gray-200 overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
-                          ユーザー
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
-                          メールアドレス
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
-                          登録日
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
-                          操作
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {recentUsers.map((user) => (
-                        <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-8 h-8 bg-slate-200 rounded flex items-center justify-center text-slate-600 font-medium text-sm">
-                                {user.name.charAt(0)}
-                              </div>
-                              <div className="text-sm font-medium text-slate-900">{user.name}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-slate-500">
-                            {user.email}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-slate-500">
-                            {user.registered}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex space-x-2">
-                              <button className="text-slate-600 hover:text-slate-800 text-sm font-medium">
-                                詳細
-                              </button>
-                              <button className="text-red-600 hover:text-red-800 text-sm font-medium">
-                                削除
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
                     </tbody>
                   </table>
                 </div>
