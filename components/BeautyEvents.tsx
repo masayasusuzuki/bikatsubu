@@ -18,8 +18,7 @@ const EventCard: React.FC<{ event: Article }> = ({ event }) => (
     </div>
     <div className="p-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <div>
-        <p className="font-bold text-gray-700">{event.date}</p>
-        <p className="text-sm mt-1 font-semibold" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{event.title}</p>
+        <p className="text-sm font-semibold" style={{ display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{event.title}</p>
       </div>
     </div>
   </div>
