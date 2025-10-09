@@ -36,8 +36,14 @@ class GA4Service {
       const realData = await this.getGA4ReportingData();
       return realData;
     } catch (error) {
-      console.warn('GA4 API呼び出しに失敗、フォールバックデータを使用:', error);
-      // Fallback to mock data
+      console.warn('GA4 API呼び出しに失敗:', error);
+      
+      // If it's an OAuth error, re-throw it so the UI can handle it
+      if (error instanceof Error && error.message.includes('OAuth認証が必要')) {
+        throw error;
+      }
+      
+      // For other errors, use fallback data
       return {
         totalArticles: await this.getTotalArticlesFromSupabase(),
         monthlyPageViews: 58920,
