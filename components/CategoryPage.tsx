@@ -272,41 +272,41 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
       <Header />
 
       {/* Hero Section */}
-      <div className="relative h-96 overflow-hidden">
+      <div className="relative h-64 md:h-96 overflow-hidden">
         <img
           src={optimizeAnyImageUrl(categoryInfo.heroImage, 1200, 400)}
           alt={categoryInfo.title}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center px-4">
           <div className="text-center text-white">
-            <h1 className="text-4xl font-bold mb-4">{categoryInfo.title}</h1>
-            <p className="text-xl max-w-2xl">{categoryInfo.description}</p>
+            <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">{categoryInfo.title}</h1>
+            <p className="text-sm md:text-xl max-w-2xl px-4">{categoryInfo.description}</p>
           </div>
         </div>
       </div>
 
       {/* Search Section */}
-      <div className={`${categoryInfo.bgColor} py-8`}>
+      <div className={`${categoryInfo.bgColor} py-6 md:py-8`}>
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">記事を検索</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-center mb-4 md:mb-6 text-gray-800">記事を検索</h2>
             <div className="relative">
               <input
                 type="text"
                 placeholder="キーワードで記事を検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d11a68] focus:border-transparent text-gray-700"
+                className="w-full px-4 py-2 md:py-3 pl-10 md:pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d11a68] focus:border-transparent text-gray-700 text-sm md:text-base"
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 md:h-5 md:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
               </div>
             </div>
-            <p className="text-sm text-gray-600 mt-2 text-center">
+            <p className="text-xs md:text-sm text-gray-600 mt-2 text-center">
               {searchQuery ? `"${searchQuery}" の検索結果: ${filteredArticles.length}件` : `${displayArticles.length}件の記事があります`}
             </p>
           </div>
@@ -314,8 +314,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
       </div>
 
       {/* Articles Section */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto space-y-6">
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
           {loading && (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#d11a68]"></div>
@@ -341,11 +341,10 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
               key={article.id}
               className="bg-white border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => window.location.href = `/article/${article.id}`}
-              style={{ height: '200px' }}
             >
-              <div className="flex items-start p-6 h-full">
-                {/* Left side - Thumbnail */}
-                <div className="flex-shrink-0 w-48 h-32 mr-6">
+              <div className="flex flex-col md:flex-row items-start p-4 md:p-6">
+                {/* Thumbnail */}
+                <div className="flex-shrink-0 w-full md:w-48 h-48 md:h-32 mb-4 md:mb-0 md:mr-6">
                   <img
                     src={article.imageUrl}
                     alt={article.title}
@@ -353,11 +352,11 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
                   />
                 </div>
 
-                {/* Right side - Content */}
-                <div className="flex-1 flex flex-col justify-between h-full">
+                {/* Content */}
+                <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
+                      <div className="flex flex-wrap gap-2 mb-2 md:mb-0">
                         {article.tags.slice(0, 3).map((tag, index) => (
                           <span key={index} className="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded">
                             {tag}
@@ -372,7 +371,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
 
                     <p className="text-sm text-[#d11a68] font-semibold mb-2">{category}</p>
 
-                    <h3 className="text-xl font-semibold text-gray-800 mb-3 hover:text-[#d11a68] transition-colors" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3 hover:text-[#d11a68] transition-colors" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {article.title}
                     </h3>
                   </div>
