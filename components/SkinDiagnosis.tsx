@@ -10,10 +10,7 @@ const SkinDiagnosis: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [diagnosisResult, setDiagnosisResult] = useState<SkinAnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
 
   // 肌タイプの説明を取得
   const getSkinTypeDescription = (skinType: string): string => {
@@ -119,67 +116,6 @@ const SkinDiagnosis: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  // カメラを起動
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' } // インカメラを指定
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        setIsCameraOpen(true);
-        setError(null);
-      }
-    } catch (err) {
-      console.error('カメラの起動に失敗しました:', err);
-      setError('カメラへのアクセスが拒否されました。ブラウザの設定を確認してください。');
-    }
-  };
-
-  // カメラを停止
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setIsCameraOpen(false);
-  };
-
-  // 写真を撮影
-  const capturePhoto = async () => {
-    if (!videoRef.current) return;
-
-    const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    const ctx = canvas.getContext('2d');
-
-    if (ctx) {
-      ctx.drawImage(videoRef.current, 0, 0);
-      const base64Image = canvas.toDataURL('image/jpeg');
-
-      // カメラを停止
-      stopCamera();
-
-      // 画像をアップロード
-      setUploadedImage(base64Image);
-
-      // 診断開始
-      setIsAnalyzing(true);
-      try {
-        const result = await analyzeSkinImage(base64Image);
-        setDiagnosisResult(result);
-      } catch (error) {
-        console.error(error);
-        setError("診断に失敗しました。もう一度お試しください。");
-      } finally {
-        setIsAnalyzing(false);
-      }
-    }
-  };
-
   return (
     <div className="bg-gray-100 font-sans min-h-screen">
       <Header />
@@ -216,12 +152,12 @@ const SkinDiagnosis: React.FC = () => {
           )}
 
           {/* Image Upload Section */}
-          {!uploadedImage && !isCameraOpen ? (
+          {!uploadedImage ? (
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
               <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">肌画像をアップロード</h2>
 
               <div
-                className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-pink-400 transition-colors cursor-pointer mb-6"
+                className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-pink-400 transition-colors cursor-pointer"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
@@ -240,20 +176,6 @@ const SkinDiagnosis: React.FC = () => {
                 </button>
               </div>
 
-              <div className="text-center">
-                <p className="text-slate-500 mb-4">または</p>
-                <button
-                  onClick={startCamera}
-                  className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg inline-flex items-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  カメラで撮影
-                </button>
-              </div>
-
               <input
                 ref={fileInputRef}
                 type="file"
@@ -261,40 +183,6 @@ const SkinDiagnosis: React.FC = () => {
                 onChange={handleImageUpload}
                 className="hidden"
               />
-            </div>
-          ) : isCameraOpen ? (
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-slate-800">カメラ撮影</h2>
-                <button
-                  onClick={stopCamera}
-                  className="text-slate-500 hover:text-slate-700 text-sm font-medium"
-                >
-                  キャンセル
-                </button>
-              </div>
-
-              <div className="relative mb-6">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full max-h-96 object-contain bg-black rounded-lg"
-                />
-              </div>
-
-              <div className="text-center">
-                <button
-                  onClick={capturePhoto}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-10 py-4 rounded-full font-semibold transition-all transform hover:scale-105 inline-flex items-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  撮影する
-                </button>
-              </div>
             </div>
           ) : (
             <div className="space-y-6">
