@@ -225,6 +225,71 @@ export const articlesAPI = {
     })
 
     return results
+  },
+
+  // 記事を検索（タイトル、カテゴリー、キーワードで検索）
+  async searchArticles(query: string) {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .eq('status', 'published')
+      .or(`title.ilike.%${query}%,category.ilike.%${query}%,category2.ilike.%${query}%,keywords.ilike.%${query}%,content.ilike.%${query}%`)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data as Article[]
+  },
+
+  // 肌診断結果に基づいておすすめ記事を取得
+  async getRecommendedArticles(skinType: string, concerns: string[], limit: number = 6) {
+    // 肌タイプと悩みから検索キーワードを生成
+    const keywords = [skinType, ...concerns, 'スキンケア', 'ケア']
+
+    // キーワードマッピング（より幅広い記事をヒットさせる）
+    const keywordMap: { [key: string]: string[] } = {
+      '乾燥肌': ['乾燥', '保湿', 'うるおい', 'しっとり', 'セラミド', 'ヒアルロン酸'],
+      '脂性肌': ['脂性', '皮脂', 'テカリ', 'オイリー', 'さっぱり', '毛穴'],
+      '混合肌': ['混合', 'バランス', 'Tゾーン', 'Uゾーン', '部分ケア'],
+      '普通肌': ['普通肌', 'バランス', '健康', '維持', 'キープ'],
+      '敏感肌': ['敏感', '刺激', '低刺激', 'やさしい', 'マイルド', 'バリア機能'],
+      '毛穴': ['毛穴', '角栓', '黒ずみ', '引き締め', 'ポア'],
+      'くすみ': ['くすみ', '透明感', '明るさ', 'ブライトニング', 'ビタミンC'],
+      'シワ': ['シワ', 'しわ', 'エイジング', 'アンチエイジング', 'ハリ', 'レチノール'],
+      'ニキビ': ['ニキビ', '吹き出物', 'アクネ', '炎症', 'ビタミンC'],
+      'たるみ': ['たるみ', 'ハリ', '弾力', 'リフトアップ', 'エイジング'],
+      'シミ': ['シミ', '色素沈着', '美白', 'ブライトニング', 'ビタミンC'],
+      '赤み': ['赤み', '炎症', '鎮静', 'カーミング', 'センシティブ']
+    }
+
+    // 拡張キーワードリストを作成
+    const expandedKeywords = new Set<string>()
+    keywords.forEach(keyword => {
+      expandedKeywords.add(keyword)
+      // キーワードマッピングから関連キーワードを追加
+      Object.entries(keywordMap).forEach(([key, values]) => {
+        if (keyword.includes(key) || key.includes(keyword)) {
+          values.forEach(v => expandedKeywords.add(v))
+        }
+      })
+    })
+
+    const searchTerms = Array.from(expandedKeywords)
+
+    // 複数キーワードでOR検索
+    const orConditions = searchTerms.map(term =>
+      `title.ilike.%${term}%,category.ilike.%${term}%,category2.ilike.%${term}%,keywords.ilike.%${term}%,content.ilike.%${term}%`
+    ).join(',')
+
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .eq('status', 'published')
+      .or(orConditions)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (error) throw error
+    return data as Article[]
   }
 }
 

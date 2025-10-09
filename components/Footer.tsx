@@ -63,8 +63,8 @@ const Footer: React.FC = () => {
         </div>
         <div className="text-sm mt-12 border-t border-white/30 pt-6 text-center">
             <div className="flex justify-center space-x-4">
-                <a href="#">サイトマップ</a>
-                <a href="/commercial-transaction">特定商取引法に基づく表示</a>
+                <a href="/sitemap" className="hover:underline">サイトマップ</a>
+                <a href="/commercial-transaction" className="hover:underline">特定商取引法に基づく表示</a>
             </div>
         </div>
       </div>

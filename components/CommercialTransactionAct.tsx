@@ -35,26 +35,26 @@ const CommercialTransactionAct: React.FC = () => {
                   </tr>
                   <tr className="border-b border-gray-200">
                     <td className="py-3 pr-4 font-semibold text-gray-800 align-top">代表者</td>
-                    <td className="py-3 text-gray-700">代表取締役 [代表者名]</td>
+                    <td className="py-3 text-gray-700">西木 昌江</td>
                   </tr>
                   <tr className="border-b border-gray-200">
                     <td className="py-3 pr-4 font-semibold text-gray-800 align-top">所在地</td>
                     <td className="py-3 text-gray-700">
-                      〒[郵便番号]<br />
-                      [住所]
+                      〒158-0094<br />
+                      東京都世田谷区玉川3-24-14
                     </td>
                   </tr>
                   <tr className="border-b border-gray-200">
-                    <td className="py-3 pr-4 font-semibold text-gray-800 align-top">電話番号</td>
-                    <td className="py-3 text-gray-700">[電話番号]</td>
+                    <td className="py-3 pr-4 font-semibold text-gray-800 align-top">事業担当者</td>
+                    <td className="py-3 text-gray-700">鈴木 元康</td>
                   </tr>
                   <tr className="border-b border-gray-200">
-                    <td className="py-3 pr-4 font-semibold text-gray-800 align-top">メールアドレス</td>
-                    <td className="py-3 text-gray-700">info@bikatsu-bu.com</td>
+                    <td className="py-3 pr-4 font-semibold text-gray-800 align-top">担当メールアドレス</td>
+                    <td className="py-3 text-gray-700">m.suzuki@logicajapan.net</td>
                   </tr>
                   <tr>
                     <td className="py-3 pr-4 font-semibold text-gray-800 align-top">ウェブサイト</td>
-                    <td className="py-3 text-gray-700">https://bikatsu-bu.com</td>
+                    <td className="py-3 text-gray-700">https://logicajapan.co.jp/</td>
                   </tr>
                 </tbody>
               </table>
@@ -82,8 +82,8 @@ const CommercialTransactionAct: React.FC = () => {
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">その他サービス</h3>
               <ul className="list-disc pl-6 text-gray-700 space-y-2">
-                <li><strong>美容コンサルティング</strong>: 30,000円〜（税込）</li>
-                <li><strong>コンテンツ制作代行</strong>: 50,000円〜（税込）</li>
+                <li><strong>SNS動画制作</strong>: 30,000円〜 / 本（税込）</li>
+                <li><strong>プロモーション動画制作</strong>: 50,000円〜 / 本（税込）</li>
               </ul>
             </div>
           </section>
@@ -125,8 +125,8 @@ const CommercialTransactionAct: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">その他サービス</h3>
                 <ul className="list-disc pl-6 text-gray-700 space-y-1">
-                  <li><strong>コンサルティング</strong>: お申し込み後、7営業日以内に開始日程を調整</li>
-                  <li><strong>コンテンツ制作</strong>: 内容により10〜30営業日で納品</li>
+                  <li><strong>SNS動画制作</strong>: 内容により7〜14営業日で納品</li>
+                  <li><strong>プロモーション動画制作</strong>: 内容により14〜30営業日で納品</li>
                 </ul>
               </div>
             </div>
@@ -255,9 +255,8 @@ const CommercialTransactionAct: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">お問い合わせ方法</h3>
                 <ul className="list-disc pl-6 text-gray-700 space-y-1">
-                  <li>メール: info@bikatsu-bu.com</li>
-                  <li>お問い合わせフォーム: 当サイト内のお問い合わせページから</li>
-                  <li>電話: [電話番号]（営業時間内のみ）</li>
+                  <li>メール: m.suzuki@logicajapan.net</li>
+                  <li>電話: 080-4164-1574（営業時間内のみ）</li>
                 </ul>
               </div>
               

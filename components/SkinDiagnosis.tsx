@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import { analyzeSkinImage } from '../services/geminiService';
+import { analyzeSkinImage, validateFaceImage } from '../services/geminiService';
 import type { SkinAnalysisResult } from '../types/skinAnalysis';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import { articlesAPI, type Article } from '../src/lib/supabase';
 
 const SkinDiagnosis: React.FC = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -11,6 +12,8 @@ const SkinDiagnosis: React.FC = () => {
   const [diagnosisResult, setDiagnosisResult] = useState<SkinAnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showGuideModal, setShowGuideModal] = useState(true);
+  const [recommendedArticles, setRecommendedArticles] = useState<Article[]>([]);
+  const [isLoadingArticles, setIsLoadingArticles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 肌タイプの説明を取得
@@ -60,11 +63,34 @@ const SkinDiagnosis: React.FC = () => {
       // 診断開始
       setIsAnalyzing(true);
       try {
+        // 顔画像のバリデーション
+        const validation = await validateFaceImage(base64Image);
+        if (!validation.isValid) {
+          setError(validation.errorMessage || "この画像は肌診断に適していません。");
+          setUploadedImage(null);
+          setIsAnalyzing(false);
+          return;
+        }
+
+        // 肌診断実行
         const result = await analyzeSkinImage(base64Image);
         setDiagnosisResult(result);
+
+        // おすすめ記事を取得
+        setIsLoadingArticles(true);
+        try {
+          const articles = await articlesAPI.getRecommendedArticles(result.skinType, result.concerns);
+          setRecommendedArticles(articles);
+        } catch (articleError) {
+          console.error('Failed to fetch recommended articles:', articleError);
+          // 記事取得失敗は診断結果表示を妨げない
+        } finally {
+          setIsLoadingArticles(false);
+        }
       } catch (error) {
         console.error(error);
         setError("診断に失敗しました。もう一度お試しください。");
+        setUploadedImage(null);
       } finally {
         setIsAnalyzing(false);
       }
@@ -105,11 +131,34 @@ const SkinDiagnosis: React.FC = () => {
       // 診断開始
       setIsAnalyzing(true);
       try {
+        // 顔画像のバリデーション
+        const validation = await validateFaceImage(base64Image);
+        if (!validation.isValid) {
+          setError(validation.errorMessage || "この画像は肌診断に適していません。");
+          setUploadedImage(null);
+          setIsAnalyzing(false);
+          return;
+        }
+
+        // 肌診断実行
         const result = await analyzeSkinImage(base64Image);
         setDiagnosisResult(result);
+
+        // おすすめ記事を取得
+        setIsLoadingArticles(true);
+        try {
+          const articles = await articlesAPI.getRecommendedArticles(result.skinType, result.concerns);
+          setRecommendedArticles(articles);
+        } catch (articleError) {
+          console.error('Failed to fetch recommended articles:', articleError);
+          // 記事取得失敗は診断結果表示を妨げない
+        } finally {
+          setIsLoadingArticles(false);
+        }
       } catch (error) {
         console.error(error);
         setError("診断に失敗しました。もう一度お試しください。");
+        setUploadedImage(null);
       } finally {
         setIsAnalyzing(false);
       }
@@ -123,17 +172,17 @@ const SkinDiagnosis: React.FC = () => {
 
       {/* 撮影ガイドモーダル */}
       {showGuideModal && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/40 z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl max-w-lg w-full border border-white/20 animate-scale-in">
-            <div className="p-6">
-              <div className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-pink-100 to-purple-100 text-pink-700 rounded-full text-xs font-medium mb-4 mx-auto block w-fit">
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/40 z-50 flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full border border-white/20 animate-scale-in mx-2">
+            <div className="p-4 sm:p-6">
+              <div className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-pink-100 to-purple-100 text-pink-700 rounded-full text-xs font-medium mb-3 sm:mb-4 mx-auto block w-fit">
                 📸 撮影ガイド
               </div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-4 text-center">
+              <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-3 sm:mb-4 text-center">
                 写真の撮り方
               </h2>
-              <div className="mb-4 flex justify-center">
-                <div className="relative">
+              <div className="mb-3 sm:mb-4 flex justify-center">
+                <div className="relative max-w-xs sm:max-w-sm">
                   <div className="absolute -inset-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl blur opacity-20"></div>
                   <img
                     src="/diagnosis/写真撮影方法.jpg"
@@ -142,16 +191,17 @@ const SkinDiagnosis: React.FC = () => {
                   />
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-slate-50 to-pink-50 rounded-2xl p-4 mb-4">
-                <p className="text-slate-700 text-center text-sm leading-relaxed">
-                  💡 明るい場所で正面からまっすぐ撮影すると<br />
-                  より正確な診断結果が得られます
+              <div className="bg-gradient-to-br from-slate-50 to-pink-50 rounded-2xl p-3 sm:p-4 mb-4">
+                <p className="text-slate-700 text-center text-xs sm:text-sm leading-relaxed">
+                  💡 明るい場所で正面からまっすぐ撮影すると<br className="hidden sm:block" />
+                  <span className="sm:hidden">より正確な診断結果が得られます</span>
+                  <span className="hidden sm:inline">より正確な診断結果が得られます</span>
                 </p>
               </div>
               <div className="text-center">
                 <button
                   onClick={() => setShowGuideModal(false)}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-10 py-3 rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl text-sm"
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 sm:px-10 py-2.5 sm:py-3 rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl text-sm"
                 >
                   診断を始める →
                 </button>
@@ -164,52 +214,55 @@ const SkinDiagnosis: React.FC = () => {
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-pink-50"></div>
-        <div className="relative container mx-auto px-4 py-20">
+        <div className="relative container mx-auto px-4 py-12 md:py-20">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold text-slate-900 mb-6 leading-tight">
-              あなたの肌タイプを
-              <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">30秒で</span>
-              診断
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4 md:mb-6 leading-tight">
+              <span className="block sm:inline">あなたの肌タイプを</span>
+              <span className="block sm:inline">
+                <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">30秒で</span>
+                診断
+              </span>
             </h1>
-            <p className="text-sm text-slate-500 max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm text-slate-500 max-w-2xl mx-auto px-2">
               ※ この診断は参考情報としてご利用ください。専門的な医療アドバイスに代わるものではありません。
             </p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white py-16">
-        <div className="container mx-auto px-4">
+      <div className="bg-white py-8 sm:py-12 md:py-16">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="max-w-4xl mx-auto">
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 sm:px-6 py-3 sm:py-4 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base">
               {error}
             </div>
           )}
 
           {/* Image Upload Section */}
           {!uploadedImage ? (
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">肌画像をアップロード</h2>
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6 md:p-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-4 sm:mb-6 text-center">肌画像をアップロード</h2>
 
               <div
-                className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-pink-400 transition-colors cursor-pointer"
+                className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 md:p-12 text-center hover:border-pink-400 transition-colors cursor-pointer"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white text-2xl">📷</span>
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <span className="text-white text-xl sm:text-2xl">📷</span>
                 </div>
-                <h3 className="text-xl font-semibold text-slate-800 mb-2">
-                  画像をドラッグ&ドロップまたはクリックして選択
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-800 mb-2">
+                  <span className="block sm:hidden">画像を選択またはドラッグ&ドロップ</span>
+                  <span className="hidden sm:block">画像をドラッグ&ドロップまたはクリックして選択</span>
                 </h3>
-                <p className="text-slate-600 mb-6">
+                <p className="text-sm sm:text-base text-slate-600 mb-4 sm:mb-6">
                   JPG、PNG、WEBP形式に対応（最大20MB）
                 </p>
-                <button className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 font-semibold rounded-lg transition-all transform hover:scale-105">
+                <button className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-5 sm:px-6 py-2.5 sm:py-3 font-semibold rounded-lg transition-all transform hover:scale-105 text-sm sm:text-base">
                   画像を選択
                 </button>
               </div>
@@ -223,18 +276,20 @@ const SkinDiagnosis: React.FC = () => {
               />
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Uploaded Image */}
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-slate-800">アップロード完了</h2>
+              <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6 md:p-8">
+                <div className="flex justify-between items-center mb-4 sm:mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-800">アップロード完了</h2>
                   <button
                     onClick={() => {
                       setUploadedImage(null);
                       setDiagnosisResult(null);
                       setError(null);
+                      setRecommendedArticles([]);
+                      setIsLoadingArticles(false);
                     }}
-                    className="text-slate-500 hover:text-slate-700 text-sm font-medium"
+                    className="text-slate-500 hover:text-slate-700 text-xs sm:text-sm font-medium"
                   >
                     別の画像を選択
                   </button>
@@ -244,32 +299,32 @@ const SkinDiagnosis: React.FC = () => {
                   <img
                     src={uploadedImage}
                     alt="Uploaded skin"
-                    className="max-w-full max-h-96 object-contain border border-gray-200 rounded-lg"
+                    className="max-w-full max-h-64 sm:max-h-80 md:max-h-96 object-contain border border-gray-200 rounded-lg"
                   />
                 </div>
               </div>
 
               {/* Loading State */}
               {isAnalyzing && (
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-12 text-center">
-                  <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-pink-500 mx-auto mb-4"></div>
-                  <h3 className="text-xl font-semibold text-slate-800 mb-2">AI解析中...</h3>
-                  <p className="text-slate-600">あなたの肌を詳しく分析しています</p>
+                <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-12 text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-4 border-pink-500 mx-auto mb-3 sm:mb-4"></div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-slate-800 mb-2">AI解析中...</h3>
+                  <p className="text-sm sm:text-base text-slate-600">あなたの肌を詳しく分析しています</p>
                 </div>
               )}
 
               {/* Diagnosis Result */}
               {!isAnalyzing && diagnosisResult && (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {/* ヘッダー */}
-                  <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-10 text-center">
-                    <div className="inline-flex items-center px-4 py-2 bg-rose-50 text-rose-700 rounded-full text-sm font-medium mb-6">
+                  <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 p-6 sm:p-8 md:p-10 text-center">
+                    <div className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 bg-rose-50 text-rose-700 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
                       ✨ AI肌診断レポート
                     </div>
-                    <h2 className="text-4xl font-bold text-slate-800 mb-4">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mb-3 sm:mb-4">
                       診断完了
                     </h2>
-                    <p className="text-slate-600 text-lg">
+                    <p className="text-slate-600 text-sm sm:text-base md:text-lg">
                       あなたの肌タイプと最適なケア方法をご提案します
                     </p>
                   </div>
@@ -412,6 +467,109 @@ const SkinDiagnosis: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* おすすめ記事 */}
+                  {(isLoadingArticles || recommendedArticles.length > 0) && (
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                        <h3 className="text-2xl font-bold text-slate-800">あなたにおすすめの記事</h3>
+                        <span className="text-sm text-slate-500 uppercase tracking-wide">Recommended Articles</span>
+                      </div>
+                      <p className="text-slate-600 mb-6 text-center">
+                        あなたの肌タイプ「{diagnosisResult.skinType}」に関連する記事をピックアップしました
+                      </p>
+                      
+                      {isLoadingArticles ? (
+                        <div className="text-center py-12">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-rose-500 mx-auto mb-4"></div>
+                          <p className="text-slate-600">おすすめ記事を検索中...</p>
+                        </div>
+                      ) : recommendedArticles.length === 0 ? (
+                        <div className="text-center py-12">
+                          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span className="text-2xl">📚</span>
+                          </div>
+                          <p className="text-slate-600 mb-4">現在、あなたの肌タイプに関連する記事を準備中です</p>
+                          <button
+                            onClick={() => window.open('/articles/beauty-topics', '_blank')}
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white px-6 py-2 rounded-lg font-medium transition-all"
+                          >
+                            <span>すべての記事を見る</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {recommendedArticles.map((article) => (
+                              <div
+                                key={article.id}
+                                className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+                                onClick={() => window.open(`/article/${article.id}`, '_blank')}
+                              >
+                                {article.featured_image && (
+                                  <div className="aspect-video overflow-hidden">
+                                    <img
+                                      src={article.featured_image}
+                                      alt={article.title}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                  </div>
+                                )}
+                                <div className="p-5">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    {article.category && (
+                                      <span className="inline-block bg-rose-100 text-rose-700 text-xs px-2 py-1 rounded-full font-medium">
+                                        {article.category}
+                                      </span>
+                                    )}
+                                    {article.category2 && (
+                                      <span className="inline-block bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full font-medium">
+                                        {article.category2}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <h4 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-rose-600 transition-colors overflow-hidden" style={{
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical'
+                                  }}>
+                                    {article.title}
+                                  </h4>
+                                  <p className="text-slate-600 text-sm mb-4 overflow-hidden" style={{
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 3,
+                                    WebkitBoxOrient: 'vertical'
+                                  }}>
+                                    {article.excerpt || article.content?.substring(0, 100) + '...'}
+                                  </p>
+                                  <div className="flex items-center justify-between text-xs text-slate-500">
+                                    <span>{new Date(article.created_at).toLocaleDateString('ja-JP')}</span>
+                                    <span className="text-rose-600 font-medium group-hover:underline">
+                                      記事を読む →
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="text-center mt-8">
+                            <button
+                              onClick={() => window.open('/articles/beauty-topics', '_blank')}
+                              className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white px-8 py-3 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg"
+                            >
+                              <span>もっと記事を見る</span>
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
 
                   {/* SNSシェア */}
                   <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">

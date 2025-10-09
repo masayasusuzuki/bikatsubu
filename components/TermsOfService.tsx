@@ -35,40 +35,13 @@ const TermsOfService: React.FC = () => {
               <li>美容に関する記事・コンテンツの配信</li>
               <li>コスメ情報、美容テクニック、イベント情報の提供</li>
               <li>肌診断サービス</li>
-              <li>会員向けサービス（お気に入り機能、マイページ等）</li>
               <li>その他、美容活動をサポートする関連サービス</li>
-            </ol>
-          </section>
-
-          {/* 利用登録 */}
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第2条（利用登録）</h2>
-            
-            <ol className="list-decimal pl-6 text-gray-700 space-y-3">
-              <li>
-                <strong>登録申請</strong><br />
-                本サービスの利用を希望する方は、本規約及びプライバシーポリシーに同意の上、所定の方法により利用登録の申請を行うものとします。
-              </li>
-              <li>
-                <strong>登録完了</strong><br />
-                当社が前項の申請を承認した場合、利用登録が完了し、ユーザーは本サービスを利用することができます。
-              </li>
-              <li>
-                <strong>登録拒否</strong><br />
-                当社は、利用登録の申請について、以下の事由がある場合は承認を拒否することがあります：
-                <ul className="list-disc pl-6 mt-2 space-y-1">
-                  <li>申請内容に虚偽、記載漏れ、記載誤りがある場合</li>
-                  <li>過去に本規約違反により利用停止処分を受けた方からの申請</li>
-                  <li>15歳未満の方からの申請</li>
-                  <li>その他、当社が不適切と判断する場合</li>
-                </ul>
-              </li>
             </ol>
           </section>
 
           {/* ユーザーの責務 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第3条（ユーザーの責務）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第2条（ユーザーの責務）</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               ユーザーは、本サービスの利用にあたり、以下の事項を遵守するものとします：
@@ -76,8 +49,6 @@ const TermsOfService: React.FC = () => {
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>法令及び本規約を遵守すること</li>
-              <li>登録情報を正確に管理し、変更があった場合は速やかに更新すること</li>
-              <li>ログイン情報（ID・パスワード等）を適切に管理し、第三者に利用させないこと</li>
               <li>本サービスを個人的な目的でのみ利用し、商業目的で利用しないこと</li>
               <li>他のユーザーや第三者の権利を侵害しないこと</li>
               <li>本サービスの運営を妨害しないこと</li>
@@ -86,7 +57,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 禁止行為 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第4条（禁止行為）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第3条（禁止行為）</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               ユーザーは、本サービスの利用にあたり、以下の行為を行ってはなりません：
@@ -112,7 +83,7 @@ const TermsOfService: React.FC = () => {
 
           {/* コンテンツの取り扱い */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第5条（コンテンツの取り扱い）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第4条（コンテンツの取り扱い）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -138,7 +109,7 @@ const TermsOfService: React.FC = () => {
 
           {/* サービスの変更・停止 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第6条（サービスの変更・停止）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第5条（サービスの変更・停止）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -162,29 +133,18 @@ const TermsOfService: React.FC = () => {
             </ol>
           </section>
 
-          {/* 利用制限・退会 */}
+          {/* 利用制限 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第7条（利用制限・退会）</h2>
-            
-            <ol className="list-decimal pl-6 text-gray-700 space-y-3">
-              <li>
-                <strong>利用制限</strong><br />
-                当社は、ユーザーが本規約に違反した場合、事前の通知なく、当該ユーザーの本サービス利用を制限または停止することができます。
-              </li>
-              <li>
-                <strong>退会</strong><br />
-                ユーザーは、所定の手続きにより、いつでも本サービスから退会することができます。
-              </li>
-              <li>
-                <strong>データの削除</strong><br />
-                退会または利用停止処分を受けた場合、当該ユーザーのアカウント情報及び関連データは削除されます。
-              </li>
-            </ol>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第6条（利用制限）</h2>
+
+            <p className="text-gray-700 leading-relaxed">
+              当社は、ユーザーが本規約に違反した場合、事前の通知なく、当該ユーザーの本サービス利用を制限または停止することができます。
+            </p>
           </section>
 
           {/* 免責事項 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第8条（免責事項）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第7条（免責事項）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -208,7 +168,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 損害賠償 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第9条（損害賠償）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第8条（損害賠償）</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               ユーザーが本規約に違反し、当社に損害を与えた場合、ユーザーは当社に対して損害を賠償する責任を負います。
@@ -221,7 +181,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 個人情報の取り扱い */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第10条（個人情報の取り扱い）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第9条（個人情報の取り扱い）</h2>
             
             <p className="text-gray-700 leading-relaxed">
               当社は、ユーザーの個人情報を、別途定めるプライバシーポリシーに従って適切に取り扱います。
@@ -230,7 +190,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 規約の変更 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第11条（規約の変更）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第10条（規約の変更）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -247,7 +207,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 準拠法・管轄裁判所 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第12条（準拠法・管轄裁判所）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第11条（準拠法・管轄裁判所）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -261,7 +221,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 協議解決 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第13条（協議解決）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第12条（協議解決）</h2>
             
             <p className="text-gray-700 leading-relaxed">
               本規約に定めのない事項または本規約の解釈に関して疑義が生じた場合は、ユーザーと当社が誠実に協議の上解決を図るものとします。
@@ -270,7 +230,7 @@ const TermsOfService: React.FC = () => {
 
           {/* お問い合わせ */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第14条（お問い合わせ）</h2>
+            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第13条（お問い合わせ）</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               本規約に関するお問い合わせは、以下までご連絡ください：

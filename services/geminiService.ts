@@ -30,6 +30,78 @@ export const generateBeautyTip = async (): Promise<string> => {
   }
 };
 
+interface FaceValidationResult {
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+export const validateFaceImage = async (imageBase64: string): Promise<FaceValidationResult> => {
+  try {
+    // Remove "data:image/xxx;base64," prefix if present
+    const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+
+    const contents = [
+      {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: base64Data
+        }
+      },
+      {
+        text: `この画像を分析して、肌診断に適した顔写真かどうかを判定してください。
+
+以下の基準で判定し、JSON形式で回答してください:
+{
+  "hasFace": true/false (顔が写っているか),
+  "faceVisibility": "clear"/"partial"/"unclear" (顔全体が明確に見えるか),
+  "brightness": "good"/"dark"/"overexposed" (明るさは適切か),
+  "angle": "frontal"/"angled"/"profile" (正面から撮影されているか),
+  "quality": "good"/"acceptable"/"poor" (画質は十分か),
+  "isValid": true/false (肌診断に使用可能か),
+  "errorMessage": "エラーメッセージ（isValidがfalseの場合のみ）"
+}
+
+判定基準:
+- 顔が写っていない場合: isValid = false, errorMessage = "顔が検出されませんでした。顔全体が写っている写真をアップロードしてください。"
+- 顔の一部しか写っていない場合: isValid = false, errorMessage = "顔全体が写っていません。顔全体が写るように撮影してください。"
+- 暗すぎる場合: isValid = false, errorMessage = "写真が暗すぎます。明るい場所で撮影してください。"
+- 明るすぎる場合: isValid = false, errorMessage = "写真が明るすぎます。直射日光を避けて撮影してください。"
+- 正面ではない場合: isValid = false, errorMessage = "正面から撮影してください。顔を正面に向けて撮影し直してください。"
+- 画質が悪い場合: isValid = false, errorMessage = "画質が不十分です。ピントを合わせて撮影し直してください。"
+- 顔以外のもの（動物、物体など）: isValid = false, errorMessage = "人間の顔が検出されませんでした。ご自身の顔写真をアップロードしてください。"
+
+すべての条件を満たす場合のみ isValid = true としてください。
+必ずJSON形式で回答してください。マークダウンのコードブロックは使用しないでください。`
+      }
+    ];
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: contents,
+      config: {
+        temperature: 0.2,
+        topP: 0.95,
+        responseMimeType: "application/json"
+      }
+    });
+
+    const result = JSON.parse(response.text);
+
+    if (!result.isValid) {
+      return {
+        isValid: false,
+        errorMessage: result.errorMessage || "この画像は肌診断に適していません。撮影ガイドを参考に撮り直してください。"
+      };
+    }
+
+    return { isValid: true };
+  } catch (error) {
+    console.error("Error validating face image:", error);
+    // バリデーションエラーの場合は安全側に倒して通す（AIの判定ミスを避けるため）
+    return { isValid: true };
+  }
+};
+
 export const analyzeSkinImage = async (imageBase64: string): Promise<SkinAnalysisResult> => {
   try {
     // Remove "data:image/xxx;base64," prefix if present

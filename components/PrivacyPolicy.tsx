@@ -37,20 +37,9 @@ const PrivacyPolicy: React.FC = () => {
           {/* 収集する情報 */}
           <section className="mb-10">
             <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">2. 収集する個人情報</h2>
-            
-            <div className="mb-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">2.1 会員登録時に収集する情報</h3>
-              <ul className="list-disc pl-6 text-gray-700 space-y-2">
-                <li>メールアドレス</li>
-                <li>パスワード（暗号化して保存）</li>
-                <li>ニックネーム（任意）</li>
-                <li>生年月日（任意）</li>
-                <li>性別（任意）</li>
-              </ul>
-            </div>
 
             <div className="mb-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">2.2 サイト利用時に自動的に収集される情報</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">2.1 サイト利用時に自動的に収集される情報</h3>
               <ul className="list-disc pl-6 text-gray-700 space-y-2">
                 <li>IPアドレス</li>
                 <li>ブラウザの種類やバージョン</li>
@@ -63,7 +52,7 @@ const PrivacyPolicy: React.FC = () => {
             </div>
 
             <div className="mb-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">2.3 お問い合わせ時に収集する情報</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">2.2 お問い合わせ時に収集する情報</h3>
               <ul className="list-disc pl-6 text-gray-700 space-y-2">
                 <li>お名前</li>
                 <li>メールアドレス</li>
@@ -79,11 +68,9 @@ const PrivacyPolicy: React.FC = () => {
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">3.1 サービス提供のための利用</h3>
               <ul className="list-disc pl-6 text-gray-700 space-y-2">
-                <li>会員サービスの提供</li>
-                <li>お気に入り記事の保存・管理</li>
-                <li>パーソナライズされたコンテンツの提供</li>
+                <li>コンテンツの提供</li>
                 <li>肌診断サービスの提供</li>
-                <li>ログイン認証</li>
+                <li>お問い合わせへの対応</li>
               </ul>
             </div>
 
@@ -126,10 +113,9 @@ const PrivacyPolicy: React.FC = () => {
                 当サイトでは、ユーザーの利便性向上のためにCookieを使用しています。Cookieは以下の目的で利用されます：
               </p>
               <ul className="list-disc pl-6 text-gray-700 space-y-2">
-                <li>ログイン状態の維持</li>
-                <li>ユーザー設定の保存</li>
                 <li>サイト利用状況の分析</li>
                 <li>広告の最適化</li>
+                <li>ユーザー体験の向上</li>
               </ul>
             </div>
 
@@ -171,7 +157,7 @@ const PrivacyPolicy: React.FC = () => {
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">6.1 利用している外部サービス</h3>
               <ul className="list-disc pl-6 text-gray-700 space-y-2">
-                <li><strong>Supabase</strong>: データベース・認証サービス</li>
+                <li><strong>Supabase</strong>: データベースサービス</li>
                 <li><strong>Cloudinary</strong>: 画像ストレージ・配信サービス</li>
                 <li><strong>Google Analytics</strong>: アクセス解析ツール</li>
               </ul>
@@ -192,7 +178,6 @@ const PrivacyPolicy: React.FC = () => {
             
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
               <li>SSL（Secure Socket Layer）による暗号化通信の使用</li>
-              <li>パスワードの暗号化</li>
               <li>アクセス権限の適切な管理</li>
               <li>定期的なセキュリティの見直し</li>
               <li>システムの脆弱性対策</li>
@@ -208,7 +193,6 @@ const PrivacyPolicy: React.FC = () => {
             </p>
             
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
-              <li><strong>会員情報</strong>: 退会から3年間</li>
               <li><strong>お問い合わせ情報</strong>: 対応完了から3年間</li>
               <li><strong>アクセスログ</strong>: 収集から1年間</li>
               <li><strong>その他の情報</strong>: 利用目的達成後、遅滞なく削除</li>
@@ -240,7 +224,7 @@ const PrivacyPolicy: React.FC = () => {
             <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">10. 未成年者の個人情報</h2>
             
             <p className="text-gray-700 leading-relaxed">
-              当サイトは、15歳未満の方からは個人情報を収集しません。15歳以上18歳未満の方が会員登録を行う場合は、保護者の同意を得た上でご利用ください。
+              当サイトは、15歳未満の方からは個人情報を収集しません。15歳以上18歳未満の方がサイトを利用される場合は、保護者の同意を得た上でご利用ください。
             </p>
           </section>
 

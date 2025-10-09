@@ -21,6 +21,9 @@ import FAQ from './components/FAQ';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import CommercialTransactionAct from './components/CommercialTransactionAct';
+import SearchBar from './components/SearchBar';
+import SearchResultsPage from './components/SearchResultsPage';
+import Sitemap from './components/Sitemap';
 import { heroSlides as fallbackHeroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
 import { pageSectionsAPI, articlesAPI, heroSlidesAPI, Article as DBArticle, HeroSlide as DBHeroSlide } from './src/lib/supabase';
 import type { Article, Product, HeroSlide } from './types';
@@ -39,6 +42,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [showSkinDiagnosisCard, setShowSkinDiagnosisCard] = useState(true);
+  const [isCardExpanded, setIsCardExpanded] = useState(false);
 
   useEffect(() => {
     // Always load hero slides, but only load page data for the main page
@@ -287,6 +291,14 @@ const App: React.FC = () => {
     return <CommercialTransactionAct />;
   }
 
+  if (currentPath === '/search') {
+    return <SearchResultsPage />;
+  }
+
+  if (currentPath === '/sitemap') {
+    return <Sitemap />;
+  }
+
   // トップページの初回ローディング画面
   if (currentPath === '/' && initialLoading) {
     return <LoadingScreen />;
@@ -297,12 +309,13 @@ const App: React.FC = () => {
       <Header />
       <main>
         <HeroCarousel slides={heroSlides} />
+        <SearchBar />
         <div className="container mx-auto px-4 py-8">
            <ProductCarousel products={pageData.hotCosmetics.map(convertArticleToProduct)} mostRead={pageData.mostReadArticles} />
-           <div className="my-12 p-8 bg-[#d11a68] text-white text-center rounded-lg">
-              <h2 className="text-3xl font-bold">Find Your Perfect Beauty Item</h2>
-              <p className="mt-2 mb-6">あなたのための美容製品、テクニック、サロンがきっと見つかる</p>
-              <button className="bg-white text-[#d11a68] font-bold py-3 px-8 text-lg hover:bg-gray-200 transition-colors rounded-md">
+           <div className="my-8 md:my-12 p-5 md:p-8 bg-[#d11a68] text-white text-center rounded-lg">
+              <h2 className="text-xl md:text-3xl font-bold">Find Your Perfect Beauty Item</h2>
+              <p className="mt-1 md:mt-2 mb-4 md:mb-6 text-sm md:text-base">あなたのための美容製品、テクニック、サロンがきっと見つかる</p>
+              <button className="bg-white text-[#d11a68] font-bold py-2.5 md:py-3 px-6 md:px-8 text-base md:text-lg hover:bg-gray-200 transition-colors rounded-md">
                 アイテムを探す
               </button>
             </div>
@@ -334,7 +347,7 @@ const App: React.FC = () => {
 
       {/* Fixed Skin Diagnosis Button */}
       {showSkinDiagnosisCard && (
-        <div className="fixed bottom-8 right-8 z-40">
+        <div className="fixed bottom-8 right-8 z-40 md:block">
           <div className="group relative">
             {/* Close button */}
             <button
@@ -349,12 +362,12 @@ const App: React.FC = () => {
 
             <a
               href="/skin-diagnosis"
-              className="block"
+              className="hidden md:block"
             >
               {/* Glow effect */}
               <div className="absolute -inset-1 bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-500 animate-pulse"></div>
 
-              {/* Main button */}
+              {/* Main button - PC only */}
               <div className="relative bg-white rounded-3xl shadow-lg overflow-hidden w-72">
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-purple-50 opacity-50"></div>
                 <div className="relative p-6">
@@ -379,6 +392,77 @@ const App: React.FC = () => {
                 </div>
               </div>
             </a>
+
+            {/* Mobile version - 2-step interaction */}
+            <div className="md:hidden">
+              {!isCardExpanded ? (
+                // Step 1: Compact card
+                <button
+                  onClick={() => setIsCardExpanded(true)}
+                  className="block w-full"
+                >
+                  <div className="absolute -inset-1 bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 rounded-2xl blur opacity-30 animate-pulse"></div>
+                  <div className="relative bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-purple-50 opacity-50"></div>
+                    <div className="relative px-5 py-4">
+                      <div className="flex items-center justify-between">
+                        <div className="text-left">
+                          <div className="text-xs font-bold text-pink-600 mb-0.5">30秒でわかる！</div>
+                          <div className="text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">肌タイプ診断</div>
+                        </div>
+                        <div className="flex-shrink-0 text-slate-400">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ) : (
+                // Step 2: Expanded card with image
+                <div className="animate-slide-up">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 rounded-3xl blur opacity-40"></div>
+                  <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-purple-50 opacity-50"></div>
+                    <div className="relative p-5">
+                      {/* Header with collapse button */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-left">
+                          <div className="text-xs font-bold text-pink-600 mb-0.5">30秒でわかる！</div>
+                          <div className="text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">肌タイプ診断</div>
+                        </div>
+                        <button
+                          onClick={() => setIsCardExpanded(false)}
+                          className="flex-shrink-0 text-slate-400"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* 4 skin types image */}
+                      <div className="w-full mb-4">
+                        <img
+                          src="/card/skin-diagnosis.png"
+                          alt="肌タイプ診断"
+                          className="w-full h-32 object-cover rounded-xl shadow-md"
+                        />
+                      </div>
+
+                      {/* CTA Button */}
+                      <a
+                        href="/skin-diagnosis"
+                        className="block w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl text-center transition-all shadow-md"
+                      >
+                        診断を始める →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
