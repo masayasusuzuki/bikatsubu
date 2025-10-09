@@ -1,30 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import PageContentManager from './PageContentManager';
-import { articlesAPI, Article } from '../src/lib/supabase';
-import { ga4Service, AnalyticsData } from '../services/ga4Service';
+import { articlesAPI, Article, supabase } from '../src/lib/supabase';
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('articles');
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
-  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Check authentication on component mount
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   useEffect(() => {
-    if (activeTab === 'articles') {
+    if (isAuthenticated && activeTab === 'articles') {
       loadArticles();
     }
-    // Load analytics data when component mounts or when overview tab is active
-    if (activeTab === 'overview') {
-      loadAnalyticsData();
-    }
-  }, [activeTab]);
+  }, [activeTab, isAuthenticated]);
 
-  // Load analytics data on component mount
-  useEffect(() => {
-    loadAnalyticsData();
-  }, []);
+  const checkAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsAuthenticated(true);
+      } else {
+        // Redirect to login
+        window.location.href = '/admin';
+      }
+    } catch (error) {
+      console.error('認証確認エラー:', error);
+      window.location.href = '/admin';
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const loadArticles = async () => {
     try {
@@ -38,36 +50,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const loadAnalyticsData = async () => {
-    try {
-      setAnalyticsLoading(true);
-      const data = await ga4Service.getAnalyticsData();
-      setAnalyticsData(data);
-    } catch (error) {
-      console.error('アナリティクスデータの読み込みに失敗:', error);
-      if (error instanceof Error && error.message.includes('OAuth認証が必要')) {
-        // OAuth認証が必要な場合は、エラー状態を設定
-        setAnalyticsData(null);
-      }
-    } finally {
-      setAnalyticsLoading(false);
-    }
-  };
-
-  const handleGA4Auth = async () => {
-    try {
-      setAnalyticsLoading(true);
-      // Request user authentication directly
-      await ga4Service.requestUserAuth();
-      // After successful auth, load data
-      await loadAnalyticsData();
-    } catch (error) {
-      console.error('GA4認証に失敗:', error);
-      alert('GA4認証に失敗しました。もう一度お試しください。');
-    } finally {
-      setAnalyticsLoading(false);
-    }
-  };
 
   const handleEditArticle = (articleId: string) => {
     window.location.href = `/admin/articles/edit/${articleId}`;
@@ -98,8 +80,9 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (confirm('ログアウトしますか？')) {
+      await supabase.auth.signOut();
       window.location.href = '/';
     }
   };
@@ -290,77 +273,32 @@ const AdminDashboard: React.FC = () => {
     }, 'image/png');
   };
 
-  // Generate stats from analytics data
-  const stats = analyticsData ? [
+  // Simple stats focused on content management
+  const stats = [
     {
       title: '総記事数',
-      value: analyticsData.totalArticles.toString(),
-      change: '+12%', // This could be calculated from previous data
-      trend: 'up' as const,
+      value: articles.length.toString(),
       description: 'Total Articles',
       icon: 'document-text'
     },
     {
-      title: '月間PV',
-      value: analyticsData.monthlyPageViews.toLocaleString(),
-      change: analyticsData.previousMonthPageViews 
-        ? ga4Service.calculateChange(analyticsData.monthlyPageViews, analyticsData.previousMonthPageViews).change
-        : '+0%',
-      trend: analyticsData.previousMonthPageViews 
-        ? ga4Service.calculateChange(analyticsData.monthlyPageViews, analyticsData.previousMonthPageViews).trend
-        : 'up' as const,
-      description: 'Monthly Page Views',
-      icon: 'chart-bar'
+      title: '公開記事',
+      value: articles.filter(article => article.status === 'published').length.toString(),
+      description: 'Published Articles',
+      icon: 'eye'
     },
     {
-      title: '平均滞在時間',
-      value: analyticsData.avgSessionDuration,
-      change: '+5.3%', // Could be calculated from previous data
-      trend: 'up' as const,
-      description: 'Avg. Session Duration',
-      icon: 'clock'
+      title: '下書き',
+      value: articles.filter(article => article.status === 'draft').length.toString(),
+      description: 'Draft Articles',
+      icon: 'edit'
     },
     {
-      title: '直帰率',
-      value: analyticsData.bounceRate,
-      change: '-8.1%', // Could be calculated from previous data
-      trend: 'up' as const,
-      description: 'Bounce Rate',
-      icon: 'chart-line'
-    },
-  ] : [
-    // Fallback data while loading
-    {
-      title: '総記事数',
-      value: '---',
-      change: '---',
-      trend: 'up' as const,
-      description: 'Total Articles',
-      icon: 'document-text'
-    },
-    {
-      title: '月間PV',
-      value: '---',
-      change: '---',
-      trend: 'up' as const,
-      description: 'Monthly Page Views',
-      icon: 'chart-bar'
-    },
-    {
-      title: '平均滞在時間',
-      value: '---',
-      change: '---',
-      trend: 'up' as const,
-      description: 'Avg. Session Duration',
-      icon: 'clock'
-    },
-    {
-      title: '直帰率',
-      value: '---',
-      change: '---',
-      trend: 'up' as const,
-      description: 'Bounce Rate',
-      icon: 'chart-line'
+      title: 'アナリティクス',
+      value: 'GA4',
+      description: 'Google Analytics',
+      icon: 'chart-bar',
+      isLink: true
     },
   ];
 
@@ -369,6 +307,22 @@ const AdminDashboard: React.FC = () => {
     article.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Show loading screen while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#d11a68] mx-auto mb-4"></div>
+          <p className="text-gray-600">認証確認中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, this component shouldn't render (redirect happens in checkAuth)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -416,50 +370,25 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex-1">
                     <h3 className="text-sm font-medium text-slate-600 uppercase tracking-wide">{stat.title}</h3>
                     <p className="text-xs text-slate-400 mb-3">{stat.description}</p>
-                    {analyticsLoading ? (
-                      <div className="flex items-center space-x-2 mb-2">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
-                        <span className="text-lg text-slate-500">読み込み中...</span>
-                      </div>
-                    ) : (
-                      <p className="text-3xl font-bold text-slate-900 mb-2">{stat.value}</p>
-                    )}
-                    <div className="flex items-center">
-                      <span className={`text-sm font-medium ${
-                        stat.trend === 'up'
-                          ? 'text-emerald-600'
-                          : 'text-red-600'
-                      }`}>
-                        {analyticsLoading ? '---' : stat.change}
-                      </span>
-                      <span className="text-sm text-slate-500 ml-2">前月比</span>
-                    </div>
+                    <p className="text-3xl font-bold text-slate-900 mb-2">{stat.value}</p>
                   </div>
                   <div className="w-12 h-12 bg-slate-100 flex items-center justify-center">
                     <div className="w-6 h-6 bg-slate-600"></div>
                   </div>
                 </div>
               </div>
-              <div className="px-6 pb-4">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-slate-400">
-                    {analyticsLoading 
-                      ? '※ GA4データを読み込み中...' 
-                      : analyticsData 
-                        ? '※ GA4連携済み - リアルタイムデータ表示中'
-                        : '※ GA4認証が必要です'
-                    }
-                  </p>
-                  {!analyticsData && !analyticsLoading && (
-                    <button
-                      onClick={handleGA4Auth}
-                      className="text-xs bg-[#d11a68] text-white px-2 py-1 rounded hover:bg-opacity-80 transition-colors"
-                    >
-                      GA4認証
-                    </button>
-                  )}
+              {stat.isLink && (
+                <div className="px-6 pb-4">
+                  <a
+                    href="https://analytics.google.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs bg-[#d11a68] text-white px-3 py-2 rounded hover:bg-opacity-80 transition-colors inline-block"
+                  >
+                    Google Analyticsを開く
+                  </a>
                 </div>
-              </div>
+              )}
             </div>
           ))}
         </div>
@@ -468,16 +397,6 @@ const AdminDashboard: React.FC = () => {
         <div className="bg-white border border-gray-200 shadow-sm mb-8">
           <div className="border-b border-gray-200">
             <nav className="flex">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'overview'
-                    ? 'border-slate-800 text-slate-800 bg-slate-50'
-                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                }`}
-              >
-                ダッシュボード
-              </button>
               <button
                 onClick={() => setActiveTab('articles')}
                 className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
@@ -489,79 +408,19 @@ const AdminDashboard: React.FC = () => {
                 記事管理
               </button>
               <button
-                onClick={() => setActiveTab('pages')}
+                onClick={() => setActiveTab('content')}
                 className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'pages'
+                  activeTab === 'content'
                     ? 'border-slate-800 text-slate-800 bg-slate-50'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >
-                ページ管理
+                コンテンツ管理
               </button>
             </nav>
           </div>
 
           <div className="p-8">
-            {activeTab === 'overview' && (
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-800 mb-6 pb-3 border-b border-gray-200">システム概要</h2>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="bg-white border border-gray-200 p-6">
-                      <h3 className="text-base font-semibold text-slate-700 mb-4 pb-2 border-b border-gray-100">月間データ</h3>
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-sm text-slate-600">記事投稿数</span>
-                          <span className="font-semibold text-slate-800">24記事</span>
-                        </div>
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-sm text-slate-600">平均エンゲージメント率</span>
-                          <span className="font-semibold text-emerald-600">+15.8%</span>
-                        </div>
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-sm text-slate-600">新規訪問率</span>
-                          <span className="font-semibold text-slate-800">68.4%</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-white border border-gray-200 p-6">
-                      <h3 className="text-base font-semibold text-slate-700 mb-4 pb-2 border-b border-gray-100">カテゴリ別アクセス</h3>
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-sm text-slate-600">スキンケア</span>
-                          <span className="font-semibold text-slate-800">34%</span>
-                        </div>
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-sm text-slate-600">メイクアップ</span>
-                          <span className="font-semibold text-slate-800">28%</span>
-                        </div>
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-sm text-slate-600">ヘアケア</span>
-                          <span className="font-semibold text-slate-800">22%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="text-lg font-bold text-slate-800 mb-6 pb-3 border-b border-gray-200">管理操作</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <button
-                      onClick={() => window.location.href = '/admin/articles/new'}
-                      className="bg-white border border-gray-300 text-slate-700 p-4 hover:bg-slate-50 transition-colors font-medium text-sm">
-                      新規記事作成
-                    </button>
-                    <button
-                      onClick={generatePDFReport}
-                      className="bg-white border border-gray-300 text-slate-700 p-4 hover:bg-slate-50 transition-colors font-medium text-sm">
-                      レポート生成
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {activeTab === 'articles' && (
               <div>
@@ -710,7 +569,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'pages' && (
+            {activeTab === 'content' && (
               <PageContentManager />
             )}
 
