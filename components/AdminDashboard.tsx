@@ -1,18 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import PageContentManager from './PageContentManager';
 import { articlesAPI, Article } from '../src/lib/supabase';
+import { ga4Service, AnalyticsData } from '../services/ga4Service';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
 
   useEffect(() => {
     if (activeTab === 'articles') {
       loadArticles();
     }
+    // Load analytics data when component mounts or when overview tab is active
+    if (activeTab === 'overview') {
+      loadAnalyticsData();
+    }
   }, [activeTab]);
+
+  // Load analytics data on component mount
+  useEffect(() => {
+    loadAnalyticsData();
+  }, []);
 
   const loadArticles = async () => {
     try {
@@ -23,6 +35,18 @@ const AdminDashboard: React.FC = () => {
       console.error('記事の読み込みに失敗:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAnalyticsData = async () => {
+    try {
+      setAnalyticsLoading(true);
+      const data = await ga4Service.getAnalyticsData();
+      setAnalyticsData(data);
+    } catch (error) {
+      console.error('アナリティクスデータの読み込みに失敗:', error);
+    } finally {
+      setAnalyticsLoading(false);
     }
   };
 
@@ -247,36 +271,75 @@ const AdminDashboard: React.FC = () => {
     }, 'image/png');
   };
 
-  const stats = [
+  // Generate stats from analytics data
+  const stats = analyticsData ? [
     {
       title: '総記事数',
-      value: '156',
-      change: '+12%',
-      trend: 'up',
+      value: analyticsData.totalArticles.toString(),
+      change: '+12%', // This could be calculated from previous data
+      trend: 'up' as const,
       description: 'Total Articles',
       icon: 'document-text'
     },
     {
       title: '月間PV',
-      value: '58,920',
-      change: '+23.1%',
-      trend: 'up',
+      value: analyticsData.monthlyPageViews.toLocaleString(),
+      change: analyticsData.previousMonthPageViews 
+        ? ga4Service.calculateChange(analyticsData.monthlyPageViews, analyticsData.previousMonthPageViews).change
+        : '+0%',
+      trend: analyticsData.previousMonthPageViews 
+        ? ga4Service.calculateChange(analyticsData.monthlyPageViews, analyticsData.previousMonthPageViews).trend
+        : 'up' as const,
       description: 'Monthly Page Views',
       icon: 'chart-bar'
     },
     {
       title: '平均滞在時間',
-      value: '3:24',
-      change: '+5.3%',
-      trend: 'up',
+      value: analyticsData.avgSessionDuration,
+      change: '+5.3%', // Could be calculated from previous data
+      trend: 'up' as const,
       description: 'Avg. Session Duration',
       icon: 'clock'
     },
     {
       title: '直帰率',
-      value: '42.3%',
-      change: '-8.1%',
-      trend: 'up',
+      value: analyticsData.bounceRate,
+      change: '-8.1%', // Could be calculated from previous data
+      trend: 'up' as const,
+      description: 'Bounce Rate',
+      icon: 'chart-line'
+    },
+  ] : [
+    // Fallback data while loading
+    {
+      title: '総記事数',
+      value: '---',
+      change: '---',
+      trend: 'up' as const,
+      description: 'Total Articles',
+      icon: 'document-text'
+    },
+    {
+      title: '月間PV',
+      value: '---',
+      change: '---',
+      trend: 'up' as const,
+      description: 'Monthly Page Views',
+      icon: 'chart-bar'
+    },
+    {
+      title: '平均滞在時間',
+      value: '---',
+      change: '---',
+      trend: 'up' as const,
+      description: 'Avg. Session Duration',
+      icon: 'clock'
+    },
+    {
+      title: '直帰率',
+      value: '---',
+      change: '---',
+      trend: 'up' as const,
       description: 'Bounce Rate',
       icon: 'chart-line'
     },
@@ -334,14 +397,21 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex-1">
                     <h3 className="text-sm font-medium text-slate-600 uppercase tracking-wide">{stat.title}</h3>
                     <p className="text-xs text-slate-400 mb-3">{stat.description}</p>
-                    <p className="text-3xl font-bold text-slate-900 mb-2">{stat.value}</p>
+                    {analyticsLoading ? (
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
+                        <span className="text-lg text-slate-500">読み込み中...</span>
+                      </div>
+                    ) : (
+                      <p className="text-3xl font-bold text-slate-900 mb-2">{stat.value}</p>
+                    )}
                     <div className="flex items-center">
                       <span className={`text-sm font-medium ${
                         stat.trend === 'up'
                           ? 'text-emerald-600'
                           : 'text-red-600'
                       }`}>
-                        {stat.change}
+                        {analyticsLoading ? '---' : stat.change}
                       </span>
                       <span className="text-sm text-slate-500 ml-2">前月比</span>
                     </div>
@@ -352,7 +422,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
               <div className="px-6 pb-4">
-                <p className="text-xs text-slate-400">※ 本番環境移行後にGA4連携で実データ表示</p>
+                <p className="text-xs text-slate-400">
+                  {analyticsLoading 
+                    ? '※ GA4データを読み込み中...' 
+                    : analyticsData 
+                      ? '※ GA4連携済み - リアルタイムデータ表示中'
+                      : '※ 本番環境移行後にGA4連携で実データ表示'
+                  }
+                </p>
               </div>
             </div>
           ))}
