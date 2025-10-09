@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../src/lib/supabase';
+import { loginHistoryService } from '../services/loginHistoryService';
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +11,7 @@ const AdminLogin: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
@@ -18,6 +19,11 @@ const AdminLogin: React.FC = () => {
     if (error) {
       setError('メールアドレスまたはパスワードが正しくありません');
       return;
+    }
+
+    // Record login history
+    if (data.user) {
+      await loginHistoryService.recordLogin(data.user.id, email);
     }
 
     window.location.href = '/admin/dashboard';

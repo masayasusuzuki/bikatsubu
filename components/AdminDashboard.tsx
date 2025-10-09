@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PageContentManager from './PageContentManager';
 import { articlesAPI, Article, supabase } from '../src/lib/supabase';
+import { loginHistoryService, LoginHistoryEntry } from '../services/loginHistoryService';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('articles');
@@ -9,6 +10,10 @@ const AdminDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  
+  // ログイン履歴関連の状態
+  const [loginHistory, setLoginHistory] = useState<LoginHistoryEntry[]>([]);
+  const [loginHistoryLoading, setLoginHistoryLoading] = useState(false);
 
   // Check authentication on component mount
   useEffect(() => {
@@ -18,6 +23,8 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated && activeTab === 'articles') {
       loadArticles();
+    } else if (isAuthenticated && activeTab === 'login-history') {
+      loadLoginHistory();
     }
   }, [activeTab, isAuthenticated]);
 
@@ -49,6 +56,20 @@ const AdminDashboard: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // ログイン履歴を読み込む関数
+  const loadLoginHistory = async () => {
+    try {
+      setLoginHistoryLoading(true);
+      const data = await loginHistoryService.getLoginHistory(50, 0);
+      setLoginHistory(data);
+    } catch (error) {
+      console.error('ログイン履歴の読み込みに失敗:', error);
+    } finally {
+      setLoginHistoryLoading(false);
+    }
+  };
+
 
 
   const handleEditArticle = (articleId: string) => {
@@ -417,6 +438,16 @@ const AdminDashboard: React.FC = () => {
               >
                 コンテンツ管理
               </button>
+              <button
+                onClick={() => setActiveTab('login-history')}
+                className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'login-history'
+                    ? 'border-slate-800 text-slate-800 bg-slate-50'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                }`}
+              >
+                ログイン履歴
+              </button>
             </nav>
           </div>
 
@@ -573,6 +604,60 @@ const AdminDashboard: React.FC = () => {
               <PageContentManager />
             )}
 
+            {activeTab === 'login-history' && (
+              <div>
+                <div className="mb-6 pb-3 border-b border-gray-200">
+                  <h2 className="text-lg font-bold text-slate-800">ログイン履歴</h2>
+                </div>
+
+                {/* ログイン履歴テーブル */}
+                <div className="bg-white border border-gray-200 overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                          ユーザー
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                          ログイン日時
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {loginHistoryLoading ? (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-8 text-center">
+                            <div className="flex justify-center items-center">
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
+                              <span className="ml-2 text-slate-600">読み込み中...</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : loginHistory.length === 0 ? (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-8 text-center text-slate-500">
+                            ログイン履歴がありません
+                          </td>
+                        </tr>
+                      ) : (
+                        loginHistory.map((entry) => (
+                          <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4">
+                              <div className="text-sm font-medium text-slate-900">
+                                {entry.email}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-slate-500">
+                              {loginHistoryService.formatLoginTime(entry.login_time)}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
           </div>
         </div>
