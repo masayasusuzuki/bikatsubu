@@ -11,7 +11,11 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center py-2 border-b">
           <div>
             <a href="/" className="block">
-              <h1 className="text-2xl font-bold text-[#d11a68] hover:text-opacity-80 transition-colors">美活部</h1>
+              <img 
+                src="/header/logo.png" 
+                alt="美活部" 
+                className="h-12 w-auto hover:opacity-80 transition-opacity"
+              />
               <p className="text-xs text-gray-500">あなたのキレイを応援する美容メディア</p>
             </a>
           </div>

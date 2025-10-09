@@ -6,9 +6,13 @@ const LoadingScreen: React.FC = () => {
       <div className="text-center">
         {/* ロゴ部分 */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-transparent bg-gradient-to-r from-[#d11a68] to-pink-400 bg-clip-text mb-2">
-            美活部
-          </h1>
+          <div className="mb-2 flex justify-center">
+            <img 
+              src="/header/logo.png" 
+              alt="美活部" 
+              className="h-16 w-auto animate-pulse"
+            />
+          </div>
           <p className="text-sm text-gray-500 tracking-wider">BEAUTY ACTIVE CLUB</p>
         </div>
 
