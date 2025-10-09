@@ -116,18 +116,8 @@ class GA4Service {
       return storedToken;
     }
 
-    // Check for authorization code in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const authCode = urlParams.get('code');
-    
-    if (authCode) {
-      // Exchange authorization code for access token
-      return await this.exchangeCodeForToken(authCode);
-    }
-
-    // No token and no code - initiate OAuth flow
-    await this.initiateOAuthFlow();
-    throw new Error('OAuth認証が必要です');
+    // Use Google Identity Services for proper OAuth flow
+    return await this.initializeGoogleAuth();
   }
 
   private async initiateOAuthFlow(): Promise<void> {
@@ -144,43 +134,42 @@ class GA4Service {
     window.location.href = authUrl.toString();
   }
 
-  private async exchangeCodeForToken(code: string): Promise<string> {
-    const redirectUri = `${window.location.origin}/admin/dashboard`;
+  private async initializeGoogleAuth(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      // Load Google Identity Services
+      if (!(window as any).google) {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.onload = () => this.setupGoogleAuth(resolve, reject);
+        script.onerror = () => reject(new Error('Google Identity Services の読み込みに失敗しました'));
+        document.head.appendChild(script);
+      } else {
+        this.setupGoogleAuth(resolve, reject);
+      }
+    });
+  }
+
+  private setupGoogleAuth(resolve: (token: string) => void, reject: (error: Error) => void): void {
+    const google = (window as any).google;
     
-    const response = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+    const tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: this.config.clientId,
+      scope: 'https://www.googleapis.com/auth/analytics.readonly',
+      callback: (response: any) => {
+        if (response.error) {
+          reject(new Error(`Google認証エラー: ${response.error}`));
+          return;
+        }
+        
+        // Store token
+        localStorage.setItem('ga4_access_token', response.access_token);
+        localStorage.setItem('ga4_token_expiry', (Date.now() + (response.expires_in * 1000)).toString());
+        
+        resolve(response.access_token);
       },
-      body: new URLSearchParams({
-        client_id: this.config.clientId,
-        code: code,
-        grant_type: 'authorization_code',
-        redirect_uri: redirectUri,
-      }),
     });
 
-    if (!response.ok) {
-      throw new Error(`OAuth token exchange failed: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    // Store token and expiry
-    localStorage.setItem('ga4_access_token', data.access_token);
-    localStorage.setItem('ga4_token_expiry', (Date.now() + (data.expires_in * 1000)).toString());
-    
-    if (data.refresh_token) {
-      localStorage.setItem('ga4_refresh_token', data.refresh_token);
-    }
-
-    // Clean up URL
-    const url = new URL(window.location.href);
-    url.searchParams.delete('code');
-    url.searchParams.delete('scope');
-    window.history.replaceState({}, document.title, url.toString());
-
-    return data.access_token;
+    tokenClient.requestAccessToken();
   }
 
   private async fetchGA4Metric(accessToken: string, metricName: string): Promise<number> {
