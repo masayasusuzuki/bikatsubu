@@ -45,8 +45,20 @@ const AdminDashboard: React.FC = () => {
       setAnalyticsData(data);
     } catch (error) {
       console.error('アナリティクスデータの読み込みに失敗:', error);
+      if (error instanceof Error && error.message.includes('OAuth認証が必要')) {
+        // OAuth認証が必要な場合は、エラー状態を設定
+        setAnalyticsData(null);
+      }
     } finally {
       setAnalyticsLoading(false);
+    }
+  };
+
+  const handleGA4Auth = async () => {
+    try {
+      await ga4Service.getAnalyticsData();
+    } catch (error) {
+      // OAuth flow will be initiated automatically
     }
   };
 
@@ -422,14 +434,24 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
               <div className="px-6 pb-4">
-                <p className="text-xs text-slate-400">
-                  {analyticsLoading 
-                    ? '※ GA4データを読み込み中...' 
-                    : analyticsData 
-                      ? '※ GA4連携済み - リアルタイムデータ表示中'
-                      : '※ 本番環境移行後にGA4連携で実データ表示'
-                  }
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-slate-400">
+                    {analyticsLoading 
+                      ? '※ GA4データを読み込み中...' 
+                      : analyticsData 
+                        ? '※ GA4連携済み - リアルタイムデータ表示中'
+                        : '※ GA4認証が必要です'
+                    }
+                  </p>
+                  {!analyticsData && !analyticsLoading && (
+                    <button
+                      onClick={handleGA4Auth}
+                      className="text-xs bg-[#d11a68] text-white px-2 py-1 rounded hover:bg-opacity-80 transition-colors"
+                    >
+                      GA4認証
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}

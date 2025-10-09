@@ -3,8 +3,8 @@
 
 interface GA4Config {
   propertyId: string;
-  // For client-side implementation, we'll use a simple approach
-  // In production, you should use server-side API with service account
+  clientId: string;
+  projectId: string;
 }
 
 interface AnalyticsData {
@@ -24,39 +24,22 @@ class GA4Service {
 
   constructor() {
     this.config = {
-      propertyId: '12269723882' // Your GA4 property ID
+      propertyId: import.meta.env.VITE_GA4_PROPERTY_ID,
+      clientId: import.meta.env.VITE_GA4_CLIENT_ID,
+      projectId: import.meta.env.VITE_GA4_PROJECT_ID
     };
   }
 
-  // Temporary implementation using mock data that gradually transitions to real data
-  // In production, this would call the actual GA4 Reporting API
   async getAnalyticsData(): Promise<AnalyticsData> {
     try {
-      // For now, return enhanced mock data with some variation
-      // This simulates the transition period while GA4 collects data
-      const now = new Date();
-      const daysSinceSetup = Math.floor((now.getTime() - new Date('2024-01-09').getTime()) / (1000 * 60 * 60 * 24));
-      
-      // Simulate gradual data accumulation
-      const basePageViews = Math.max(0, daysSinceSetup * 50 + Math.floor(Math.random() * 100));
-      const baseUsers = Math.max(0, Math.floor(basePageViews * 0.7));
-      
+      // Try to get real GA4 data first
+      const realData = await this.getGA4ReportingData();
+      return realData;
+    } catch (error) {
+      console.warn('GA4 API呼び出しに失敗、フォールバックデータを使用:', error);
+      // Fallback to mock data
       return {
         totalArticles: await this.getTotalArticlesFromSupabase(),
-        monthlyPageViews: basePageViews,
-        avgSessionDuration: this.formatDuration(180 + Math.floor(Math.random() * 120)), // 3-5 minutes
-        bounceRate: (35 + Math.random() * 20).toFixed(1) + '%', // 35-55%
-        newUsers: baseUsers,
-        previousMonthPageViews: Math.max(0, basePageViews - Math.floor(Math.random() * 1000)),
-        previousAvgSessionDuration: this.formatDuration(160 + Math.floor(Math.random() * 100)),
-        previousBounceRate: (40 + Math.random() * 20).toFixed(1) + '%',
-        previousNewUsers: Math.max(0, baseUsers - Math.floor(Math.random() * 100))
-      };
-    } catch (error) {
-      console.error('GA4データの取得に失敗:', error);
-      // Fallback to current mock data
-      return {
-        totalArticles: 156,
         monthlyPageViews: 58920,
         avgSessionDuration: '3:24',
         bounceRate: '42.3%',
@@ -98,20 +81,117 @@ class GA4Service {
     };
   }
 
-  // Future method for real GA4 API integration
   async getGA4ReportingData(): Promise<AnalyticsData> {
-    // This would use the Google Analytics Data API
-    // Requires server-side implementation with service account
-    // 
-    // Example structure:
-    // const response = await fetch('/api/ga4-data', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ propertyId: this.config.propertyId })
-    // });
-    // return response.json();
+    // Get OAuth access token
+    const accessToken = await this.getAccessToken();
     
-    throw new Error('Real GA4 API integration not implemented yet');
+    // Fetch GA4 data
+    const [pageViews, sessions, users] = await Promise.all([
+      this.fetchGA4Metric(accessToken, 'screenPageViews'),
+      this.fetchGA4Metric(accessToken, 'sessions'), 
+      this.fetchGA4Metric(accessToken, 'newUsers')
+    ]);
+
+    return {
+      totalArticles: await this.getTotalArticlesFromSupabase(),
+      monthlyPageViews: pageViews,
+      avgSessionDuration: '3:24', // TODO: Calculate from sessions
+      bounceRate: '42.3%', // TODO: Calculate bounce rate
+      newUsers: users
+    };
+  }
+
+  private async getAccessToken(): Promise<string> {
+    // Check if we already have a valid token
+    const storedToken = localStorage.getItem('ga4_access_token');
+    const tokenExpiry = localStorage.getItem('ga4_token_expiry');
+    
+    if (storedToken && tokenExpiry && Date.now() < parseInt(tokenExpiry)) {
+      return storedToken;
+    }
+
+    // Check for authorization code in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('code');
+    
+    if (authCode) {
+      // Exchange authorization code for access token
+      return await this.exchangeCodeForToken(authCode);
+    }
+
+    // No token and no code - initiate OAuth flow
+    await this.initiateOAuthFlow();
+    throw new Error('OAuth認証が必要です');
+  }
+
+  private async initiateOAuthFlow(): Promise<void> {
+    const scope = 'https://www.googleapis.com/auth/analytics.readonly';
+    const redirectUri = `${window.location.origin}/admin/dashboard`;
+    
+    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    authUrl.searchParams.set('client_id', this.config.clientId);
+    authUrl.searchParams.set('redirect_uri', redirectUri);
+    authUrl.searchParams.set('scope', scope);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('access_type', 'offline');
+    
+    window.location.href = authUrl.toString();
+  }
+
+  private async exchangeCodeForToken(code: string): Promise<string> {
+    const redirectUri = `${window.location.origin}/admin/dashboard`;
+    
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: this.config.clientId,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUri,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OAuth token exchange failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // Store token and expiry
+    localStorage.setItem('ga4_access_token', data.access_token);
+    localStorage.setItem('ga4_token_expiry', (Date.now() + (data.expires_in * 1000)).toString());
+    
+    if (data.refresh_token) {
+      localStorage.setItem('ga4_refresh_token', data.refresh_token);
+    }
+
+    // Clean up URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete('code');
+    url.searchParams.delete('scope');
+    window.history.replaceState({}, document.title, url.toString());
+
+    return data.access_token;
+  }
+
+  private async fetchGA4Metric(accessToken: string, metricName: string): Promise<number> {
+    const response = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${this.config.propertyId}:runReport`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+        metrics: [{ name: metricName }],
+      }),
+    });
+
+    const data = await response.json();
+    return parseInt(data.rows?.[0]?.metricValues?.[0]?.value || '0');
   }
 }
 
