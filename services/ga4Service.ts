@@ -230,7 +230,14 @@ class GA4Service {
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error(`GA4 API Error (${response.status}):`, errorData);
+      throw new Error(`GA4 API Error: ${response.status} - ${errorData}`);
+    }
+
     const data = await response.json();
+    console.log('GA4 API Response:', data);
     return parseInt(data.rows?.[0]?.metricValues?.[0]?.value || '0');
   }
 }
