@@ -56,9 +56,16 @@ const AdminDashboard: React.FC = () => {
 
   const handleGA4Auth = async () => {
     try {
-      await ga4Service.getAnalyticsData();
+      setAnalyticsLoading(true);
+      // Request user authentication directly
+      await ga4Service.requestUserAuth();
+      // After successful auth, load data
+      await loadAnalyticsData();
     } catch (error) {
-      // OAuth flow will be initiated automatically
+      console.error('GA4認証に失敗:', error);
+      alert('GA4認証に失敗しました。もう一度お試しください。');
+    } finally {
+      setAnalyticsLoading(false);
     }
   };
 

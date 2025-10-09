@@ -112,12 +112,47 @@ class GA4Service {
     const storedToken = localStorage.getItem('ga4_access_token');
     const tokenExpiry = localStorage.getItem('ga4_token_expiry');
     
-    if (storedToken && tokenExpiry && Date.now() < parseInt(tokenExpiry)) {
+    if (storedToken && tokenExpiry && Date.now() < parseInt(tokenExpiry) && storedToken !== 'USER_ACTION_REQUIRED') {
       return storedToken;
     }
 
-    // Use Google Identity Services for proper OAuth flow
-    return await this.initializeGoogleAuth();
+    // Initialize Google Auth if not already done
+    const result = await this.initializeGoogleAuth();
+    
+    if (result === 'USER_ACTION_REQUIRED') {
+      throw new Error('OAuth認証が必要です');
+    }
+    
+    return result;
+  }
+
+  // Method to be called by the UI button
+  async requestUserAuth(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const tokenClient = (window as any).ga4TokenClient;
+      
+      if (!tokenClient) {
+        reject(new Error('Google認証が初期化されていません'));
+        return;
+      }
+
+      // Update callback for this specific request
+      tokenClient.callback = (response: any) => {
+        if (response.error) {
+          console.error('Google認証エラー:', response.error);
+          reject(new Error(`Google認証エラー: ${response.error}`));
+          return;
+        }
+        
+        // Store token
+        localStorage.setItem('ga4_access_token', response.access_token);
+        localStorage.setItem('ga4_token_expiry', (Date.now() + (response.expires_in * 1000)).toString());
+        
+        resolve(response.access_token);
+      };
+
+      tokenClient.requestAccessToken();
+    });
   }
 
   private async initiateOAuthFlow(): Promise<void> {
@@ -152,24 +187,34 @@ class GA4Service {
   private setupGoogleAuth(resolve: (token: string) => void, reject: (error: Error) => void): void {
     const google = (window as any).google;
     
-    const tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: this.config.clientId,
-      scope: 'https://www.googleapis.com/auth/analytics.readonly',
-      callback: (response: any) => {
-        if (response.error) {
-          reject(new Error(`Google認証エラー: ${response.error}`));
-          return;
-        }
-        
-        // Store token
-        localStorage.setItem('ga4_access_token', response.access_token);
-        localStorage.setItem('ga4_token_expiry', (Date.now() + (response.expires_in * 1000)).toString());
-        
-        resolve(response.access_token);
-      },
-    });
+    try {
+      const tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: this.config.clientId,
+        scope: 'https://www.googleapis.com/auth/analytics.readonly',
+        callback: (response: any) => {
+          if (response.error) {
+            console.error('Google認証エラー:', response.error);
+            reject(new Error(`Google認証エラー: ${response.error}`));
+            return;
+          }
+          
+          // Store token
+          localStorage.setItem('ga4_access_token', response.access_token);
+          localStorage.setItem('ga4_token_expiry', (Date.now() + (response.expires_in * 1000)).toString());
+          
+          resolve(response.access_token);
+        },
+      });
 
-    tokenClient.requestAccessToken();
+      // Store tokenClient for later use
+      (window as any).ga4TokenClient = tokenClient;
+      
+      // Don't request token immediately, wait for user action
+      resolve('USER_ACTION_REQUIRED');
+    } catch (error) {
+      console.error('Google Auth setup error:', error);
+      reject(new Error('Google認証の初期化に失敗しました'));
+    }
   }
 
   private async fetchGA4Metric(accessToken: string, metricName: string): Promise<number> {
