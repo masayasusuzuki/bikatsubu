@@ -123,26 +123,37 @@ const SkinDiagnosis: React.FC = () => {
 
       {/* 撮影ガイドモーダル */}
       {showGuideModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-8">
-              <h2 className="text-3xl font-bold text-slate-800 mb-6 text-center">撮影方法ガイド</h2>
-              <div className="mb-6 flex justify-center">
-                <img
-                  src="/diagnosis/写真撮影方法.jpg"
-                  alt="写真撮影方法のガイド"
-                  className="w-1/2 rounded-lg border border-gray-200"
-                />
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/40 z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl max-w-lg w-full border border-white/20 animate-scale-in">
+            <div className="p-6">
+              <div className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-pink-100 to-purple-100 text-pink-700 rounded-full text-xs font-medium mb-4 mx-auto block w-fit">
+                📸 撮影ガイド
               </div>
-              <p className="text-slate-600 text-center mb-6 text-lg">
-                正確な診断のため、明るい場所で正面から撮影してください
-              </p>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-4 text-center">
+                写真の撮り方
+              </h2>
+              <div className="mb-4 flex justify-center">
+                <div className="relative">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl blur opacity-20"></div>
+                  <img
+                    src="/diagnosis/写真撮影方法.jpg"
+                    alt="写真撮影方法のガイド"
+                    className="relative w-full rounded-xl border-2 border-white shadow-xl"
+                  />
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-slate-50 to-pink-50 rounded-2xl p-4 mb-4">
+                <p className="text-slate-700 text-center text-sm leading-relaxed">
+                  💡 明るい場所で正面からまっすぐ撮影すると<br />
+                  より正確な診断結果が得られます
+                </p>
+              </div>
               <div className="text-center">
                 <button
                   onClick={() => setShowGuideModal(false)}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-10 py-4 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg"
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-10 py-3 rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl text-sm"
                 >
-                  診断を始める
+                  診断を始める →
                 </button>
               </div>
             </div>
