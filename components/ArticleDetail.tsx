@@ -33,7 +33,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
         const latestPublishedArticles = allArticles
           .filter(a => a.status === 'published' && a.id !== articleData.id)
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-          .slice(0, 3);
+          .slice(0, 5);
         console.log('最新の公開記事:', latestPublishedArticles);
         setLatestArticles(latestPublishedArticles);
 
@@ -41,7 +41,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
         const sameCategoryArticles = allArticles
           .filter(a => a.category === articleData.category && a.id !== articleData.id && a.status === 'published')
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-          .slice(0, 3);
+          .slice(0, 5);
         console.log('同じカテゴリーの記事:', sameCategoryArticles);
         console.log('フィルター条件:', {
           category: articleData.category,
@@ -414,6 +414,61 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
 
                 {/* サイドバー */}
                 <div className="lg:col-span-1">
+                  {/* 肌タイプ診断カード */}
+                  <div className="relative mb-6">
+                    {/* 光るエフェクト */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 rounded-2xl blur opacity-40 group-hover:opacity-60 animate-pulse"></div>
+
+                    <a
+                      href="/skin-diagnosis"
+                      className="block group relative"
+                    >
+                      <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300">
+                        {/* グラデーション背景 */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-pink-100 via-purple-100 to-pink-100"></div>
+
+                        {/* アクセントライン */}
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500"></div>
+
+                        <div className="relative p-5">
+                          {/* バッジ */}
+                          <div className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold rounded-full mb-3 shadow-md">
+                            ✨ おすすめ
+                          </div>
+
+                          {/* タイトル部分 */}
+                          <div className="mb-4">
+                            <div className="text-sm font-bold text-pink-600 mb-1">たった15秒で診断！</div>
+                            <div className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent leading-tight mb-2">
+                              あなたの肌タイプは？
+                            </div>
+                            <p className="text-xs text-gray-600 leading-relaxed">
+                              AI診断で肌状態を分析<br />
+                              最適なケア方法をご提案
+                            </p>
+                          </div>
+
+                          {/* 画像 */}
+                          <div className="w-full mb-4">
+                            <img
+                              src="/card/skin-diagnosis.webp"
+                              alt="肌タイプ診断"
+                              className="w-full h-40 object-cover rounded-xl shadow-lg group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+
+                          {/* CTAボタン */}
+                          <div className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl text-center transition-all shadow-md hover:shadow-lg group-hover:scale-[1.02] flex items-center justify-center">
+                            <span>今すぐ診断する</span>
+                            <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+
                   {/* 最新の記事 */}
                   <div className="bg-white border border-gray-200 p-4 mb-6">
                     <h2 className="text-lg font-bold text-gray-900 mb-4">最新の記事を読む</h2>
