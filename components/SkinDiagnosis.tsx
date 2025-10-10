@@ -14,6 +14,7 @@ const SkinDiagnosis: React.FC = () => {
   const [showGuideModal, setShowGuideModal] = useState(true);
   const [recommendedArticles, setRecommendedArticles] = useState<Article[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 肌タイプの説明を取得
@@ -62,18 +63,35 @@ const SkinDiagnosis: React.FC = () => {
 
       // 診断開始
       setIsAnalyzing(true);
+      setCountdown(15); // 15秒からカウントダウン開始
+
+      // カウントダウンタイマー
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            clearInterval(countdownInterval);
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
       try {
         // 顔画像のバリデーション
         const validation = await validateFaceImage(base64Image);
         if (!validation.isValid) {
+          clearInterval(countdownInterval);
           setError(validation.errorMessage || "この画像は肌診断に適していません。");
           setUploadedImage(null);
           setIsAnalyzing(false);
+          setCountdown(null);
           return;
         }
 
         // 肌診断実行
         const result = await analyzeSkinImage(base64Image);
+        clearInterval(countdownInterval);
+        setCountdown(null);
         setDiagnosisResult(result);
 
         // おすすめ記事を取得
@@ -88,9 +106,11 @@ const SkinDiagnosis: React.FC = () => {
           setIsLoadingArticles(false);
         }
       } catch (error) {
+        clearInterval(countdownInterval);
         console.error(error);
         setError("診断に失敗しました。もう一度お試しください。");
         setUploadedImage(null);
+        setCountdown(null);
       } finally {
         setIsAnalyzing(false);
       }
@@ -130,18 +150,35 @@ const SkinDiagnosis: React.FC = () => {
 
       // 診断開始
       setIsAnalyzing(true);
+      setCountdown(15); // 15秒からカウントダウン開始
+
+      // カウントダウンタイマー
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            clearInterval(countdownInterval);
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
       try {
         // 顔画像のバリデーション
         const validation = await validateFaceImage(base64Image);
         if (!validation.isValid) {
+          clearInterval(countdownInterval);
           setError(validation.errorMessage || "この画像は肌診断に適していません。");
           setUploadedImage(null);
           setIsAnalyzing(false);
+          setCountdown(null);
           return;
         }
 
         // 肌診断実行
         const result = await analyzeSkinImage(base64Image);
+        clearInterval(countdownInterval);
+        setCountdown(null);
         setDiagnosisResult(result);
 
         // おすすめ記事を取得
@@ -156,9 +193,11 @@ const SkinDiagnosis: React.FC = () => {
           setIsLoadingArticles(false);
         }
       } catch (error) {
+        clearInterval(countdownInterval);
         console.error(error);
         setError("診断に失敗しました。もう一度お試しください。");
         setUploadedImage(null);
+        setCountdown(null);
       } finally {
         setIsAnalyzing(false);
       }
@@ -219,7 +258,7 @@ const SkinDiagnosis: React.FC = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4 md:mb-6 leading-tight">
               <span className="block sm:inline">あなたの肌タイプを</span>
               <span className="block sm:inline">
-                <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">30秒で</span>
+                <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">15秒で</span>
                 診断
               </span>
             </h1>
@@ -307,9 +346,26 @@ const SkinDiagnosis: React.FC = () => {
               {/* Loading State */}
               {isAnalyzing && (
                 <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-12 text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-4 border-pink-500 mx-auto mb-3 sm:mb-4"></div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-slate-800 mb-2">AI解析中...</h3>
-                  <p className="text-sm sm:text-base text-slate-600">あなたの肌を詳しく分析しています</p>
+                  <div className="relative mb-6">
+                    <div className="animate-spin rounded-full h-20 w-20 sm:h-24 sm:w-24 border-b-4 border-pink-500 mx-auto"></div>
+                    {countdown !== null && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-3xl sm:text-4xl font-bold text-pink-600">{countdown}</span>
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-800 mb-3">AI解析中...</h3>
+                  <p className="text-sm sm:text-base text-slate-600 mb-2">あなたの肌を詳しく分析しています</p>
+                  {countdown !== null && countdown > 0 && (
+                    <p className="text-base sm:text-lg font-semibold text-pink-600 mt-4">
+                      あと{countdown}秒で診断結果が出ます
+                    </p>
+                  )}
+                  <div className="mt-6 flex justify-center gap-2">
+                    <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
                 </div>
               )}
 
@@ -338,20 +394,50 @@ const SkinDiagnosis: React.FC = () => {
 
                     {/* レーダーチャート */}
                     <div className="mb-8">
-                      <ResponsiveContainer width="100%" height={400}>
-                        <RadarChart data={[
-                          { subject: '水分', score: diagnosisResult.condition.moistureScore || 3, fullMark: 5 },
-                          { subject: '透明感', score: diagnosisResult.condition.clarityScore || 3, fullMark: 5 },
-                          { subject: '弾力', score: diagnosisResult.condition.elasticityScore || 3, fullMark: 5 },
-                          { subject: '毛穴', score: diagnosisResult.condition.poreScore || 3, fullMark: 5 },
-                          { subject: '肌理', score: diagnosisResult.condition.textureScore || 3, fullMark: 5 },
-                        ]}>
-                          <PolarGrid stroke="#e5e7eb" />
-                          <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 14, fontWeight: 600 }} />
-                          <PolarRadiusAxis angle={90} domain={[0, 5]} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                          <Radar name="肌状態" dataKey="score" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.5} />
-                        </RadarChart>
-                      </ResponsiveContainer>
+                      {/* PC版 */}
+                      <div className="hidden sm:block">
+                        <ResponsiveContainer width="100%" height={400}>
+                          <RadarChart data={[
+                            { subject: '水分', score: diagnosisResult.condition.moistureScore || 3, fullMark: 5 },
+                            { subject: '透明感', score: diagnosisResult.condition.clarityScore || 3, fullMark: 5 },
+                            { subject: '弾力', score: diagnosisResult.condition.elasticityScore || 3, fullMark: 5 },
+                            { subject: '毛穴', score: diagnosisResult.condition.poreScore || 3, fullMark: 5 },
+                            { subject: 'キメ', score: diagnosisResult.condition.textureScore || 3, fullMark: 5 },
+                          ]}>
+                            <PolarGrid stroke="#e5e7eb" />
+                            <PolarAngleAxis
+                              dataKey="subject"
+                              tick={{ fill: '#64748b', fontSize: 13, fontWeight: 600 }}
+                            />
+                            <PolarRadiusAxis angle={90} domain={[0, 5]} tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                            <Radar name="肌状態" dataKey="score" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.5} />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* スマホ版 - 見切れ防止 */}
+                      <div className="block sm:hidden">
+                        <ResponsiveContainer width="100%" height={300}>
+                          <RadarChart data={[
+                            { subject: '水分', score: diagnosisResult.condition.moistureScore || 3, fullMark: 5 },
+                            { subject: '透明', score: diagnosisResult.condition.clarityScore || 3, fullMark: 5 },
+                            { subject: '弾力', score: diagnosisResult.condition.elasticityScore || 3, fullMark: 5 },
+                            { subject: '毛穴', score: diagnosisResult.condition.poreScore || 3, fullMark: 5 },
+                            { subject: 'キメ', score: diagnosisResult.condition.textureScore || 3, fullMark: 5 },
+                          ]}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius="65%">
+                            <PolarGrid stroke="#e5e7eb" />
+                            <PolarAngleAxis
+                              dataKey="subject"
+                              tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }}
+                            />
+                            <PolarRadiusAxis angle={90} domain={[0, 5]} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                            <Radar name="肌状態" dataKey="score" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.5} />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
 
                     {/* 詳細スコア */}
@@ -367,7 +453,7 @@ const SkinDiagnosis: React.FC = () => {
                         </div>
                         <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between mb-2">
-                            <p className="text-sm font-semibold text-slate-600">肌理</p>
+                            <p className="text-sm font-semibold text-slate-600">肌理(キメ)</p>
                             <span className="text-rose-600 font-bold text-lg">{diagnosisResult.condition.textureScore || 3}/5</span>
                           </div>
                           <p className="text-slate-700">{diagnosisResult.condition.texture}</p>

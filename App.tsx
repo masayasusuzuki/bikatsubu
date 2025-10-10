@@ -373,7 +373,7 @@ const App: React.FC = () => {
                 <div className="relative p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-left flex-1">
-                      <div className="text-sm font-bold text-pink-600 mb-1">30秒でわかる！</div>
+                      <div className="text-sm font-bold text-pink-600 mb-1">15秒でわかる！</div>
                       <div className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">肌タイプ診断</div>
                     </div>
                     <div className="flex-shrink-0 text-slate-400 group-hover:text-pink-500 transition-colors">
@@ -384,7 +384,7 @@ const App: React.FC = () => {
                   </div>
                   <div className="w-full">
                     <img
-                      src="/card/skin-diagnosis.png"
+                      src="/card/skin-diagnosis.webp"
                       alt="肌タイプ診断"
                       className="w-full h-40 object-cover rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300"
                     />
@@ -407,7 +407,7 @@ const App: React.FC = () => {
                     <div className="relative px-5 py-4">
                       <div className="flex items-center justify-between">
                         <div className="text-left">
-                          <div className="text-xs font-bold text-pink-600 mb-0.5">30秒でわかる！</div>
+                          <div className="text-xs font-bold text-pink-600 mb-0.5">15秒でわかる！</div>
                           <div className="text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">肌タイプ診断</div>
                         </div>
                         <div className="flex-shrink-0 text-slate-400">
@@ -429,7 +429,7 @@ const App: React.FC = () => {
                       {/* Header with collapse button */}
                       <div className="flex items-center justify-between mb-3">
                         <div className="text-left">
-                          <div className="text-xs font-bold text-pink-600 mb-0.5">30秒でわかる！</div>
+                          <div className="text-xs font-bold text-pink-600 mb-0.5">15秒でわかる！</div>
                           <div className="text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">肌タイプ診断</div>
                         </div>
                         <button
@@ -445,7 +445,7 @@ const App: React.FC = () => {
                       {/* 4 skin types image */}
                       <div className="w-full mb-4">
                         <img
-                          src="/card/skin-diagnosis.png"
+                          src="/card/skin-diagnosis.webp"
                           alt="肌タイプ診断"
                           className="w-full h-32 object-cover rounded-xl shadow-md"
                         />
