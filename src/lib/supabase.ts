@@ -286,10 +286,16 @@ export const articlesAPI = {
       .eq('status', 'published')
       .or(orConditions)
       .order('created_at', { ascending: false })
-      .limit(limit)
+      .limit(limit * 2) // イベント記事除外後に十分な数を確保
 
     if (error) throw error
-    return data as Article[]
+
+    // article_typeが'event'の記事を除外してフィルタリング
+    const filteredArticles = (data as Article[])
+      .filter(article => article.article_type !== 'event')
+      .slice(0, limit) // 最終的に必要な件数に絞る
+
+    return filteredArticles
   }
 }
 
