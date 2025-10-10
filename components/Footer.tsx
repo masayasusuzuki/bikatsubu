@@ -70,7 +70,7 @@ const Footer: React.FC = () => {
       </div>
       <div className="bg-black/20 text-center py-4">
         <div className="flex justify-center items-center space-x-4">
-          <p className="text-xs">&copy; 2024 Bikatsu-bu Inc. All Rights Reserved.</p>
+          <p className="text-xs">&copy; 2025 美活部</p>
           <a href="/admin" className="text-xs px-3 py-1 bg-white/20 hover:bg-white/30 rounded transition-colors">
             管理者ログイン
           </a>
