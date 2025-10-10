@@ -162,14 +162,14 @@ const PageContentManager: React.FC = () => {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-8">
       {/* ヒーローセクション管理 */}
       <HeroSectionManager />
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">ページコンテンツ管理</h2>
-          <p className="text-gray-600">各セクションに表示する記事を選択してください</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">ページコンテンツ管理</h2>
+          <p className="text-sm sm:text-base text-gray-600">各セクションに表示する記事を選択してください</p>
         </div>
         {message && (
           <div className={`px-4 py-2 rounded text-sm font-medium ${
@@ -226,24 +226,24 @@ const PageContentManager: React.FC = () => {
 
         return (
           <div key={sectionName} className="bg-white border border-gray-200 overflow-hidden">
-            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
+            <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800">{sectionInfo.name}</h3>
-                  <p className="text-gray-600 text-sm">{sectionInfo.description} - 現在{sectionList.length}件</p>
+                  <h3 className="text-base sm:text-xl font-semibold text-gray-800">{sectionInfo.name}</h3>
+                  <p className="text-gray-600 text-xs sm:text-sm">{sectionInfo.description} - 現在{sectionList.length}件</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-shrink-0">
                   <button
                     onClick={() => addCard(sectionName)}
                     disabled={saving}
-                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 text-sm rounded disabled:opacity-50 transition-colors"
+                    className="bg-green-500 hover:bg-green-600 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded disabled:opacity-50 transition-colors whitespace-nowrap"
                   >
                     + カード追加
                   </button>
                   <button
                     onClick={() => removeCard(sectionName)}
                     disabled={saving || sectionList.length <= 1}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 text-sm rounded disabled:opacity-50 transition-colors"
+                    className="bg-red-500 hover:bg-red-600 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded disabled:opacity-50 transition-colors whitespace-nowrap"
                   >
                     - カード削除
                   </button>
@@ -255,28 +255,28 @@ const PageContentManager: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       位置
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       記事選択
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       タイトル
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       カテゴリ
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       タイプ
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       公開日
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       ステータス
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       操作
                     </th>
                   </tr>
@@ -284,19 +284,19 @@ const PageContentManager: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {sectionList.map((section) => (
                     <tr key={section.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                          <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 sm:px-2.5 py-0.5 rounded-full">
                             {section.position}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <select
                           value={section.article_id || ''}
                           onChange={(e) => updateSectionArticle(section.id, e.target.value || null)}
                           disabled={saving}
-                          className="w-full max-w-xs px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
+                          className="w-full min-w-[150px] max-w-xs px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
                         >
                           <option value="">記事を選択...</option>
                           {filteredArticles.map((article) => (
@@ -306,8 +306,8 @@ const PageContentManager: React.FC = () => {
                           ))}
                         </select>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-xs">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4">
+                        <div className="text-xs sm:text-sm text-gray-900 max-w-[150px] sm:max-w-xs">
                           {section.article ? (
                             <div className="truncate font-medium">{section.article.title}</div>
                           ) : (
@@ -315,7 +315,7 @@ const PageContentManager: React.FC = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         {section.article ? (
                           <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
                             {section.article.category}
@@ -324,7 +324,7 @@ const PageContentManager: React.FC = () => {
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         {section.article ? (
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                             section.article.article_type === 'cosmetic'
@@ -337,14 +337,14 @@ const PageContentManager: React.FC = () => {
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                         {section.article ? (
                           new Date(section.article.created_at).toLocaleDateString('ja-JP')
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         {section.article ? (
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                             section.article.status === 'published'
@@ -359,7 +359,7 @@ const PageContentManager: React.FC = () => {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <button
                           onClick={() => removeSpecificCard(section.id, sectionName)}
                           disabled={saving || sectionList.length <= 1}

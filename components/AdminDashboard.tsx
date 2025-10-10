@@ -349,30 +349,30 @@ const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-white border-b border-gray-300 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-slate-800 rounded flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">美</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <div className="flex items-center space-x-2 sm:space-x-6">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800 rounded flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-base sm:text-lg">美</span>
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-slate-800">美活部 管理システム</h1>
-                  <p className="text-sm text-slate-500">Content Management System</p>
+                  <h1 className="text-base sm:text-xl font-bold text-slate-800">美活部 管理システム</h1>
+                  <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">Content Management System</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-6">
-              <div className="text-right">
+            <div className="flex items-center space-x-2 sm:space-x-6">
+              <div className="text-right hidden md:block">
                 <p className="text-sm font-medium text-slate-700">管理者</p>
                 <p className="text-xs text-slate-500">Administrator</p>
               </div>
-              <div className="w-10 h-10 bg-slate-200 rounded flex items-center justify-center">
-                <span className="text-sm font-semibold text-slate-700">A</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-200 rounded flex items-center justify-center flex-shrink-0">
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">A</span>
               </div>
               <button
                 onClick={handleLogout}
-                className="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 text-sm font-medium transition-colors"
+                className="bg-slate-700 hover:bg-slate-800 text-white px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-colors"
               >
                 ログアウト
               </button>
@@ -381,25 +381,25 @@ const AdminDashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {stats.map((stat, index) => (
             <div key={index} className="bg-white border border-gray-200 shadow-sm">
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="text-sm font-medium text-slate-600 uppercase tracking-wide">{stat.title}</h3>
-                    <p className="text-xs text-slate-400 mb-3">{stat.description}</p>
-                    <p className="text-3xl font-bold text-slate-900 mb-2">{stat.value}</p>
+                    <h3 className="text-xs sm:text-sm font-medium text-slate-600 uppercase tracking-wide">{stat.title}</h3>
+                    <p className="text-xs text-slate-400 mb-2 sm:mb-3">{stat.description}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{stat.value}</p>
                   </div>
-                  <div className="w-12 h-12 bg-slate-100 flex items-center justify-center">
-                    <div className="w-6 h-6 bg-slate-600"></div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-slate-600"></div>
                   </div>
                 </div>
               </div>
               {stat.isLink && (
-                <div className="px-6 pb-4">
+                <div className="px-4 sm:px-6 pb-4">
                   <a
                     href="https://analytics.google.com/"
                     target="_blank"
@@ -415,12 +415,12 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="bg-white border border-gray-200 shadow-sm mb-8">
+        <div className="bg-white border border-gray-200 shadow-sm mb-6 sm:mb-8">
           <div className="border-b border-gray-200">
-            <nav className="flex">
+            <nav className="flex overflow-x-auto">
               <button
                 onClick={() => setActiveTab('articles')}
-                className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-3 px-4 sm:py-4 sm:px-8 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                   activeTab === 'articles'
                     ? 'border-slate-800 text-slate-800 bg-slate-50'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -430,7 +430,7 @@ const AdminDashboard: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('content')}
-                className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-3 px-4 sm:py-4 sm:px-8 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                   activeTab === 'content'
                     ? 'border-slate-800 text-slate-800 bg-slate-50'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -440,7 +440,7 @@ const AdminDashboard: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('login-history')}
-                className={`py-4 px-8 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-3 px-4 sm:py-4 sm:px-8 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                   activeTab === 'login-history'
                     ? 'border-slate-800 text-slate-800 bg-slate-50'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -451,50 +451,50 @@ const AdminDashboard: React.FC = () => {
             </nav>
           </div>
 
-          <div className="p-8">
+          <div className="p-4 sm:p-8">
 
             {activeTab === 'articles' && (
               <div>
-                <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-200">
-                  <h2 className="text-lg font-bold text-slate-800">記事管理</h2>
-                  <div className="flex space-x-3">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 pb-3 border-b border-gray-200 gap-3">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-800">記事管理</h2>
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <input
                       type="search"
                       placeholder="記事を検索..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
+                      className="px-4 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500 w-full sm:w-auto"
                     />
                     <button
                       onClick={() => window.location.href = '/admin/articles/new'}
-                      className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 text-sm font-medium transition-colors">
+                      className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 text-sm font-medium transition-colors whitespace-nowrap">
                       新規作成
                     </button>
                   </div>
                 </div>
-                <div className="bg-white border border-gray-200 overflow-hidden">
+                <div className="bg-white border border-gray-200 overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           タイトル
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           カテゴリ1
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           カテゴリ2
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           タイプ
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           ステータス
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           作成日
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           操作
                         </th>
                       </tr>
@@ -502,39 +502,39 @@ const AdminDashboard: React.FC = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {loading ? (
                         <tr>
-                          <td colSpan={7} className="px-6 py-8 text-center">
+                          <td colSpan={7} className="px-4 sm:px-6 py-6 sm:py-8 text-center">
                             <div className="flex justify-center items-center">
                               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
-                              <span className="ml-2 text-slate-600">読み込み中...</span>
+                              <span className="ml-2 text-sm sm:text-base text-slate-600">読み込み中...</span>
                             </div>
                           </td>
                         </tr>
                       ) : filteredArticles.length === 0 ? (
                         <tr>
-                          <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
+                          <td colSpan={7} className="px-4 sm:px-6 py-6 sm:py-8 text-center text-sm sm:text-base text-slate-500">
                             {searchQuery ? '検索結果が見つかりませんでした' : '記事がありません'}
                           </td>
                         </tr>
                       ) : (
                         filteredArticles.map((article) => (
                           <tr key={article.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4">
-                              <div className="text-sm font-medium text-slate-900 max-w-xs">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <div className="text-xs sm:text-sm font-medium text-slate-900 max-w-[150px] sm:max-w-xs">
                                 <div className="truncate">{article.title}</div>
                               </div>
                             </td>
-                            <td className="px-6 py-4">
-                              <span className="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <span className="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full whitespace-nowrap">
                                 {article.category || '-'}
                               </span>
                             </td>
-                            <td className="px-6 py-4">
-                              <span className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <span className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full whitespace-nowrap">
                                 {article.category2 || '-'}
                               </span>
                             </td>
-                            <td className="px-6 py-4">
-                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
                                 article.article_type === 'cosmetic'
                                   ? 'bg-pink-100 text-pink-800'
                                   : 'bg-gray-100 text-gray-800'
@@ -542,7 +542,7 @@ const AdminDashboard: React.FC = () => {
                                 {article.article_type === 'cosmetic' ? 'コスメ' : '記事'}
                               </span>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
                               <label className="inline-flex items-center">
                                 <div className="relative">
                                   <input
@@ -551,19 +551,19 @@ const AdminDashboard: React.FC = () => {
                                     checked={article.status === 'published'}
                                     onChange={() => handleToggleStatus(article.id, article.status)}
                                   />
-                                  <div className={`w-12 h-6 rounded-full transition-colors cursor-pointer ${
-                                    article.status === 'published' 
-                                      ? 'bg-emerald-500' 
+                                  <div className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full transition-colors cursor-pointer ${
+                                    article.status === 'published'
+                                      ? 'bg-emerald-500'
                                       : 'bg-gray-300'
                                   }`}>
-                                    <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                                      article.status === 'published' 
-                                        ? 'translate-x-6' 
+                                    <div className={`w-4 h-4 sm:w-5 sm:h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                                      article.status === 'published'
+                                        ? 'translate-x-5 sm:translate-x-6'
                                         : 'translate-x-0.5'
                                     } mt-0.5`}></div>
                                   </div>
                                 </div>
-                                <span className={`ml-2 text-xs font-medium ${
+                                <span className={`ml-2 text-xs font-medium whitespace-nowrap ${
                                   article.status === 'published'
                                     ? 'text-emerald-800'
                                     : 'text-gray-600'
@@ -572,20 +572,20 @@ const AdminDashboard: React.FC = () => {
                                 </span>
                               </label>
                             </td>
-                            <td className="px-6 py-4 text-sm text-slate-500">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-500 whitespace-nowrap">
                               {new Date(article.created_at).toLocaleDateString('ja-JP')}
                             </td>
-                            <td className="px-6 py-4">
-                              <div className="flex space-x-2">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <div className="flex gap-2 whitespace-nowrap">
                                 <button
                                   onClick={() => handleEditArticle(article.id)}
-                                  className="text-slate-600 hover:text-slate-800 text-sm font-medium"
+                                  className="text-slate-600 hover:text-slate-800 text-xs sm:text-sm font-medium"
                                 >
                                   編集
                                 </button>
                                 <button
                                   onClick={() => handleDeleteArticle(article.id)}
-                                  className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                  className="text-red-600 hover:text-red-800 text-xs sm:text-sm font-medium"
                                 >
                                   削除
                                 </button>
@@ -606,19 +606,19 @@ const AdminDashboard: React.FC = () => {
 
             {activeTab === 'login-history' && (
               <div>
-                <div className="mb-6 pb-3 border-b border-gray-200">
-                  <h2 className="text-lg font-bold text-slate-800">ログイン履歴</h2>
+                <div className="mb-4 sm:mb-6 pb-3 border-b border-gray-200">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-800">ログイン履歴</h2>
                 </div>
 
                 {/* ログイン履歴テーブル */}
-                <div className="bg-white border border-gray-200 overflow-hidden">
+                <div className="bg-white border border-gray-200 overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           ユーザー
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           ログイン日時
                         </th>
                       </tr>
@@ -626,28 +626,28 @@ const AdminDashboard: React.FC = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {loginHistoryLoading ? (
                         <tr>
-                          <td colSpan={2} className="px-6 py-8 text-center">
+                          <td colSpan={2} className="px-4 sm:px-6 py-6 sm:py-8 text-center">
                             <div className="flex justify-center items-center">
                               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
-                              <span className="ml-2 text-slate-600">読み込み中...</span>
+                              <span className="ml-2 text-sm sm:text-base text-slate-600">読み込み中...</span>
                             </div>
                           </td>
                         </tr>
                       ) : loginHistory.length === 0 ? (
                         <tr>
-                          <td colSpan={2} className="px-6 py-8 text-center text-slate-500">
+                          <td colSpan={2} className="px-4 sm:px-6 py-6 sm:py-8 text-center text-sm sm:text-base text-slate-500">
                             ログイン履歴がありません
                           </td>
                         </tr>
                       ) : (
                         loginHistory.map((entry) => (
                           <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4">
-                              <div className="text-sm font-medium text-slate-900">
-                                {entry.email}
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <div className="text-xs sm:text-sm font-medium text-slate-900">
+                                {entry.user_name}
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-slate-500">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-500 whitespace-nowrap">
                               {loginHistoryService.formatLoginTime(entry.login_time)}
                             </td>
                           </tr>

@@ -219,17 +219,16 @@ const HeroSectionManager: React.FC = () => {
   }
 
   return (
-    <div className="bg-white border border-gray-200 p-6">
-      <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-200">
+    <div className="bg-white border border-gray-200 p-4 sm:p-6">
+      <div className="flex flex-col gap-2 mb-4 sm:mb-6 pb-3 border-b border-gray-200">
         <div>
-          <h3 className="text-lg font-semibold text-slate-700">1. ヒーローセクション管理</h3>
-          <p className="text-sm text-gray-600 mt-1">トップページのメインスライド画像を管理します（5枚固定）</p>
+          <h3 className="text-base sm:text-lg font-semibold text-slate-700">1. ヒーローセクション管理</h3>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">トップページのメインスライド画像を管理します（5枚固定）</p>
         </div>
-
       </div>
 
       {message && (
-        <div className={`mb-4 p-3 rounded text-sm ${
+        <div className={`mb-4 p-3 rounded text-xs sm:text-sm ${
           message.includes('失敗') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
         }`}>
           {message}
@@ -237,37 +236,39 @@ const HeroSectionManager: React.FC = () => {
       )}
 
       {/* スライド一覧 */}
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4">
         {slides.map((slide, index) => (
-          <div key={slide.id} className="border border-gray-200 rounded p-4 flex items-center gap-4">
-            {/* 順序表示 */}
-            <div className="flex-shrink-0 w-8 h-8 bg-[#d11a68] text-white rounded-full flex items-center justify-center text-sm font-medium">
-              {slide.order}
-            </div>
+          <div key={slide.id} className="border border-gray-200 rounded p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              {/* 順序表示 */}
+              <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 bg-[#d11a68] text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium">
+                {slide.order}
+              </div>
 
-            {/* プレビュー画像 */}
-            <div className="w-32 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-              {slide.imageUrl ? (
-                <img
-                  src={slide.imageUrl}
-                  alt={slide.alt}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                  No Image
-                </div>
-              )}
+              {/* プレビュー画像 */}
+              <div className="w-24 h-16 sm:w-32 sm:h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                {slide.imageUrl ? (
+                  <img
+                    src={slide.imageUrl}
+                    alt={slide.alt}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                    No Image
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* スライド情報 */}
-            <div className="flex-1">
-              <p className="font-medium text-sm text-gray-800">{slide.alt || '（タイトルなし）'}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                画像URL: {slide.imageUrl ? slide.imageUrl.substring(0, 50) + '...' : '未設定'}
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-xs sm:text-sm text-gray-800 truncate">{slide.alt || '（タイトルなし）'}</p>
+              <p className="text-xs text-gray-500 mt-1 truncate">
+                画像URL: {slide.imageUrl ? slide.imageUrl.substring(0, 30) + '...' : '未設定'}
               </p>
               {slide.articleId && (
-                <p className="text-xs text-blue-600 mt-1">
+                <p className="text-xs text-blue-600 mt-1 truncate">
                   リンク先: {articles.find(a => a.id === slide.articleId)?.title || '記事が見つかりません'}
                 </p>
               )}
@@ -276,7 +277,7 @@ const HeroSectionManager: React.FC = () => {
             {/* 編集ボタン */}
             <button
               onClick={() => handleEditSlide(slide)}
-              className="px-4 py-2 text-sm bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors rounded"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors rounded whitespace-nowrap self-start sm:self-auto"
             >
               編集
             </button>
@@ -286,16 +287,16 @@ const HeroSectionManager: React.FC = () => {
 
       {/* 編集モーダル */}
       {editingSlide && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-            <h4 className="text-lg font-semibold mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
               スライド {editingSlide.order} を編集
             </h4>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* サムネイル設定 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   サムネイル画像
                 </label>
                 <div className="space-y-2">
@@ -305,7 +306,7 @@ const HeroSectionManager: React.FC = () => {
                       type="button"
                       onClick={handleUploadClick}
                       disabled={isUploading}
-                      className="px-4 py-2 text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors whitespace-nowrap"
                     >
                       {isUploading ? 'アップロード中...' : '画像をアップロード'}
                     </button>
@@ -317,14 +318,14 @@ const HeroSectionManager: React.FC = () => {
                       className="hidden"
                     />
                   </div>
-                  
+
                   {/* URL入力フィールド */}
                   <input
                     type="url"
                     value={editingSlide.imageUrl}
                     onChange={(e) => setEditingSlide({ ...editingSlide, imageUrl: e.target.value })}
                     placeholder="https://... または上記ボタンでアップロード"
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
+                    className="w-full px-3 py-2 border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
                   />
                   <p className="text-xs text-gray-500">
                     画像ファイルをアップロードするか、直接URLを入力してください
@@ -334,7 +335,7 @@ const HeroSectionManager: React.FC = () => {
 
               {/* ALTテキスト */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   ALTテキスト（説明）
                 </label>
                 <input
@@ -342,19 +343,19 @@ const HeroSectionManager: React.FC = () => {
                   value={editingSlide.alt}
                   onChange={(e) => setEditingSlide({ ...editingSlide, alt: e.target.value })}
                   placeholder="画像の説明を入力"
-                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
+                  className="w-full px-3 py-2 border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
                 />
               </div>
 
               {/* 記事選択 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   リンク先記事（オプション）
                 </label>
                 <select
                   value={editingSlide.articleId || ''}
                   onChange={(e) => setEditingSlide({ ...editingSlide, articleId: e.target.value || undefined })}
-                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
+                  className="w-full px-3 py-2 border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
                 >
                   <option value="">記事を選択（リンクなし）</option>
                   {articles.map((article) => (
@@ -371,7 +372,7 @@ const HeroSectionManager: React.FC = () => {
               {/* プレビュー */}
               {editingSlide.imageUrl && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     プレビュー (16:9)
                   </label>
                   <div className="relative w-full bg-gray-100 rounded overflow-hidden" style={{ aspectRatio: '16/9' }}>
@@ -386,17 +387,17 @@ const HeroSectionManager: React.FC = () => {
             </div>
 
             {/* ボタン */}
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+            <div className="flex justify-end gap-2 sm:gap-3 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200">
               <button
                 onClick={() => setEditingSlide(null)}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-600 hover:text-gray-800 transition-colors"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleSaveSlide}
                 disabled={!editingSlide.imageUrl || !editingSlide.alt || saving}
-                className="px-4 py-2 text-sm bg-[#d11a68] text-white hover:bg-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-[#d11a68] text-white hover:bg-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded whitespace-nowrap"
               >
                 {saving ? '保存中...' : '保存'}
               </button>

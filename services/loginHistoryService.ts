@@ -4,6 +4,7 @@ export interface LoginHistoryEntry {
   id: string;
   user_id: string;
   email: string;
+  user_name: string;
   login_time: string;
   ip_address?: string;
   user_agent?: string;
