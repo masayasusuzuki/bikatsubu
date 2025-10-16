@@ -49,6 +49,33 @@ export async function fetchCloudinaryImages(): Promise<CloudinaryImage[]> {
 }
 
 /**
+ * Cloudinary画像を削除
+ */
+export async function deleteCloudinaryImage(imageUrl: string): Promise<boolean> {
+  try {
+    console.log('=== Deleting Cloudinary Image ===');
+    console.log('Image URL:', imageUrl);
+
+    const { publicId } = extractCloudinaryInfo(imageUrl);
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dmxlepoau';
+
+    // Cloudinaryの削除はサーバーサイドで行う必要があるため、
+    // ここではSupabaseのメタデータのみ削除します
+    const { imageMetadataAPI } = await import('../lib/supabase');
+
+    // 画像メタデータを削除
+    await imageMetadataAPI.deleteImageMetadata(imageUrl);
+
+    console.log('Image metadata deleted successfully');
+    return true;
+
+  } catch (error) {
+    console.error('Failed to delete Cloudinary image:', error);
+    return false;
+  }
+}
+
+/**
  * Cloudinary URLから情報を抽出
  */
 function extractCloudinaryInfo(url: string): {

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { articlesAPI, CreateArticle, imageFoldersAPI, imageMetadataAPI, ImageFolder } from '../src/lib/supabase';
-import { fetchCloudinaryImages, CloudinaryImage } from '../src/api/cloudinary';
+import { fetchCloudinaryImages, CloudinaryImage, deleteCloudinaryImage } from '../src/api/cloudinary';
 
 interface ArticleData {
   title: string;
@@ -218,6 +218,34 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     } catch (error) {
       console.error('フォルダの削除に失敗:', error);
       alert('フォルダの削除に失敗しました');
+    }
+  };
+
+  const handleDeleteImages = async () => {
+    if (selectedImages.size === 0) {
+      alert('削除する画像を選択してください');
+      return;
+    }
+
+    if (!confirm(`選択した${selectedImages.size}枚の画像を削除しますか？\n※この操作は取り消せません`)) {
+      return;
+    }
+
+    try {
+      // 画像メタデータを一括削除
+      await imageMetadataAPI.deleteMultipleImages(Array.from(selectedImages));
+
+      // 選択をクリア
+      setSelectedImages(new Set());
+
+      // 画像リストを再読み込み
+      await loadCloudinaryImages();
+      await loadFolders();
+
+      alert('画像を削除しました');
+    } catch (error) {
+      console.error('画像の削除に失敗:', error);
+      alert('画像の削除に失敗しました');
     }
   };
 
@@ -1210,6 +1238,12 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                             </option>
                           ))}
                         </select>
+                        <button
+                          onClick={handleDeleteImages}
+                          className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded transition-colors"
+                        >
+                          🗑️ 削除
+                        </button>
                         <button
                           onClick={() => setSelectedImages(new Set())}
                           className="text-xs text-gray-600 hover:text-gray-800"

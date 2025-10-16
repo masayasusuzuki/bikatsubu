@@ -708,5 +708,20 @@ export const imageMetadataAPI = {
       .eq('image_url', imageUrl)
 
     if (error) throw error
+  },
+
+  // 画像メタデータを削除（エイリアス）
+  async deleteImageMetadata(imageUrl: string): Promise<void> {
+    return this.deleteMetadata(imageUrl)
+  },
+
+  // 複数画像を一括削除
+  async deleteMultipleImages(imageUrls: string[]): Promise<void> {
+    const { error } = await supabase
+      .from('image_metadata')
+      .delete()
+      .in('image_url', imageUrls)
+
+    if (error) throw error
   }
 }
