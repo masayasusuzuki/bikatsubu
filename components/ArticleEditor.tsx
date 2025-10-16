@@ -1088,6 +1088,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                     >
                       <option value="article">通常記事</option>
                       <option value="event">イベント・その他</option>
+                      <option value="survey">調査レポート</option>
                     </select>
                   </div>
                   <div>

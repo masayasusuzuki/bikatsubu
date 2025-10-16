@@ -95,6 +95,19 @@ export const articlesAPI = {
     return data as Article[]
   },
 
+  // 記事タイプ別記事を取得
+  async getArticlesByType(articleType: string) {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .eq('status', 'published')
+      .eq('article_type', articleType)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data as Article[]
+  },
+
   // スラッグで記事を取得
   async getArticleBySlug(slug: string) {
     const { data, error } = await supabase

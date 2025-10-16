@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const Header: React.FC = () => {
-    const mainNavItems = ['シミ・くすみ', '毛穴', '赤み・赤ら顔', 'たるみ・しわ', 'ニキビ・ニキビ跡', '肌タイプ診断'];
+    const mainNavItems = ['シミ・くすみ', '毛穴', '赤み・赤ら顔', 'たるみ・しわ', 'ニキビ・ニキビ跡', '調査レポート', '肌タイプ診断'];
     const subNavItems: string[] = [];
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   return (
@@ -63,6 +63,7 @@ const Header: React.FC = () => {
                         case '赤み・赤ら顔': return '/category/redness';
                         case 'たるみ・しわ': return '/category/aging';
                         case 'ニキビ・ニキビ跡': return '/category/acne';
+                        case '調査レポート': return '/articles/surveys';
                         case '肌タイプ診断': return '/skin-diagnosis';
                         default: return '#';
                     }
@@ -96,6 +97,7 @@ const Header: React.FC = () => {
                     case '赤み・赤ら顔': return '/category/redness';
                     case 'たるみ・しわ': return '/category/aging';
                     case 'ニキビ・ニキビ跡': return '/category/acne';
+                    case '調査レポート': return '/articles/surveys';
                     case '肌タイプ診断': return '/skin-diagnosis';
                     default: return '#';
                   }

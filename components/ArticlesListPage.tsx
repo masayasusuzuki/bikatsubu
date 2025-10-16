@@ -16,7 +16,7 @@ interface ArticleListItem {
 }
 
 interface ArticlesListPageProps {
-  sectionType: 'hot_cosmetics' | 'brand_updates' | 'management_tips' | 'beauty_events';
+  sectionType: 'hot_cosmetics' | 'brand_updates' | 'management_tips' | 'beauty_events' | 'surveys';
 }
 
 const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
@@ -60,6 +60,13 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
         heroImage: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&h=400&fit=crop&auto=format',
         bgColor: 'bg-purple-50',
         pageTitle: '美容イベント記事一覧'
+      },
+      'surveys': {
+        title: 'Survey Reports',
+        description: '美容に関する意識調査レポート・アンケート結果',
+        heroImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&h=400&fit=crop&auto=format',
+        bgColor: 'bg-indigo-50',
+        pageTitle: '調査レポート一覧'
       }
     };
 
@@ -105,6 +112,10 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
           // Beauty Topicsの場合は、すべての公開記事を表示
           const allArticles = await articlesAPI.getPublishedArticles();
           setArticles(allArticles);
+        } else if (sectionType === 'surveys') {
+          // 調査レポートの場合は、article_type='survey'の記事を取得
+          const surveyArticles = await articlesAPI.getArticlesByType('survey');
+          setArticles(surveyArticles);
         } else {
           // 他のセクションは従来通り
           const sections = await pageSectionsAPI.getSectionByName(sectionType);

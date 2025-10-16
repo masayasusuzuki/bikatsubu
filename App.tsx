@@ -6,6 +6,7 @@ import CategoryGrid from './components/CategoryGrid';
 import BrandUpdates from './components/BrandUpdates';
 import BeautyEvents from './components/BeautyEvents';
 import ManagementTips from './components/ManagementTips';
+import SurveyReports from './components/SurveyReports';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
 import AdminLogin from './components/AdminLogin';
@@ -36,6 +37,7 @@ const App: React.FC = () => {
     brandUpdates: [] as Article[],
     beautyEvents: [] as Article[],
     managementTips: [] as Article[],
+    surveyReports: [] as Article[],
     mostReadArticles: [] as Article[]
   });
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(fallbackHeroSlides);
@@ -151,6 +153,10 @@ const App: React.FC = () => {
         .sort((a, b) => a.position - b.position)
         .map(s => convertDBArticleToUIArticle(s.article!));
 
+      // 調査レポートを取得（article_type='survey'）
+      const surveyReportsData = await articlesAPI.getArticlesByType('survey');
+      const surveyReports = surveyReportsData.slice(0, 3).map(convertDBArticleToUIArticle);
+
       // 最新記事を取得（mostReadArticlesの代わり）
       const latestArticlesData = await articlesAPI.getLatestArticles(5);
       const mostReadArticles = latestArticlesData.map(convertDBArticleToUIArticle);
@@ -161,6 +167,7 @@ const App: React.FC = () => {
         brandUpdates,
         beautyEvents,
         managementTips,
+        surveyReports,
         mostReadArticles
       });
     } catch (error) {
@@ -172,6 +179,7 @@ const App: React.FC = () => {
         brandUpdates: [],
         beautyEvents: [],
         managementTips: [],
+        surveyReports: [],
         mostReadArticles: []
       });
     } finally {
@@ -270,6 +278,10 @@ const App: React.FC = () => {
     return <ArticlesListPage sectionType="beauty_events" />;
   }
 
+  if (currentPath === '/articles/surveys') {
+    return <ArticlesListPage sectionType="surveys" />;
+  }
+
   // Footer pages routing
   if (currentPath === '/guide') {
     return <UserGuide />;
@@ -312,12 +324,18 @@ const App: React.FC = () => {
         <SearchBar />
         <div className="container mx-auto px-4 py-8">
            <ProductCarousel products={pageData.hotCosmetics.map(convertArticleToProduct)} mostRead={pageData.mostReadArticles} />
-           <div className="my-8 md:my-12 p-5 md:p-8 bg-[#d11a68] text-white text-center rounded-lg">
-              <h2 className="text-xl md:text-3xl font-bold">Find Your Perfect Beauty Item</h2>
-              <p className="mt-1 md:mt-2 mb-4 md:mb-6 text-sm md:text-base">あなたのための美容製品、テクニック、サロンがきっと見つかる</p>
-              <button className="bg-white text-[#d11a68] font-bold py-2.5 md:py-3 px-6 md:px-8 text-base md:text-lg hover:bg-gray-200 transition-colors rounded-md">
-                アイテムを探す
-              </button>
+           <div className="my-8 md:my-12 p-8 md:p-12 bg-gradient-to-br from-rose-400 via-pink-400 to-purple-400 text-white text-center rounded-2xl shadow-xl relative overflow-hidden">
+              {/* 装飾的な背景要素 */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+
+              <div className="relative z-10">
+                <h2 className="text-2xl md:text-4xl font-bold mb-2 drop-shadow-lg">Find Your Perfect Beauty Item</h2>
+                <p className="mt-2 md:mt-3 mb-6 md:mb-8 text-sm md:text-lg text-white/90 font-light">あなたのための美容製品、テクニック、サロンがきっと見つかる</p>
+                <button className="bg-white text-rose-500 font-bold py-3 md:py-4 px-8 md:px-12 text-base md:text-lg hover:bg-rose-50 hover:scale-105 transition-all duration-300 rounded-full shadow-lg hover:shadow-2xl">
+                  アイテムを探す
+                </button>
+              </div>
             </div>
            <CategoryGrid categories={categories} />
         </div>
@@ -328,17 +346,22 @@ const App: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="bg-white py-12">
+            <div className="bg-gradient-to-b from-rose-50 to-white py-16">
                 <div className="container mx-auto px-4">
                     <BrandUpdates articles={pageData.brandUpdates} products={mostViewedProducts} manufacturers={mostViewedManufacturers} popularMedicalBeauty={pageData.popularMedicalBeauty}/>
                 </div>
             </div>
-            <div className="bg-[#d11a68] text-white py-12 my-12">
+            <div className="bg-gradient-to-br from-pink-500 via-rose-500 to-purple-600 text-white py-16 my-12">
                <BeautyEvents events={pageData.beautyEvents} />
             </div>
-            <div className="bg-gray-200 py-12">
+            <div className="bg-gradient-to-b from-slate-50 to-gray-50 py-16">
                  <div className="container mx-auto px-4">
                     <ManagementTips tips={pageData.managementTips} />
+                </div>
+            </div>
+            <div className="bg-gradient-to-b from-indigo-50 to-purple-50 py-16">
+                 <div className="container mx-auto px-4">
+                    <SurveyReports reports={pageData.surveyReports} />
                 </div>
             </div>
           </>
