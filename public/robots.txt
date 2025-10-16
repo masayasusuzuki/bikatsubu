@@ -1,0 +1,12 @@
+# robots.txt for 美活部（公式）
+# https://www.bikatsubu-media.jp/
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.bikatsubu-media.jp/sitemap.xml
+
+# Disallow admin pages
+User-agent: *
+Disallow: /admin

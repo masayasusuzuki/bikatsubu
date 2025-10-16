@@ -17,8 +17,8 @@ const Footer: React.FC = () => {
       { name: '海外トレンド', href: '/category/global-trends' }
     ],
     '美活部について': [
-      '株式会社LOGICA', 
-      'お問い合わせ', 
+      { name: '株式会社LOGICA', href: 'https://logicajapan.co.jp/', external: true },
+      { name: 'お問い合わせ', href: 'https://logicajapan.co.jp/contact/', external: true },
       { name: '広告掲載について', href: '/media' }
     ],
     'サポート': [
@@ -51,6 +51,8 @@ const Footer: React.FC = () => {
                     <li key={typeof link === 'string' ? link : link.name || index} className="mb-2">
                       {typeof link === 'string' ? (
                         <a href="#" className="text-sm hover:underline">{link}</a>
+                      ) : link.external ? (
+                        <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-sm hover:underline">{link.name}</a>
                       ) : (
                         <a href={link.href} className="text-sm hover:underline">{link.name}</a>
                       )}

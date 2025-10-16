@@ -267,9 +267,49 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
     article.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  // 構造化データ（パンくずリスト）
+  const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "ホーム",
+        "item": "https://www.bikatsubu-media.jp/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": categoryInfo.title,
+        "item": `https://www.bikatsubu-media.jp${window.location.pathname}`
+      }
+    ]
+  };
+
   return (
     <div className="bg-gray-100 font-sans">
+      {/* 構造化データ */}
+      <script type="application/ld+json">
+        {JSON.stringify(breadcrumbStructuredData)}
+      </script>
+
       <Header />
+
+      {/* パンくずリスト */}
+      <nav className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-3">
+          <ol className="flex items-center space-x-2 text-sm">
+            <li>
+              <a href="/" className="text-gray-500 hover:text-[#d11a68] transition-colors">
+                ホーム
+              </a>
+            </li>
+            <li className="text-gray-400">/</li>
+            <li className="text-[#d11a68] font-medium">{categoryInfo.title}</li>
+          </ol>
+        </div>
+      </nav>
 
       {/* Hero Section */}
       <div className="relative h-64 md:h-96 overflow-hidden">

@@ -12,8 +12,8 @@ const PrivacyPolicy: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">プライバシーポリシー</h1>
           
           <div className="text-sm text-gray-600 mb-8 text-center">
-            制定日：2024年1月1日<br />
-            最終更新日：2024年9月26日
+            制定日：2025年10月1日<br />
+            最終更新日：2025年10月16日
           </div>
 
           {/* 前文 */}

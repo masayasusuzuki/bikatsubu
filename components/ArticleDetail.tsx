@@ -317,9 +317,92 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
     </div>
   );
 
+  // 構造化データ（パンくずリスト）
+  const breadcrumbStructuredData = article ? {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "ホーム",
+        "item": "https://www.bikatsubu-media.jp/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": article.category,
+        "item": `https://www.bikatsubu-media.jp/category/${encodeURIComponent(article.category)}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": article.title
+      }
+    ]
+  } : null;
+
+  // 構造化データ（Article）
+  const articleStructuredData = article ? {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": article.title,
+    "author": {
+      "@type": "Organization",
+      "name": "美活部（公式）"
+    },
+    "datePublished": article.created_at,
+    "dateModified": article.updated_at || article.created_at,
+    "image": article.featured_image || "https://www.bikatsubu-media.jp/fabicon/fabicon.png",
+    "publisher": {
+      "@type": "Organization",
+      "name": "美活部（公式）",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.bikatsubu-media.jp/fabicon/fabicon.png"
+      }
+    }
+  } : null;
+
   return (
     <div className="bg-gray-100 font-sans">
+      {/* 構造化データ */}
+      {breadcrumbStructuredData && (
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbStructuredData)}
+        </script>
+      )}
+      {articleStructuredData && (
+        <script type="application/ld+json">
+          {JSON.stringify(articleStructuredData)}
+        </script>
+      )}
+
       <Header />
+
+      {/* パンくずリスト */}
+      {!loading && !error && article && (
+        <nav className="bg-white border-b border-gray-200">
+          <div className="container mx-auto px-4 py-3">
+            <ol className="flex items-center space-x-2 text-sm">
+              <li>
+                <a href="/" className="text-gray-500 hover:text-[#d11a68] transition-colors">
+                  ホーム
+                </a>
+              </li>
+              <li className="text-gray-400">/</li>
+              <li>
+                <a href={`/category/${encodeURIComponent(article.category)}`} className="text-gray-500 hover:text-[#d11a68] transition-colors">
+                  {article.category}
+                </a>
+              </li>
+              <li className="text-gray-400">/</li>
+              <li className="text-[#d11a68] font-medium truncate max-w-xs">{article.title}</li>
+            </ol>
+          </div>
+        </nav>
+      )}
+
       <main>
         <div className="container mx-auto px-4 py-10 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
