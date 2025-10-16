@@ -559,3 +559,154 @@ export const heroSlidesAPI = {
     if (errors.length > 0) throw errors[0]
   }
 }
+
+// 画像フォルダの型定義
+export interface ImageFolder {
+  id: string
+  name: string
+  created_at: string
+  image_count?: number
+}
+
+// 画像メタデータの型定義
+export interface ImageMetadata {
+  id: string
+  image_url: string
+  folder_id: string | null
+  title: string | null
+  created_at: string
+  updated_at: string
+  folder?: ImageFolder
+}
+
+// 画像フォルダAPI
+export const imageFoldersAPI = {
+  // 全フォルダを取得（画像数付き）
+  async getAllFolders(): Promise<ImageFolder[]> {
+    const { data, error } = await supabase
+      .from('image_folders')
+      .select('*, image_metadata(count)')
+      .order('created_at')
+
+    if (error) throw error
+
+    // 画像数を追加
+    return (data || []).map((folder: any) => ({
+      id: folder.id,
+      name: folder.name,
+      created_at: folder.created_at,
+      image_count: folder.image_metadata?.[0]?.count || 0
+    }))
+  },
+
+  // フォルダを作成
+  async createFolder(name: string): Promise<ImageFolder> {
+    const { data, error } = await supabase
+      .from('image_folders')
+      .insert([{ name }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as ImageFolder
+  },
+
+  // フォルダを削除
+  async deleteFolder(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('image_folders')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+  },
+
+  // フォルダ名を変更
+  async renameFolder(id: string, name: string): Promise<ImageFolder> {
+    const { data, error } = await supabase
+      .from('image_folders')
+      .update({ name })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as ImageFolder
+  }
+}
+
+// 画像メタデータAPI
+export const imageMetadataAPI = {
+  // 全画像メタデータを取得（フォルダ情報付き）
+  async getAllMetadata(): Promise<ImageMetadata[]> {
+    const { data, error } = await supabase
+      .from('image_metadata')
+      .select('*, folder:image_folders(*)')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data as ImageMetadata[]
+  },
+
+  // フォルダIDで画像を取得
+  async getMetadataByFolder(folderId: string | null): Promise<ImageMetadata[]> {
+    let query = supabase
+      .from('image_metadata')
+      .select('*, folder:image_folders(*)')
+      .order('created_at', { ascending: false })
+
+    if (folderId === null) {
+      query = query.is('folder_id', null)
+    } else {
+      query = query.eq('folder_id', folderId)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+    return data as ImageMetadata[]
+  },
+
+  // 画像をフォルダに移動
+  async moveImageToFolder(imageUrl: string, folderId: string | null): Promise<ImageMetadata> {
+    const { data, error } = await supabase
+      .from('image_metadata')
+      .upsert({
+        image_url: imageUrl,
+        folder_id: folderId
+      }, {
+        onConflict: 'image_url'
+      })
+      .select('*, folder:image_folders(*)')
+      .single()
+
+    if (error) throw error
+    return data as ImageMetadata
+  },
+
+  // 複数画像を一括移動
+  async moveMultipleImages(imageUrls: string[], folderId: string | null): Promise<void> {
+    const records = imageUrls.map(url => ({
+      image_url: url,
+      folder_id: folderId
+    }))
+
+    const { error } = await supabase
+      .from('image_metadata')
+      .upsert(records, {
+        onConflict: 'image_url'
+      })
+
+    if (error) throw error
+  },
+
+  // 画像メタデータを削除
+  async deleteMetadata(imageUrl: string): Promise<void> {
+    const { error } = await supabase
+      .from('image_metadata')
+      .delete()
+      .eq('image_url', imageUrl)
+
+    if (error) throw error
+  }
+}
