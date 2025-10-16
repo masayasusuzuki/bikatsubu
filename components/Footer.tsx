@@ -69,11 +69,14 @@ const Footer: React.FC = () => {
         </div>
       </div>
       <div className="bg-black/20 text-center py-4">
-        <div className="flex justify-center items-center space-x-4">
-          <p className="text-xs">&copy; 2025 美活部</p>
-          <a href="/admin" className="text-xs px-3 py-1 bg-white/20 hover:bg-white/30 rounded transition-colors">
-            管理者ログイン
-          </a>
+        <div className="flex flex-col justify-center items-center space-y-2">
+          <time dateTime="2025-10-16" className="text-xs">更新日：2025年10月16日</time>
+          <div className="flex justify-center items-center space-x-4">
+            <p className="text-xs">&copy; 2025 美活部</p>
+            <a href="/admin" className="text-xs px-3 py-1 bg-white/20 hover:bg-white/30 rounded transition-colors">
+              管理者ログイン
+            </a>
+          </div>
         </div>
       </div>
     </footer>
