@@ -62,11 +62,11 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
         pageTitle: '美容イベント記事一覧'
       },
       'surveys': {
-        title: 'Survey Reports',
+        title: '美容調査レポート',
         description: '美容に関する意識調査レポート・アンケート結果',
         heroImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&h=400&fit=crop&auto=format',
         bgColor: 'bg-indigo-50',
-        pageTitle: '調査レポート一覧'
+        pageTitle: '美容調査レポート一覧'
       }
     };
 
@@ -175,19 +175,27 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
     <div className="bg-gray-100 font-sans">
       <Header />
 
+      {/* パンくずリスト */}
+      <nav className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-3">
+          <ol className="flex items-center space-x-2 text-sm">
+            <li>
+              <a href="/" className="text-gray-500 hover:text-[#d11a68] transition-colors">
+                ホーム
+              </a>
+            </li>
+            <li className="text-gray-400">/</li>
+            <li className="text-[#d11a68] font-medium">{sectionInfo.title}</li>
+          </ol>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <div className="relative h-96 overflow-hidden">
-        <img
-          src={optimizeAnyImageUrl(sectionInfo.heroImage, 1200, 400)}
-          alt={sectionInfo.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white">
-            <h1 className="text-4xl font-bold mb-4">{sectionInfo.title}</h1>
-            <p className="text-xl max-w-2xl">{sectionInfo.description}</p>
-          </div>
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-12 md:py-16">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 text-center tracking-tight">
+            {sectionInfo.title}
+          </h1>
         </div>
       </div>
 

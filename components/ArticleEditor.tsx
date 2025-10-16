@@ -1103,9 +1103,13 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                       <option value="">選択してください</option>
                       <option value="シミ・くすみ">シミ・くすみ</option>
                       <option value="毛穴">毛穴</option>
-                      <option value="赤み・赤ら顔">赤み・赤ら顔</option>
-                      <option value="たるみ・しわ">たるみ・しわ</option>
                       <option value="ニキビ・ニキビ跡">ニキビ・ニキビ跡</option>
+                      <option value="赤み・赤ら顔">赤み・赤ら顔</option>
+                      <option value="乾燥・皮むけ">乾燥・皮むけ</option>
+                      <option value="たるみ・しわ">たるみ・しわ</option>
+                      <option value="アンチエイジング">アンチエイジング</option>
+                      <option value="肌育">肌育</option>
+                      <option value="美容ニュース">美容ニュース</option>
                     </select>
                   </div>
                   <div>
@@ -1118,11 +1122,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                       className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
                     >
                       <option value="">選択してください</option>
-                      <option value="肌育">肌育</option>
-                      <option value="最新の美容機器">最新の美容機器</option>
+                      <option value="国内">国内</option>
+                      <option value="海外">海外</option>
                       <option value="ホームケア">ホームケア</option>
-                      <option value="サロン経営">サロン経営</option>
-                      <option value="海外トレンド">海外トレンド</option>
+                      <option value="最新機器">最新機器</option>
                     </select>
                     <p className="text-xs text-gray-500 mt-1">
                       ※ カテゴリ1とカテゴリ2のうち、最低1つは選択してください

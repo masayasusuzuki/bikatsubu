@@ -312,18 +312,11 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative h-64 md:h-96 overflow-hidden">
-        <img
-          src={optimizeAnyImageUrl(categoryInfo.heroImage, 1200, 400)}
-          alt={categoryInfo.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-        <div className="absolute inset-0 flex items-center justify-center px-4">
-          <div className="text-center text-white">
-            <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">{categoryInfo.title}</h1>
-            <p className="text-sm md:text-xl max-w-2xl px-4">{categoryInfo.description}</p>
-          </div>
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-12 md:py-16">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 text-center tracking-tight">
+            {categoryInfo.title}
+          </h1>
         </div>
       </div>
 
