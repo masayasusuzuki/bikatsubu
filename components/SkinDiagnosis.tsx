@@ -108,7 +108,7 @@ const SkinDiagnosis: React.FC = () => {
       } catch (error) {
         clearInterval(countdownInterval);
         console.error(error);
-        setError("診断に失敗しました。もう一度お試しください。");
+        setError("診断に失敗しました。しばらく経ってから再度お試しください。");
         setUploadedImage(null);
         setCountdown(null);
       } finally {
@@ -195,7 +195,7 @@ const SkinDiagnosis: React.FC = () => {
       } catch (error) {
         clearInterval(countdownInterval);
         console.error(error);
-        setError("診断に失敗しました。もう一度お試しください。");
+        setError("診断に失敗しました。しばらく経ってから再度お試しください。");
         setUploadedImage(null);
         setCountdown(null);
       } finally {

@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { SkinAnalysisResult } from '../types/skinAnalysis';
 
 // Ensure the API key is available in the environment variables
@@ -10,20 +10,24 @@ if (!API_KEY) {
   console.warn("VITE_GEMINI_API_KEY environment variable not set. Gemini API calls will fail.");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY! });
+const genAI = new GoogleGenerativeAI(API_KEY!);
 
 export const generateBeautyTip = async (): Promise<string> => {
   try {
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: 'Provide a short, insightful beauty tip for general consumers interested in skincare and makeup. Keep it under 50 words and format it as a single paragraph.',
-        config: {
-            temperature: 0.8,
-            topP: 0.95,
-        }
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    const result = await model.generateContent({
+      contents: [{
+        role: 'user',
+        parts: [{ text: 'Provide a short, insightful beauty tip for general consumers interested in skincare and makeup. Keep it under 50 words and format it as a single paragraph.' }]
+      }],
+      generationConfig: {
+        temperature: 0.8,
+        topP: 0.95,
+      }
     });
 
-    return response.text;
+    const response = result.response;
+    return response.text();
   } catch (error) {
     console.error("Error generating beauty tip:", error);
     return "Failed to generate a beauty tip. Please check your connection and API key.";
@@ -40,7 +44,14 @@ export const validateFaceImage = async (imageBase64: string): Promise<FaceValida
     // Remove "data:image/xxx;base64," prefix if present
     const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
 
-    const contents = [
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash-exp',
+      generationConfig: {
+        responseMimeType: "application/json"
+      }
+    });
+
+    const result = await model.generateContent([
       {
         inlineData: {
           mimeType: "image/jpeg",
@@ -73,24 +84,15 @@ export const validateFaceImage = async (imageBase64: string): Promise<FaceValida
 すべての条件を満たす場合のみ isValid = true としてください。
 必ずJSON形式で回答してください。マークダウンのコードブロックは使用しないでください。`
       }
-    ];
+    ]);
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: contents,
-      config: {
-        temperature: 0.2,
-        topP: 0.95,
-        responseMimeType: "application/json"
-      }
-    });
+    const response = result.response;
+    const parsedResult = JSON.parse(response.text());
 
-    const result = JSON.parse(response.text);
-
-    if (!result.isValid) {
+    if (!parsedResult.isValid) {
       return {
         isValid: false,
-        errorMessage: result.errorMessage || "この画像は肌診断に適していません。撮影ガイドを参考に撮り直してください。"
+        errorMessage: parsedResult.errorMessage || "この画像は肌診断に適していません。撮影ガイドを参考に撮り直してください。"
       };
     }
 
@@ -107,7 +109,14 @@ export const analyzeSkinImage = async (imageBase64: string): Promise<SkinAnalysi
     // Remove "data:image/xxx;base64," prefix if present
     const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
 
-    const contents = [
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash-exp',
+      generationConfig: {
+        responseMimeType: "application/json"
+      }
+    });
+
+    const result = await model.generateContent([
       {
         inlineData: {
           mimeType: "image/jpeg",
@@ -150,22 +159,13 @@ export const analyzeSkinImage = async (imageBase64: string): Promise<SkinAnalysi
 
 必ずJSON形式で回答してください。マークダウンのコードブロックは使用しないでください。`
       }
-    ];
+    ]);
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: contents,
-      config: {
-        temperature: 0.3,
-        topP: 0.95,
-        responseMimeType: "application/json"
-      }
-    });
-
-    const result = JSON.parse(response.text);
-    return result as SkinAnalysisResult;
+    const response = result.response;
+    const parsedResult = JSON.parse(response.text());
+    return parsedResult as SkinAnalysisResult;
   } catch (error) {
     console.error("Error analyzing skin:", error);
-    throw new Error("肌診断に失敗しました。もう一度お試しください。");
+    throw new Error("肌診断に失敗しました。しばらく経ってから再度お試しください。");
   }
 };
