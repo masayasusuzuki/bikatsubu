@@ -77,10 +77,11 @@ export const validateFaceImage = async (imageBase64: string): Promise<FaceValida
 - 顔の一部しか写っていない場合: isValid = false, errorMessage = "顔全体が写っていません。顔全体が写るように撮影してください。"
 - 暗すぎる場合: isValid = false, errorMessage = "写真が暗すぎます。明るい場所で撮影してください。"
 - 明るすぎる場合: isValid = false, errorMessage = "写真が明るすぎます。直射日光を避けて撮影してください。"
-- 正面ではない場合: isValid = false, errorMessage = "正面から撮影してください。顔を正面に向けて撮影し直してください。"
+- 完全な横顔の場合のみ: isValid = false, errorMessage = "顔がよく見えません。もう少し正面に向けて撮影してください。"
 - 画質が悪い場合: isValid = false, errorMessage = "画質が不十分です。ピントを合わせて撮影し直してください。"
 - 顔以外のもの（動物、物体など）: isValid = false, errorMessage = "人間の顔が検出されませんでした。ご自身の顔写真をアップロードしてください。"
 
+重要: 少し斜めの角度（30度程度まで）は許容してください。完全な横顔（profile）の場合のみNGとしてください。
 すべての条件を満たす場合のみ isValid = true としてください。
 必ずJSON形式で回答してください。マークダウンのコードブロックは使用しないでください。`
       }
