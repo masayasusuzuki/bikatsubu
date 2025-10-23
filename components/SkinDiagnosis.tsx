@@ -105,7 +105,7 @@ const SkinDiagnosis: React.FC = () => {
   useEffect(() => {
     if (diagnosisResult) {
       const imagePath = getSkinTypeImage(diagnosisResult.skinType);
-      const fullImageUrl = `https://www.bikatsubu-media.jp${imagePath}`;
+      const fullImageUrl = `https://bikatsubu-media.jp${imagePath}`;
 
       // OGP画像を更新
       const ogImage = document.querySelector('meta[property="og:image"]');
