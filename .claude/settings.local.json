@@ -15,7 +15,9 @@
       "Bash(find:*)",
       "Bash(cat:*)",
       "Bash(npm uninstall:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(for file in components/{MediaPage,UserGuide,FAQ,PrivacyPolicy,TermsOfService,CommercialTransactionAct,SearchResultsPage,Sitemap}.tsx)",
+      "Bash(do echo \"=== $file ===\" head -15 \"$file\")"
     ],
     "deny": [],
     "ask": []

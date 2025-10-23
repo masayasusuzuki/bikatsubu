@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 const CommercialTransactionAct: React.FC = () => {
+  usePageTracking();
+
+  useEffect(() => {
+    document.title = '特定商取引法に基づく表記 | 美活部（公式）';
+  }, []);
+
   return (
     <div className="bg-gray-100 font-sans">
       <Header />

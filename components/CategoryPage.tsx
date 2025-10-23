@@ -3,6 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { articlesAPI, Article } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 interface CategoryArticle {
   id: string;
@@ -19,6 +20,12 @@ interface CategoryPageProps {
 }
 
 const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
+  usePageTracking();
+
+  useEffect(() => {
+    document.title = `${category} | 美活部（公式）`;
+  }, [category]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);

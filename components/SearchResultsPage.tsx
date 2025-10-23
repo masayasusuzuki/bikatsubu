@@ -5,12 +5,19 @@ import SearchBar from './SearchBar';
 import { articlesAPI, Article as DBArticle } from '../src/lib/supabase';
 import type { Article } from '../types';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 const SearchResultsPage: React.FC = () => {
+  usePageTracking();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalResults, setTotalResults] = useState(0);
+
+  useEffect(() => {
+    document.title = `検索結果${searchQuery ? `: ${searchQuery}` : ''} | 美活部（公式）`;
+  }, [searchQuery]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

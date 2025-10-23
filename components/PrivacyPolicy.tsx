@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 const PrivacyPolicy: React.FC = () => {
+  usePageTracking();
+
+  useEffect(() => {
+    document.title = 'プライバシーポリシー | 美活部（公式）';
+  }, []);
+
   return (
     <div className="bg-gray-100 font-sans">
       <Header />

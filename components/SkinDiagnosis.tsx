@@ -5,8 +5,17 @@ import { analyzeSkinImage, validateFaceImage } from '../services/geminiService';
 import type { SkinAnalysisResult } from '../types/skinAnalysis';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { articlesAPI, type Article } from '../src/lib/supabase';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 const SkinDiagnosis: React.FC = () => {
+  // Google Analytics ページビュー追跡
+  usePageTracking();
+
+  // ページタイトルを設定
+  useEffect(() => {
+    document.title = '肌タイプ診断 | 美活部（公式）';
+  }, []);
+
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [diagnosisResult, setDiagnosisResult] = useState<SkinAnalysisResult | null>(null);

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 interface FAQItem {
   id: number;
@@ -10,6 +11,12 @@ interface FAQItem {
 }
 
 const FAQ: React.FC = () => {
+  usePageTracking();
+
+  useEffect(() => {
+    document.title = 'よくある質問 | 美活部（公式）';
+  }, []);
+
   const [openItem, setOpenItem] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 

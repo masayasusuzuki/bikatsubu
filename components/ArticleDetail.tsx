@@ -3,18 +3,29 @@ import Header from './Header';
 import Footer from './Footer';
 import { articlesAPI, pageSectionsAPI, Article } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 interface ArticleDetailProps {
   articleId: string;
 }
 
 const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
+  // Google Analytics ページビュー追跡
+  usePageTracking();
+
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
   const [sameCategoyArticles, setSameCategoryArticles] = useState<Article[]>([]);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
+
+  // 記事タイトルをページタイトルに設定
+  useEffect(() => {
+    if (article) {
+      document.title = `${article.title} | 美活部（公式）`;
+    }
+  }, [article]);
 
   useEffect(() => {
     const fetchData = async () => {

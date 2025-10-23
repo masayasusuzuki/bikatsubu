@@ -3,6 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { articlesAPI, Article, pageSectionsAPI } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 interface ArticleListItem {
   id: string;
@@ -20,6 +21,8 @@ interface ArticlesListPageProps {
 }
 
 const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
+  usePageTracking();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,6 +81,12 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
       pageTitle: '記事一覧'
     };
   };
+
+  const sectionInfo = getSectionInfo(sectionType);
+
+  useEffect(() => {
+    document.title = `${sectionInfo.pageTitle} | 美活部（公式）`;
+  }, [sectionInfo.pageTitle]);
 
   useEffect(() => {
     const fetchArticles = async () => {
