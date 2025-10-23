@@ -14,8 +14,9 @@ const SkinDiagnosis: React.FC = () => {
   const [showGuideModal, setShowGuideModal] = useState(true);
   const [recommendedArticles, setRecommendedArticles] = useState<Article[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
+  const [progress, setProgress] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // 肌タイプの説明を取得
   const getSkinTypeDescription = (skinType: string): string => {
@@ -55,6 +56,49 @@ const SkinDiagnosis: React.FC = () => {
 
     // デフォルト画像
     return '/card/skin-diagnosis.png';
+  };
+
+  // フェイクプログレスバーの開始
+  const startFakeProgress = () => {
+    setProgress(0);
+
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+
+    // フェイクプログレスのロジック
+    // 0-50%: 速く進む（100msごとに2%ずつ）
+    // 50-80%: 普通（200msごとに1%ずつ）
+    // 80-95%: ゆっくり（500msごとに0.5%ずつ）
+    // 95-99%: 超ゆっくり（1000msごとに0.2%ずつ）
+
+    progressIntervalRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev < 50) {
+          return prev + 2; // 速く進む
+        } else if (prev < 80) {
+          return prev + 1; // 普通
+        } else if (prev < 95) {
+          return prev + 0.5; // ゆっくり
+        } else if (prev < 99) {
+          return prev + 0.2; // 超ゆっくり
+        }
+        return prev; // 99%で停止
+      });
+    }, 200);
+  };
+
+  // プログレスバーを完了させる
+  const completeProgress = () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+    setProgress(100);
+
+    // 100%になったら少し待ってからリセット
+    setTimeout(() => {
+      setProgress(0);
+    }, 500);
   };
 
   // 診断結果が出たらOGP画像を動的に更新
@@ -114,35 +158,25 @@ const SkinDiagnosis: React.FC = () => {
 
       // 診断開始
       setIsAnalyzing(true);
-      setCountdown(15); // 15秒からカウントダウン開始
-
-      // カウントダウンタイマー
-      const countdownInterval = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev === null || prev <= 1) {
-            clearInterval(countdownInterval);
-            return null;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      startFakeProgress(); // フェイクプログレスバー開始
 
       try {
         // 顔画像のバリデーション
         const validation = await validateFaceImage(base64Image);
         if (!validation.isValid) {
-          clearInterval(countdownInterval);
+          if (progressIntervalRef.current) {
+            clearInterval(progressIntervalRef.current);
+          }
           setError(validation.errorMessage || "この画像は肌診断に適していません。");
           setUploadedImage(null);
           setIsAnalyzing(false);
-          setCountdown(null);
+          setProgress(0);
           return;
         }
 
         // 肌診断実行
         const result = await analyzeSkinImage(base64Image);
-        clearInterval(countdownInterval);
-        setCountdown(null);
+        completeProgress(); // プログレスバーを100%に
         setDiagnosisResult(result);
 
         // おすすめ記事を取得
@@ -201,35 +235,25 @@ const SkinDiagnosis: React.FC = () => {
 
       // 診断開始
       setIsAnalyzing(true);
-      setCountdown(15); // 15秒からカウントダウン開始
-
-      // カウントダウンタイマー
-      const countdownInterval = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev === null || prev <= 1) {
-            clearInterval(countdownInterval);
-            return null;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      startFakeProgress(); // フェイクプログレスバー開始
 
       try {
         // 顔画像のバリデーション
         const validation = await validateFaceImage(base64Image);
         if (!validation.isValid) {
-          clearInterval(countdownInterval);
+          if (progressIntervalRef.current) {
+            clearInterval(progressIntervalRef.current);
+          }
           setError(validation.errorMessage || "この画像は肌診断に適していません。");
           setUploadedImage(null);
           setIsAnalyzing(false);
-          setCountdown(null);
+          setProgress(0);
           return;
         }
 
         // 肌診断実行
         const result = await analyzeSkinImage(base64Image);
-        clearInterval(countdownInterval);
-        setCountdown(null);
+        completeProgress(); // プログレスバーを100%に
         setDiagnosisResult(result);
 
         // おすすめ記事を取得
@@ -399,19 +423,23 @@ const SkinDiagnosis: React.FC = () => {
                 <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-12 text-center">
                   <div className="relative mb-6">
                     <div className="animate-spin rounded-full h-20 w-20 sm:h-24 sm:w-24 border-b-4 border-pink-500 mx-auto"></div>
-                    {countdown !== null && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-3xl sm:text-4xl font-bold text-pink-600">{countdown}</span>
-                      </div>
-                    )}
                   </div>
                   <h3 className="text-xl sm:text-2xl font-bold text-slate-800 mb-3">AI解析中...</h3>
-                  <p className="text-sm sm:text-base text-slate-600 mb-2">あなたの肌を詳しく分析しています</p>
-                  {countdown !== null && countdown > 0 && (
-                    <p className="text-base sm:text-lg font-semibold text-pink-600 mt-4">
-                      あと{countdown}秒で診断結果が出ます
+                  <p className="text-sm sm:text-base text-slate-600 mb-6">あなたの肌を詳しく分析しています</p>
+
+                  {/* プログレスバー */}
+                  <div className="max-w-md mx-auto mb-4">
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-pink-500 to-purple-600 transition-all duration-300 ease-out rounded-full"
+                        style={{ width: `${progress}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-base sm:text-lg font-semibold text-pink-600 mt-3">
+                      {Math.round(progress)}%
                     </p>
-                  )}
+                  </div>
+
                   <div className="mt-6 flex justify-center gap-2">
                     <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                     <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
