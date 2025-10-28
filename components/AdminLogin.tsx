@@ -1,15 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../src/lib/supabase';
 import { loginHistoryService } from '../services/loginHistoryService';
+
+const MAX_ATTEMPTS = 3;
+const PERMANENTLY_LOCKED = 9999999999999; // 永久ロック（開発者に連絡が必要）
+
+interface LoginAttempt {
+  count: number;
+  lockedUntil: number | null;
+}
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLocked, setIsLocked] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(0);
+
+  useEffect(() => {
+    checkLockStatus();
+    const interval = setInterval(checkLockStatus, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getLoginAttempts = (): LoginAttempt => {
+    const stored = localStorage.getItem('loginAttempts');
+    if (!stored) {
+      return { count: 0, lockedUntil: null };
+    }
+    return JSON.parse(stored);
+  };
+
+  const setLoginAttempts = (attempts: LoginAttempt) => {
+    localStorage.setItem('loginAttempts', JSON.stringify(attempts));
+  };
+
+  const checkLockStatus = () => {
+    const attempts = getLoginAttempts();
+
+    if (attempts.lockedUntil) {
+      setIsLocked(true);
+      setRemainingTime(0); // タイマー表示は不要
+    } else {
+      setIsLocked(false);
+      setRemainingTime(0);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // ロック状態を再確認（localStorageから直接取得）
+    const attempts = getLoginAttempts();
+
+    if (attempts.lockedUntil) {
+      setError('アカウントがロックされています。開発者に連絡してロックを解除してください。');
+      setIsLocked(true);
+      return;
+    }
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -17,9 +66,37 @@ const AdminLogin: React.FC = () => {
     });
 
     if (error) {
-      setError('メールアドレスまたはパスワードが正しくありません');
+      // ログイン失敗時の処理
+      const currentAttempts = getLoginAttempts();
+      const newCount = currentAttempts.count + 1;
+
+      if (newCount >= MAX_ATTEMPTS) {
+        // 永久ロック
+        const lockData = { count: newCount, lockedUntil: PERMANENTLY_LOCKED };
+        setLoginAttempts(lockData);
+        setIsLocked(true);
+        setError(`ログイン試行回数が上限に達しました。アカウントがロックされています。開発者に連絡してロックを解除してください。`);
+      } else {
+        setLoginAttempts({ count: newCount, lockedUntil: null });
+        const remaining = MAX_ATTEMPTS - newCount;
+        setError(`メールアドレスまたはパスワードが正しくありません（残り${remaining}回）`);
+      }
       return;
     }
+
+    // ログイン成功時
+    // ロックされている場合は成功してもログインさせない
+    const finalCheck = getLoginAttempts();
+
+    if (finalCheck.lockedUntil) {
+      await supabase.auth.signOut();
+      setError('アカウントがロックされています。開発者に連絡してロックを解除してください。');
+      setIsLocked(true);
+      return;
+    }
+
+    // ロックされていない場合のみカウントリセット
+    setLoginAttempts({ count: 0, lockedUntil: null });
 
     // Record login history
     if (data.user) {
@@ -74,9 +151,14 @@ const AdminLogin: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-[#d11a68] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors font-semibold"
+            disabled={isLocked}
+            className={`w-full py-2 px-4 rounded-md transition-colors font-semibold ${
+              isLocked
+                ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                : 'bg-[#d11a68] text-white hover:bg-opacity-90'
+            }`}
           >
-            ログイン
+            {isLocked ? 'アカウントロック中' : 'ログイン'}
           </button>
         </form>
 

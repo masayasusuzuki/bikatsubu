@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { articlesAPI, CreateArticle, imageFoldersAPI, imageMetadataAPI, ImageFolder } from '../src/lib/supabase';
 import { fetchCloudinaryImages, CloudinaryImage, deleteCloudinaryImage } from '../src/api/cloudinary';
+import { useSessionTimeout } from '../src/hooks/useSessionTimeout';
 
 interface ArticleData {
   title: string;
@@ -25,6 +26,9 @@ interface ArticleEditorProps {
 }
 
 const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
+  // セッションタイムアウト
+  useSessionTimeout();
+
   const [article, setArticle] = useState<ArticleData>({
     title: '',
     content: '',

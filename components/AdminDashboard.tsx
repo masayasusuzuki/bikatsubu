@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PageContentManager from './PageContentManager';
 import { articlesAPI, Article, supabase } from '../src/lib/supabase';
 import { loginHistoryService, LoginHistoryEntry } from '../services/loginHistoryService';
+import { useSessionTimeout } from '../src/hooks/useSessionTimeout';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('articles');
@@ -10,10 +11,13 @@ const AdminDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
-  
+
   // ログイン履歴関連の状態
   const [loginHistory, setLoginHistory] = useState<LoginHistoryEntry[]>([]);
   const [loginHistoryLoading, setLoginHistoryLoading] = useState(false);
+
+  // セッションタイムアウト
+  useSessionTimeout();
 
   // Check authentication on component mount
   useEffect(() => {
