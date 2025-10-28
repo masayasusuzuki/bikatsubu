@@ -15,7 +15,8 @@
       "Bash(find:*)",
       "Bash(cat:*)",
       "Bash(npm uninstall:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm run type-check:*)"
     ],
     "deny": [],
     "ask": []

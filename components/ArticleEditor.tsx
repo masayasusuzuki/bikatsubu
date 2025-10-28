@@ -10,6 +10,7 @@ interface ArticleData {
   slug: string;
   status: 'draft' | 'published';
   featuredImage: string;
+  featuredImageAlt: string;
   category: string;
   category2: string;
   articleType: string;
@@ -32,6 +33,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     slug: '',
     status: 'draft',
     featuredImage: '',
+    featuredImageAlt: '',
     category: '',
     category2: '',
     articleType: 'article',
@@ -51,6 +53,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [newFolderName, setNewFolderName] = useState('');
+  const [dragOverFolderId, setDragOverFolderId] = useState<string | null | undefined>(undefined);
 
   // 編集モードとプレビューモードのスクロール位置を独立管理
   const [editScrollTop, setEditScrollTop] = useState(0);
@@ -91,6 +94,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         slug: data.slug,
         status: data.status,
         featuredImage: data.featured_image || '',
+        featuredImageAlt: data.featured_image_alt || '',
         category: data.category || '',
         category2: data.category2 || '',
         articleType: data.article_type || 'article',
@@ -173,6 +177,52 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       }
       return newSet;
     });
+  };
+
+  // ドラッグ&ドロップハンドラー
+  const handleDragStart = (e: React.DragEvent, imageUrl: string) => {
+    // 選択中の画像があれば、それらをまとめてドラッグ
+    // なければ、この画像だけをドラッグ
+    const imagesToDrag = selectedImages.has(imageUrl) && selectedImages.size > 0
+      ? Array.from(selectedImages)
+      : [imageUrl];
+
+    e.dataTransfer.setData('imageUrls', JSON.stringify(imagesToDrag));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, folderId: string | null) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverFolderId(folderId);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverFolderId(undefined);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetFolderId: string | null) => {
+    e.preventDefault();
+    setDragOverFolderId(undefined);
+
+    try {
+      const imageUrls = JSON.parse(e.dataTransfer.getData('imageUrls'));
+
+      if (!imageUrls || imageUrls.length === 0) return;
+
+      await imageMetadataAPI.moveMultipleImages(imageUrls, targetFolderId);
+      setSelectedImages(new Set());
+      await loadFolders();
+
+      // 成功メッセージ
+      const folderName = targetFolderId
+        ? folders.find(f => f.id === targetFolderId)?.name
+        : 'すべての画像';
+      alert(`${imageUrls.length}枚の画像を「${folderName}」に移動しました`);
+    } catch (error) {
+      console.error('画像の移動に失敗:', error);
+      alert('画像の移動に失敗しました');
+    }
   };
 
   const getFilteredImages = async () => {
@@ -862,7 +912,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
             <div className="relative bg-gray-100" style={{ paddingBottom: '52.36%' }}>
               <img
                 src={article.featuredImage}
-                alt={article.title}
+                alt={article.featuredImageAlt || article.title}
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
@@ -912,6 +962,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         slug: article.slug,
         status,
         featured_image: article.featuredImage,
+        featured_image_alt: article.featuredImageAlt || undefined,
         category: article.category,
         category2: article.category2,
         article_type: article.articleType,
@@ -1168,8 +1219,13 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                     <div className="space-y-1 flex-1 overflow-y-auto mb-3">
                       <button
                         onClick={() => setSelectedFolderId(null)}
-                        className={`w-full text-left text-xs px-2 py-1 rounded transition-colors ${
-                          selectedFolderId === null
+                        onDragOver={(e) => handleDragOver(e, null)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, null)}
+                        className={`w-full text-left text-xs px-2 py-1 rounded transition-all ${
+                          dragOverFolderId === null
+                            ? 'bg-green-200 text-green-900 font-bold ring-2 ring-green-400'
+                            : selectedFolderId === null
                             ? 'bg-blue-100 text-blue-700 font-medium'
                             : 'hover:bg-gray-100 text-gray-600'
                         }`}
@@ -1180,8 +1236,13 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                         <div key={folder.id} className="flex items-center gap-1 group">
                           <button
                             onClick={() => setSelectedFolderId(folder.id)}
-                            className={`flex-1 text-left text-xs px-2 py-1 rounded transition-colors ${
-                              selectedFolderId === folder.id
+                            onDragOver={(e) => handleDragOver(e, folder.id)}
+                            onDragLeave={handleDragLeave}
+                            onDrop={(e) => handleDrop(e, folder.id)}
+                            className={`flex-1 text-left text-xs px-2 py-1 rounded transition-all ${
+                              dragOverFolderId === folder.id
+                                ? 'bg-green-200 text-green-900 font-bold ring-2 ring-green-400'
+                                : selectedFolderId === folder.id
                                 ? 'bg-blue-100 text-blue-700 font-medium'
                                 : 'hover:bg-gray-100 text-gray-600'
                             }`}
@@ -1254,24 +1315,30 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                     )}
 
                     {filteredImages.length > 0 ? (
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-4">
                         {filteredImages.map((image) => (
-                          <div key={image.public_id} className="relative group">
+                          <div
+                            key={image.public_id}
+                            className="relative group cursor-move"
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, image.secure_url)}
+                          >
                             {/* Checkbox for selection */}
-                            <div className="absolute top-2 left-2 z-10">
+                            <div className="absolute top-3 left-3 z-20">
                               <input
                                 type="checkbox"
                                 checked={selectedImages.has(image.secure_url)}
                                 onChange={() => toggleImageSelection(image.secure_url)}
-                                className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-5 h-5 rounded border-gray-300 cursor-pointer"
                               />
                             </div>
 
-                            <div className="aspect-video bg-gray-100 border border-gray-200 rounded overflow-hidden">
+                            <div className="aspect-video bg-gray-100 border-2 border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                               <img
                                 src={image.secure_url}
                                 alt={image.public_id}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover pointer-events-none"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
@@ -1279,20 +1346,36 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                                 }}
                               />
                             </div>
-                            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded">
-                              <div className="flex flex-col gap-2">
-                                <button
-                                  onClick={() => navigator.clipboard.writeText(image.secure_url)}
-                                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded"
-                                >
-                                  URLをコピー
-                                </button>
-                                <button
-                                  onClick={() => insertImageIntoContent(image.secure_url)}
-                                  className="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded"
-                                >
-                                  本文に挿入
-                                </button>
+                            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg pointer-events-none">
+                              <div className="flex gap-2 pointer-events-auto">
+                                <div className="relative group/copy">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigator.clipboard.writeText(image.secure_url);
+                                    }}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded shadow transition-all hover:scale-105"
+                                  >
+                                    📋
+                                  </button>
+                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover/copy:opacity-100 transition-opacity pointer-events-none">
+                                    URLをコピー
+                                  </div>
+                                </div>
+                                <div className="relative group/insert">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      insertImageIntoContent(image.secure_url);
+                                    }}
+                                    className="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1.5 rounded shadow transition-all hover:scale-105"
+                                  >
+                                    ➕
+                                  </button>
+                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover/insert:opacity-100 transition-opacity pointer-events-none">
+                                    本文に挿入
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -1383,6 +1466,23 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                         className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
                       />
 
+                      <div className="bg-amber-50 border-2 border-amber-400 rounded-lg p-4">
+                        <label className="flex items-center text-sm font-bold text-amber-900 mb-2">
+                          <span className="text-xl mr-2">⚠️</span>
+                          アイキャッチ画像のalt属性（代替テキスト）
+                        </label>
+                        <input
+                          type="text"
+                          value={article.featuredImageAlt}
+                          onChange={(e) => setArticle(prev => ({ ...prev, featuredImageAlt: e.target.value }))}
+                          placeholder="画像の説明を入力してください"
+                          className="w-full px-3 py-2 border-2 border-amber-300 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white rounded"
+                        />
+                        <p className="text-xs text-amber-800 mt-2 font-medium">
+                          💡 SEOとアクセシビリティ向上のため、画像の内容を説明するテキストを必ず入力してください
+                        </p>
+                      </div>
+
                       {/* ファイルアップロード */}
                       <div className="flex items-center space-x-3">
                         <input
@@ -1416,7 +1516,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                             <div className="relative bg-gray-100" style={{ paddingBottom: '52.36%' }}>
                               <img
                                 src={article.featuredImage}
-                                alt="アイキャッチ画像プレビュー"
+                                alt={article.featuredImageAlt || "アイキャッチ画像プレビュー"}
                                 className="absolute inset-0 w-full h-full object-cover"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
@@ -1501,13 +1601,15 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
               )}
 
               {/* SEO Settings */}
-              <div className="bg-white border border-gray-200 p-6">
-                <h3 className="text-base font-semibold text-slate-700 mb-4 pb-2 border-b border-gray-100">
-                  SEO設定
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-400 p-6 shadow-lg">
+                <h3 className="flex items-center text-lg font-bold text-blue-900 mb-4 pb-2 border-b-2 border-blue-300">
+                  <span className="text-2xl mr-2">🎯</span>
+                  SEO設定（重要）
                 </h3>
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
+                    <label className="flex items-center text-sm font-bold text-blue-900 mb-2">
+                      <span className="mr-2">🔗</span>
                       URL スラッグ
                     </label>
                     <input
@@ -1515,14 +1617,15 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                       value={article.slug}
                       onChange={(e) => setArticle(prev => ({ ...prev, slug: e.target.value }))}
                       placeholder="article-url-slug"
-                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
+                      className="w-full px-3 py-2 border-2 border-blue-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
                     />
-                    <div className="mt-1 text-xs text-slate-500">
+                    <div className="mt-1 text-xs text-blue-700 font-medium">
                       URL: /articles/{article.slug}
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
+                    <label className="flex items-center text-sm font-bold text-blue-900 mb-2">
+                      <span className="mr-2">📝</span>
                       メタディスクリプション
                     </label>
                     <textarea
@@ -1531,14 +1634,15 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                       placeholder="検索結果に表示される記事の説明文（155文字以内推奨）"
                       rows={3}
                       maxLength={160}
-                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
+                      className="w-full px-3 py-2 border-2 border-blue-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
                     />
-                    <div className="mt-1 text-xs text-slate-500">
+                    <div className="mt-1 text-xs text-blue-700 font-medium">
                       {article.metaDescription.length}/160文字
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
+                    <label className="flex items-center text-sm font-bold text-blue-900 mb-2">
+                      <span className="mr-2">🏷️</span>
                       キーワード
                     </label>
                     <input
@@ -1546,12 +1650,17 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                       value={article.keywords}
                       onChange={(e) => setArticle(prev => ({ ...prev, keywords: e.target.value }))}
                       placeholder="スキンケア, 美容液, 保湿"
-                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
+                      className="w-full px-3 py-2 border-2 border-blue-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
                     />
-                    <div className="mt-1 text-xs text-slate-500">
+                    <div className="mt-1 text-xs text-blue-700 font-medium">
                       カンマ区切りで入力
                     </div>
                   </div>
+                </div>
+                <div className="mt-4 bg-blue-100 border-l-4 border-blue-500 p-3 rounded">
+                  <p className="text-xs text-blue-900 font-semibold">
+                    💡 検索エンジン最適化のため、すべての項目を入力することを強く推奨します
+                  </p>
                 </div>
               </div>
 

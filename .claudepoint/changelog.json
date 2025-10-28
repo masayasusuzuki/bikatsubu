@@ -1,5 +1,11 @@
 [
   {
+    "timestamp": "2025-10-28T05:51:41.491Z",
+    "action": "CREATE_CLAUDEPOINT",
+    "description": "Created full claudepoint: checkpoint_2025-10-28T05-51-41",
+    "details": "Manual checkpoint"
+  },
+  {
     "timestamp": "2025-10-23T04:33:06.809Z",
     "action": "CREATE_CLAUDEPOINT",
     "description": "Created full claudepoint: checkpoint_2025-10-23T04-33-06",

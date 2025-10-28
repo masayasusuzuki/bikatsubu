@@ -40,6 +40,7 @@ export interface CreateArticle {
   slug: string
   status: 'draft' | 'published'
   featured_image?: string
+  featured_image_alt?: string
   category: string
   category2?: string
   article_type?: string
