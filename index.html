@@ -30,13 +30,21 @@
     <meta name="twitter:site" content="@bikatsubu_mirai">
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XWX8QJBS9X"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      // Admin画面ではGA4を読み込まない
+      if (!window.location.pathname.startsWith('/admin')) {
+        // GA4スクリプトを動的に読み込み
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-XWX8QJBS9X';
+        document.head.appendChild(script);
 
-      gtag('config', 'G-XWX8QJBS9X');
+        // gtag初期化
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XWX8QJBS9X');
+      }
     </script>
 
     <!-- Structured Data (JSON-LD) -->
