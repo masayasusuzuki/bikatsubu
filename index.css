@@ -1,3 +1,9 @@
+/* ヘッダー固定時のスクロールオフセット調整 */
+html {
+  scroll-padding-top: 160px; /* ヘッダーの高さ分のオフセット */
+  scroll-behavior: smooth; /* スムーズスクロール */
+}
+
 /* Custom animations */
 @keyframes slideUp {
   from {
