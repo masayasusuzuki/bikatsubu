@@ -4,6 +4,7 @@ import { fetchCloudinaryImages, CloudinaryImage, deleteCloudinaryImage } from '.
 import { activityLogService } from '../services/activityLogService';
 import { useSessionTimeout } from '../src/hooks/useSessionTimeout';
 import { renderArticleContent } from '../utils/contentRenderer';
+import { generateSEOMetadata } from '../services/geminiService';
 
 interface ArticleData {
   title: string;
@@ -72,6 +73,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
   const [isUploadingFeatured, setIsUploadingFeatured] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const featuredImageInputRef = useRef<HTMLInputElement>(null);
@@ -339,6 +341,24 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       const pos = start + prefix.length;
       textarea.setSelectionRange(pos, pos);
       textarea.scrollTop = scrollTop;
+    }, 0);
+  };
+
+  const insertImageTextLayout = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    
+    const template = '[image-text]![画像の説明](画像URLをここに貼り付け)|右側に表示する説明文をここに入力[/image-text]';
+    const start = textarea.selectionStart;
+    const newContent = article.content.substring(0, start) + '\n\n' + template + '\n\n' + article.content.substring(start);
+    
+    setArticle(prev => ({ ...prev, content: newContent }));
+    setHasUnsavedChanges(true);
+    
+    setTimeout(() => {
+      textarea.focus();
+      const pos = start + 2 + template.indexOf('画像URLをここに貼り付け');
+      textarea.setSelectionRange(pos, pos + '画像URLをここに貼り付け'.length);
     }, 0);
   };
 
@@ -711,6 +731,30 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     `;
   };
 
+  const handleGenerateSEO = async () => {
+    if (!article.title || !article.content) {
+      alert('タイトルと本文を入力してからSEOメタデータを生成してください');
+      return;
+    }
+
+    setIsGeneratingSEO(true);
+    try {
+      const metadata = await generateSEOMetadata(article.title, article.content);
+      setArticle(prev => ({
+        ...prev,
+        metaDescription: metadata.metaDescription,
+        keywords: metadata.keywords
+      }));
+      setHasUnsavedChanges(true);
+      alert('SEOメタデータを生成しました');
+    } catch (error) {
+      console.error('Error generating SEO metadata:', error);
+      alert('SEOメタデータの生成に失敗しました。もう一度お試しください。');
+    } finally {
+      setIsGeneratingSEO(false);
+    }
+  };
+
   const handleSave = async (status: 'draft' | 'published' | 'scheduled') => {
     if (!article.title || !article.content) {
       alert('タイトルと本文は必須です');
@@ -962,6 +1006,13 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                         disabled={isUploading}
                       >
                         {isUploading ? 'アップロード中...' : '画像をアップロード'}
+                      </button>
+                      <button
+                        onClick={insertImageTextLayout}
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-3 py-1 text-sm font-medium rounded transition-colors shadow-md"
+                        title="左側に画像、右側に説明文を配置するレイアウトを挿入"
+                      >
+                        🖼️ 画像+テキストレイアウト
                       </button>
                       <a
                         href="https://www.iloveimg.com/ja/compress-image"
@@ -1448,10 +1499,34 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
               {/* SEO Settings */}
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-400 p-6 shadow-lg">
-                <h3 className="flex items-center text-lg font-bold text-blue-900 mb-4 pb-2 border-b-2 border-blue-300">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-blue-300">
+                  <h3 className="flex items-center text-lg font-bold text-blue-900">
                   <span className="text-2xl mr-2">🎯</span>
                   SEO設定（重要）
                 </h3>
+                  <button
+                    type="button"
+                    onClick={handleGenerateSEO}
+                    disabled={isGeneratingSEO || !article.title || !article.content}
+                    className={`flex items-center px-4 py-2 text-sm font-bold rounded-lg transition-all ${
+                      isGeneratingSEO || !article.title || !article.content
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-md hover:shadow-lg'
+                    }`}
+                  >
+                    {isGeneratingSEO ? (
+                      <>
+                        <span className="animate-spin mr-2">⚙️</span>
+                        生成中...
+                      </>
+                    ) : (
+                      <>
+                        <span className="mr-2">✨</span>
+                        Gemini生成
+                      </>
+                    )}
+                  </button>
+                </div>
                 <div className="space-y-4">
                   <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
                     <label className="flex items-center text-sm font-bold text-blue-900 mb-2">

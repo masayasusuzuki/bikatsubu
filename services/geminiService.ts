@@ -105,6 +105,54 @@ export const validateFaceImage = async (imageBase64: string): Promise<FaceValida
   }
 };
 
+export interface SEOMetadata {
+  metaDescription: string;
+  keywords: string;
+}
+
+export const generateSEOMetadata = async (title: string, content: string): Promise<SEOMetadata> => {
+  try {
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash-exp',
+      generationConfig: {
+        responseMimeType: "application/json"
+      }
+    });
+
+    const result = await model.generateContent({
+      contents: [{
+        role: 'user',
+        parts: [{
+          text: `以下の記事のタイトルと内容から、SEOに最適なメタディスクリプションとキーワードを生成してください。
+
+タイトル: ${title}
+
+内容:
+${content.substring(0, 3000)}
+
+以下の形式のJSONで回答してください:
+{
+  "metaDescription": "120文字以内のメタディスクリプション（記事の要約、検索結果に表示される）",
+  "keywords": "カンマ区切りのキーワード5-8個（美容医療、スキンケア、商品名など関連性の高いもの）"
+}
+
+要件:
+- メタディスクリプションは検索結果で表示されることを意識し、クリックしたくなる魅力的な文章にする
+- キーワードは記事内容に関連性が高く、検索されやすいものを選ぶ
+- 必ずJSON形式で回答し、マークダウンのコードブロックは使用しない`
+        }]
+      }]
+    });
+
+    const response = result.response;
+    const parsedResult = JSON.parse(response.text());
+    return parsedResult as SEOMetadata;
+  } catch (error) {
+    console.error("Error generating SEO metadata:", error);
+    throw new Error("SEOメタデータの生成に失敗しました。しばらく経ってから再度お試しください。");
+  }
+};
+
 export const analyzeSkinImage = async (imageBase64: string): Promise<SkinAnalysisResult> => {
   try {
     // Remove "data:image/xxx;base64," prefix if present
