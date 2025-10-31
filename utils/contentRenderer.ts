@@ -126,7 +126,7 @@ export const renderArticleContent = (content: string): { __html: string } => {
   // 箇条書き（改良されたデザイン）
   html = html.replace(/^(?:-\s.+\n?)+/gm, (block) => {
     const items = block.trim().split(/\n/).map(l => l.replace(/^-\s+/, '').trim()).map(li => `<li style="position: relative; padding-left: 20px; margin-bottom: 8px; line-height: 1.6;"><span style="position: absolute; left: 0; top: 0; color: #e91e63; font-weight: bold;">•</span>${li}<\/li>`).join('');
-    return `<ul style="margin: 16px 0; padding: 0; list-style: none;">${items}<\/ul>`;
+    return `<ul style="margin: 0; padding: 0; list-style: none;">${items}<\/ul>`;
   });
   // 番号付きリスト（改良されたデザイン）
   html = html.replace(/^(?:\d+\.\s.+\n?)+/gm, (block) => {
@@ -134,7 +134,7 @@ export const renderArticleContent = (content: string): { __html: string } => {
       const text = l.replace(/^\d+\.\s+/, '').trim();
       return `<li style="position: relative; padding-left: 28px; margin-bottom: 8px; line-height: 1.6;"><span style="position: absolute; left: 0; top: 0; color: #e91e63; font-weight: bold; background: #fce4ec; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">${index + 1}</span>${text}<\/li>`;
     }).join('');
-    return `<ol style="margin: 16px 0; padding: 0; list-style: none;">${items}<\/ol>`;
+    return `<ol style="margin: 0; padding: 0; list-style: none;">${items}<\/ol>`;
   });
   // 罫線（太い線に変更）
   html = html.replace(/^---$/gm, '<hr style="border: none; height: 3px; background: linear-gradient(to right, #e5e5e5, #999, #e5e5e5); margin: 24px 0; border-radius: 2px;" />');
