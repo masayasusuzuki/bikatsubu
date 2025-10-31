@@ -16,6 +16,149 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleSlug }) => {
   const [sameCategoyArticles, setSameCategoryArticles] = useState<Article[]>([]);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
 
+  // SEOメタタグを設定
+  useEffect(() => {
+    if (article) {
+      // タイトル設定
+      document.title = `${article.title} | 美活部`;
+
+      // メタディスクリプション
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute('content', article.meta_description || article.title);
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'description';
+        meta.content = article.meta_description || article.title;
+        document.head.appendChild(meta);
+      }
+
+      // メタキーワード
+      const metaKeywords = document.querySelector('meta[name="keywords"]');
+      if (metaKeywords) {
+        metaKeywords.setAttribute('content', article.keywords || '美容,スキンケア');
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'keywords';
+        meta.content = article.keywords || '美容,スキンケア';
+        document.head.appendChild(meta);
+      }
+
+      // OGP - タイトル
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) {
+        ogTitle.setAttribute('content', article.title);
+      } else {
+        const meta = document.createElement('meta');
+        meta.setAttribute('property', 'og:title');
+        meta.content = article.title;
+        document.head.appendChild(meta);
+      }
+
+      // OGP - ディスクリプション
+      const ogDescription = document.querySelector('meta[property="og:description"]');
+      if (ogDescription) {
+        ogDescription.setAttribute('content', article.meta_description || article.title);
+      } else {
+        const meta = document.createElement('meta');
+        meta.setAttribute('property', 'og:description');
+        meta.content = article.meta_description || article.title;
+        document.head.appendChild(meta);
+      }
+
+      // OGP - 画像
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      if (ogImage) {
+        ogImage.setAttribute('content', article.featured_image || '');
+      } else if (article.featured_image) {
+        const meta = document.createElement('meta');
+        meta.setAttribute('property', 'og:image');
+        meta.content = article.featured_image;
+        document.head.appendChild(meta);
+      }
+
+      // OGP - URL
+      const ogUrl = document.querySelector('meta[property="og:url"]');
+      const currentUrl = `https://bikatsubu-media.jp/article/${article.slug || article.id}`;
+      if (ogUrl) {
+        ogUrl.setAttribute('content', currentUrl);
+      } else {
+        const meta = document.createElement('meta');
+        meta.setAttribute('property', 'og:url');
+        meta.content = currentUrl;
+        document.head.appendChild(meta);
+      }
+
+      // OGP - タイプ
+      const ogType = document.querySelector('meta[property="og:type"]');
+      if (ogType) {
+        ogType.setAttribute('content', 'article');
+      } else {
+        const meta = document.createElement('meta');
+        meta.setAttribute('property', 'og:type');
+        meta.content = 'article';
+        document.head.appendChild(meta);
+      }
+
+      // Twitter Card
+      const twitterCard = document.querySelector('meta[name="twitter:card"]');
+      if (twitterCard) {
+        twitterCard.setAttribute('content', 'summary_large_image');
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'twitter:card';
+        meta.content = 'summary_large_image';
+        document.head.appendChild(meta);
+      }
+
+      const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+      if (twitterTitle) {
+        twitterTitle.setAttribute('content', article.title);
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'twitter:title';
+        meta.content = article.title;
+        document.head.appendChild(meta);
+      }
+
+      const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+      if (twitterDescription) {
+        twitterDescription.setAttribute('content', article.meta_description || article.title);
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'twitter:description';
+        meta.content = article.meta_description || article.title;
+        document.head.appendChild(meta);
+      }
+
+      const twitterImage = document.querySelector('meta[name="twitter:image"]');
+      if (twitterImage) {
+        twitterImage.setAttribute('content', article.featured_image || '');
+      } else if (article.featured_image) {
+        const meta = document.createElement('meta');
+        meta.name = 'twitter:image';
+        meta.content = article.featured_image;
+        document.head.appendChild(meta);
+      }
+
+      // Canonical URL
+      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      if (canonical) {
+        canonical.href = currentUrl;
+      } else {
+        canonical = document.createElement('link');
+        canonical.rel = 'canonical';
+        canonical.href = currentUrl;
+        document.head.appendChild(canonical);
+      }
+    }
+
+    // クリーンアップ: コンポーネントがアンマウントされたらデフォルトに戻す
+    return () => {
+      document.title = '美活部 | 美容メディア';
+    };
+  }, [article]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {

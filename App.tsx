@@ -46,6 +46,36 @@ const App: React.FC = () => {
   const [showSkinDiagnosisCard, setShowSkinDiagnosisCard] = useState(true);
   const [isCardExpanded, setIsCardExpanded] = useState(false);
 
+  // SEOメタタグを設定
+  useEffect(() => {
+    // ページごとにSEO設定を変更
+    if (currentPath === '/') {
+      document.title = '美活部 | 美容メディア - スキンケア・コスメ・美容医療の情報サイト';
+
+      const metaDescription = document.querySelector('meta[name="description"]');
+      const description = '美容医療、スキンケア、コスメの最新情報をお届けする美容メディア。プロの美容家による実践的な美容テクニックやおすすめ商品、海外トレンドまで幅広く紹介します。';
+      if (metaDescription) {
+        metaDescription.setAttribute('content', description);
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'description';
+        meta.content = description;
+        document.head.appendChild(meta);
+      }
+
+      const metaKeywords = document.querySelector('meta[name="keywords"]');
+      const keywords = '美容,スキンケア,コスメ,美容医療,美白,毛穴,エイジングケア,美活部';
+      if (metaKeywords) {
+        metaKeywords.setAttribute('content', keywords);
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'keywords';
+        meta.content = keywords;
+        document.head.appendChild(meta);
+      }
+    }
+  }, [currentPath]);
+
   useEffect(() => {
     // Always load hero slides, but only load page data for the main page
     if (currentPath === '/') {
