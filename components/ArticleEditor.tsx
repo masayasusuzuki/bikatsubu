@@ -3,6 +3,7 @@ import { articlesAPI, CreateArticle, imageFoldersAPI, imageMetadataAPI, ImageFol
 import { fetchCloudinaryImages, CloudinaryImage, deleteCloudinaryImage } from '../src/api/cloudinary';
 import { activityLogService } from '../services/activityLogService';
 import { useSessionTimeout } from '../src/hooks/useSessionTimeout';
+import { renderArticleContent } from '../utils/contentRenderer';
 
 interface ArticleData {
   title: string;
@@ -673,270 +674,41 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   };
 
   const renderPreview = () => {
-    let htmlContent = article.content;
-
-    // 自動目次生成（記事内容から見出しを抽出して冒頭に挿入）
-    // H1（#）とH2（##）のみを対象とする
-    const headingRegex = /^(#{1,2})\s+(.+)$/gm;
-    const headings: { level: number; text: string; id: string }[] = [];
-    let match;
-
-    while ((match = headingRegex.exec(htmlContent)) !== null) {
-      const level = match[1].length;
-      // H3（###）は目次に含めない
-      if (level > 2) continue;
-      
-      const text = match[2].trim();
-      // HTMLで使用されるIDと同じ生成ロジックを使用
-      const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      headings.push({ level, text, id });
-    }
-
-    // 見出しが2個以上ある場合のみ目次を自動生成
-    if (headings.length >= 2) {
-      const tocItems = headings.map((heading, index) => {
-        const indent = (heading.level - 1) * 16;
-        const fontSize = heading.level === 1 ? '14px' : '13px';
-        const fontWeight = heading.level === 1 ? '700' : '600';
-        const color = heading.level === 1 ? '#1e293b' : '#475569';
-        const marginTop = index === 0 ? '0' : (heading.level === 1 ? '2px' : '0px');
-        const levelIcon = heading.level === 1 ? '📍' : '▸';
-
-        return `<li style="margin: ${marginTop} 0 0 ${indent}px; padding: 0; line-height: 1.1; display: block;">
-          <a href="#${heading.id}" style="color: ${color}; text-decoration: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: ${fontSize}; font-weight: ${fontWeight}; display: flex; align-items: center; padding: 2px 6px; border-radius: 4px; position: relative;" onclick="event.preventDefault(); document.getElementById('${heading.id}')?.scrollIntoView({behavior: 'smooth', block: 'start'});" onmouseover="this.style.color='#2563eb'; this.style.backgroundColor='#f1f5f9'; this.style.transform='translateX(2px)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)';" onmouseout="this.style.color='${color}'; this.style.backgroundColor='transparent'; this.style.transform='translateX(0)'; this.style.boxShadow='none';"><span style="margin-right: 6px; font-size: 10px; opacity: 0.7;">${levelIcon}</span>${heading.text}</a>
-        </li>`;
-      }).join('');
-
-      const autoToc = `<div class="toc-container" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px solid #e2e8f0; border-radius: 16px; padding: 24px; margin: 32px auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04); max-width: 750px; width: 100%; position: relative; overflow: hidden; box-sizing: border-box;">
-        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #d11a68 0%, #e91e63 50%, #d11a68 100%);"></div>
-        <div style="font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; letter-spacing: 0.5px;"><span style="margin-right: 12px; font-size: 20px; background: linear-gradient(135deg, #d11a68, #e91e63); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">📋</span>INDEX</div>
-        <ul style="list-style: none; padding: 0; margin: 0; line-height: 1; overflow-wrap: break-word; word-wrap: break-word;">${tocItems}</ul>
-      </div>`;
-
-      // 最初の見出しの前に目次を挿入
-      const firstHeadingMatch = htmlContent.match(/^#{1,2}\s+.+$/m);
-      if (firstHeadingMatch) {
-        const firstHeadingIndex = htmlContent.indexOf(firstHeadingMatch[0]);
-        htmlContent = htmlContent.substring(0, firstHeadingIndex) + autoToc + '\n\n' + htmlContent.substring(firstHeadingIndex);
-      }
-    }
-
-    // 見出しにIDを追加（目次クリック用）
-    htmlContent = htmlContent.replace(/^(#{1,2})\s+(.+)$/gm, (match, hashes, text) => {
-      const level = hashes.length;
-      if (level > 2) return match; // H3はスキップ
-      
-      // 既にIDが設定されている場合はスキップ
-      if (text.includes('{#')) return match;
-      
-      const cleanText = text.trim();
-      if (!cleanText) return match; // 空の見出しはスキップ
-      
-      const id = cleanText.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/^-+|-+$/g, '');
-      if (!id) return match; // IDが生成できない場合はスキップ
-      
-      return `${hashes} ${cleanText} {#${id}}`;
-    });
-
-    // 古い手動目次タグを除去
-    htmlContent = htmlContent.replace(/<div class="table-of-contents">[\s\S]*?<\/div>/g, '');
-
-    // 装飾ボックスの処理（エスケープ前に実行）
-    htmlContent = htmlContent.replace(/<div class="decoration-info" data-title="([^"]*)">(.*?)<\/div>/gs,
-      (match, title, content) => {
-        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #1d4ed8;">${title}</div>` : '';
-        return `<div style="border: 2px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 6px solid #1d4ed8; color: #1e3a8a;">${titleHtml}${content}</div>`;
-      });
-
-    htmlContent = htmlContent.replace(/<div class="decoration-warning" data-title="([^"]*)">(.*?)<\/div>/gs,
-      (match, title, content) => {
-        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #d97706;">${title}</div>` : '';
-        return `<div style="border: 2px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 6px solid #d97706; color: #78350f;">${titleHtml}${content}</div>`;
-      });
-
-    htmlContent = htmlContent.replace(/<div class="decoration-success" data-title="([^"]*)">(.*?)<\/div>/gs,
-      (match, title, content) => {
-        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #047857;">${title}</div>` : '';
-        return `<div style="border: 2px solid #10b981; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 6px solid #047857; color: #064e3b;">${titleHtml}${content}</div>`;
-      });
-
-    htmlContent = htmlContent.replace(/<div class="decoration-error" data-title="([^"]*)">(.*?)<\/div>/gs,
-      (match, title, content) => {
-        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #dc2626;">${title}</div>` : '';
-        return `<div style="border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left: 6px solid #dc2626; color: #7f1d1d;">${titleHtml}${content}</div>`;
-      });
-
-    htmlContent = htmlContent.replace(/<div class="decoration-quote" data-title="([^"]*)">(.*?)<\/div>/gs,
-      (match, title, content) => {
-        const titleHtml = title ? `<div style="font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #374151;">${title}</div>` : '';
-        return `<div style="border: 2px solid #6b7280; border-radius: 8px; padding: 16px; margin: 16px 0; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-left: 6px solid #374151; color: #4b5563; font-style: italic;">${titleHtml}${content}</div>`;
-      });
-
-    htmlContent = htmlContent.replace(/<div class="decoration-speech-bubble" data-title="([^"]*)">(.*?)<\/div>/gs,
-      (match, title, content) => {
-        const titleHtml = title ? `<div style="font-size: 14px; font-weight: bold; margin-bottom: 4px; color: white;">${title}</div>` : '';
-        return `<div style="position: relative; background: linear-gradient(135deg, #e91e63 0%, #d81b60 100%); color: white; padding: 2px 12px; border-radius: 8px; margin: 2px 0; box-shadow: 0 1px 3px rgba(233, 30, 99, 0.2); max-width: 300px; display: inline-block; line-height: 1.2; font-size: 14px;">
-          ${titleHtml}${content}
-          <div style="position: absolute; bottom: -4px; left: 16px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid #d81b60;"></div>
-        </div>`;
-      });
-
-
-    // Escape basic HTML after decoration processing
-    htmlContent = htmlContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-    // Re-convert the processed decoration and table HTML back to valid HTML
-    htmlContent = htmlContent.replace(/&lt;div style="([^"]*)"&gt;/g, '<div style="$1">');
-    htmlContent = htmlContent.replace(/&lt;div class="([^"]*)"&gt;/g, '<div class="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/div&gt;/g, '</div>');
-    htmlContent = htmlContent.replace(/&lt;span style="([^"]*)"&gt;/g, '<span style="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/span&gt;/g, '</span>');
-    htmlContent = htmlContent.replace(/&lt;strong style="([^"]*)"&gt;/g, '<strong style="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/strong&gt;/g, '</strong>');
-    htmlContent = htmlContent.replace(/&lt;ul style="([^"]*)"&gt;/g, '<ul style="$1">');
-    htmlContent = htmlContent.replace(/&lt;ul class="([^"]*)"&gt;/g, '<ul class="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/ul&gt;/g, '</ul>');
-    htmlContent = htmlContent.replace(/&lt;li style="([^"]*)"&gt;/g, '<li style="$1">');
-    htmlContent = htmlContent.replace(/&lt;li class="([^"]*)"&gt;/g, '<li class="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/li&gt;/g, '</li>');
-
-    // aタグの復元（目次のリンクなど）
-    htmlContent = htmlContent.replace(/&lt;a ([^&]*)&gt;/g, (match, attributes) => {
-      // クォートも復元
-      const restoredAttributes = attributes.replace(/&quot;/g, '"');
-      return `<a ${restoredAttributes}>`;
-    });
-    htmlContent = htmlContent.replace(/&lt;\/a&gt;/g, '</a>');
-
-    // ulとliタグの復元（目次用）
-    htmlContent = htmlContent.replace(/&lt;ul style="([^"]*)"&gt;/g, '<ul style="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/ul&gt;/g, '</ul>');
-    htmlContent = htmlContent.replace(/&lt;li style="([^"]*)"&gt;/g, '<li style="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/li&gt;/g, '</li>');
-
-    // spanタグの復元（目次アイコン用）
-    htmlContent = htmlContent.replace(/&lt;span style="([^"]*)"&gt;/g, '<span style="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/span&gt;/g, '</span>');
-
-    // Table tags
-    htmlContent = htmlContent.replace(/&lt;table class="([^"]*)"&gt;/g, '<table class="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/table&gt;/g, '</table>');
-    htmlContent = htmlContent.replace(/&lt;thead&gt;/g, '<thead>');
-    htmlContent = htmlContent.replace(/&lt;\/thead&gt;/g, '</thead>');
-    htmlContent = htmlContent.replace(/&lt;tbody&gt;/g, '<tbody>');
-    htmlContent = htmlContent.replace(/&lt;\/tbody&gt;/g, '</tbody>');
-    htmlContent = htmlContent.replace(/&lt;tr&gt;/g, '<tr>');
-    htmlContent = htmlContent.replace(/&lt;\/tr&gt;/g, '</tr>');
-    htmlContent = htmlContent.replace(/&lt;th class="([^"]*)"&gt;/g, '<th class="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/th&gt;/g, '</th>');
-    htmlContent = htmlContent.replace(/&lt;td class="([^"]*)"&gt;/g, '<td class="$1">');
-    htmlContent = htmlContent.replace(/&lt;\/td&gt;/g, '</td>');
-
-    // Images ![alt](url)
-    htmlContent = htmlContent.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto my-4" />');
-    // Links [text](url)
-    htmlContent = htmlContent.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-blue-600 underline">$1<\/a>');
-    // Bold **text**
-    htmlContent = htmlContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1<\/strong>');
-    // Headings ###, ##, #（IDを追加してアンカーリンクに対応）
-    htmlContent = htmlContent.replace(/^###\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
-      const cleanTitle = title.trim();
-      const id = customId || cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      return `<h3 id="${id}" class="text-xl font-semibold mt-6 mb-2">${cleanTitle}<\/h3>`;
-    });
-    htmlContent = htmlContent.replace(/^##\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
-      const cleanTitle = title.trim();
-      const id = customId || cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      return `<h2 id="${id}" class="text-2xl font-bold mt-8 mb-3">${cleanTitle}<\/h2>`;
-    });
-    htmlContent = htmlContent.replace(/^#\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
-      const cleanTitle = title.trim();
-      const id = customId || cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      return `<h1 id="${id}" class="text-3xl font-bold mt-10 mb-4">${cleanTitle}<\/h1>`;
-    });
-    // Unordered list（改良されたデザイン）
-    htmlContent = htmlContent.replace(/^(?:-\s.+\n?)+/gm, (block) => {
-      const items = block.trim().split(/\n/).map(l => l.replace(/^-\s+/, '').trim()).map(li => `<li style="position: relative; padding-left: 20px; margin-bottom: 8px; line-height: 1.6;"><span style="position: absolute; left: 0; top: 0; color: #e91e63; font-weight: bold;">•</span>${li}<\/li>`).join('');
-      return `<ul style="margin: 16px 0; padding: 0; list-style: none;">${items}<\/ul>`;
-    });
-    // Ordered list（改良されたデザイン）
-    htmlContent = htmlContent.replace(/^(?:\d+\.\s.+\n?)+/gm, (block) => {
-      const items = block.trim().split(/\n/).map((l, index) => {
-        const text = l.replace(/^\d+\.\s+/, '').trim();
-        return `<li style="position: relative; padding-left: 28px; margin-bottom: 8px; line-height: 1.6;"><span style="position: absolute; left: 0; top: 0; color: #e91e63; font-weight: bold; background: #fce4ec; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px;">${index + 1}</span>${text}<\/li>`;
-      }).join('');
-      return `<ol style="margin: 16px 0; padding: 0; list-style: none;">${items}<\/ol>`;
-    });
-    // Horizontal rule
-    htmlContent = htmlContent.replace(/^---$/gm, '<hr style="border: none; height: 3px; background: linear-gradient(to right, #e5e5e5, #999, #e5e5e5); margin: 24px 0; border-radius: 2px;" />');
-
-    // Table処理 (Markdown table)
-    // テーブルブロック全体を処理
-    htmlContent = htmlContent.replace(/(?:^\|.+\|\s*$\n?)+/gm, (tableBlock) => {
-      const lines = tableBlock.trim().split('\n').map(line => line.trim());
-      if (lines.length < 2) return tableBlock;
-
-      // セパレーター行を見つける
-      const separatorIndex = lines.findIndex(line => /^\|[\s\-\|:]+\|$/.test(line));
-      if (separatorIndex === -1) return tableBlock;
-
-      const headerLine = lines[separatorIndex - 1];
-      const dataLines = lines.slice(separatorIndex + 1);
-
-      if (!headerLine) return tableBlock;
-
-      // ヘッダー行を処理
-      const headerCells = headerLine.split('|').slice(1, -1).map(cell => cell.trim());
-      const headerHtml = headerCells.map(cell => `<th class="px-4 py-2 bg-gray-100 font-semibold text-left border border-gray-300">${cell}</th>`).join('');
-
-      // データ行を処理
-      const dataRowsHtml = dataLines.map(line => {
-        const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
-        const cellsHtml = cells.map(cell => `<td class="px-4 py-2 border border-gray-300">${cell}</td>`).join('');
-        return `<tr>${cellsHtml}</tr>`;
-      }).join('');
-
-      return `<table class="w-full border-collapse border border-gray-300 my-4">
-        <thead><tr>${headerHtml}</tr></thead>
-        <tbody>${dataRowsHtml}</tbody>
-      </table>`;
-    });
-
-    // シンプルな改行処理: 全ての改行をbrタグに変換
-    htmlContent = htmlContent.replace(/\n/g, '<br />');
-
-    return (
-      <article className="bg-white border border-gray-200 p-6">
-        <div className="mb-6">
-          <a href="#" className="text-xs text-[#d11a68]">{article.category}</a>
-          <h1 className="text-3xl font-bold text-gray-900 mt-2">{article.title}</h1>
-          <div className="text-gray-500 text-sm mt-2">
-            {new Date().toLocaleDateString('ja-JP')}
+    // 共通関数を使用してプレビューをレンダリング
+    const contentHtml = renderArticleContent(article.content).__html;
+    
+    // タイトルとアイキャッチ画像を含む完全なプレビューHTMLを生成
+    return `
+      <article class="bg-white border border-gray-200 p-6">
+        <div class="mb-6">
+          <a href="#" class="text-xs text-[#d11a68]">${article.category || 'カテゴリなし'}</a>
+          <h1 class="text-3xl font-bold text-gray-900 mt-2">${article.title || 'タイトル未設定'}</h1>
+          <div class="text-gray-500 text-sm mt-2">
+            ${new Date().toLocaleDateString('ja-JP', {
+              year: 'numeric',
+              month: 'numeric',
+              day: 'numeric'
+            })}
           </div>
         </div>
 
-        {article.featuredImage && (
-          <div className="rounded overflow-hidden mb-6">
-            <div className="relative bg-gray-100" style={{ paddingBottom: '52.36%' }}>
+        ${article.featuredImage ? `
+          <div class="rounded overflow-hidden mb-6">
+            <div class="relative bg-gray-100" style="padding-bottom: 52.36%">
               <img
-                src={article.featuredImage}
-                alt={article.featuredImageAlt || article.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                src="${article.featuredImage}"
+                alt="${article.featuredImageAlt || article.title}"
+                class="absolute inset-0 w-full h-full object-cover"
               />
             </div>
           </div>
-        )}
+        ` : ''}
 
-        <div
-          className="max-w-none"
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-          style={{
-            fontSize: '16px',
-            color: '#374151'
-          }}
-        />
+        <div class="max-w-none" style="font-size: 16px; color: #374151;">
+          ${contentHtml}
+        </div>
       </article>
-    );
+    `;
   };
 
   const handleSave = async (status: 'draft' | 'published' | 'scheduled') => {
@@ -1136,7 +908,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 pt-24">
         {isPreview ? (
           <div className="container mx-auto px-4 py-10 max-w-4xl">
-            {renderPreview()}
+            <div dangerouslySetInnerHTML={{ __html: renderPreview() }} />
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -19,6 +19,7 @@ export interface Article {
   slug: string
   status: 'draft' | 'published' | 'scheduled'
   featured_image?: string
+  featured_image_alt?: string
   category: string
   category2?: string
   author_id?: string
@@ -75,7 +76,7 @@ export const articlesAPI = {
   },
 
   // 記事をIDで取得
-  async getArticleById(id: string) {
+  async getArticleById(id: string): Promise<Article> {
     const { data, error } = await supabase
       .from('articles')
       .select('*')
