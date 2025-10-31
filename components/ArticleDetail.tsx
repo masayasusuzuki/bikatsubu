@@ -5,10 +5,10 @@ import { articlesAPI, pageSectionsAPI, Article } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface ArticleDetailProps {
-  articleId: string;
+  articleSlug: string;
 }
 
-const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
+const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleSlug }) => {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,8 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
       try {
         setLoading(true);
 
-        // 記事データを取得
-        const articleData = await articlesAPI.getArticleById(articleId);
+        // 記事データをslugで取得
+        const articleData = await articlesAPI.getArticleBySlug(articleSlug);
         setArticle(articleData);
 
         // 最新の公開記事を取得（現在の記事を除く）
@@ -67,7 +67,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
       }
     };
     fetchData();
-  }, [articleId]);
+  }, [articleSlug]);
 
   const renderContent = (content: string) => {
     let html = content;
@@ -465,7 +465,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleId }) => {
                             <span className="ml-2 text-blue-500">→</span>
                           </div>
                           <a
-                            href={`/article/${nextArticle.id}`}
+                            href={`/article/${nextArticle.slug || nextArticle.id}`}
                             className="block hover:opacity-80 transition-opacity"
                           >
                             <div className="flex gap-4">

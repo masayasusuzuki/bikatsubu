@@ -4,6 +4,7 @@ export interface HeroSlide {
   imageUrl: string;
   alt: string;
   articleId?: string; // 記事IDを追加
+  articleSlug?: string; // 記事スラッグを追加
 }
 
 export interface Product {
@@ -12,6 +13,7 @@ export interface Product {
   subText: string;
   imageUrl: string;
   date: string;
+  slug?: string;
 }
 
 export interface Category {
@@ -28,6 +30,7 @@ export interface Article {
   date: string;
   category?: string;
   tag?: string;
+  slug?: string;
 }
 
 export interface Manufacturer {

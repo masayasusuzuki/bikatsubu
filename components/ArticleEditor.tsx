@@ -10,7 +10,7 @@ interface ArticleData {
   metaDescription: string;
   keywords: string;
   slug: string;
-  status: 'draft' | 'published';
+  status: 'draft' | 'published' | 'scheduled';
   featuredImage: string;
   featuredImageAlt: string;
   category: string;
@@ -20,6 +20,7 @@ interface ArticleData {
   price: string;
   releaseDate: string;
   rating: number;
+  scheduledPublishAt: string;
 }
 
 interface ArticleEditorProps {
@@ -45,7 +46,8 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     brand: '',
     price: '',
     releaseDate: '',
-    rating: 0
+    rating: 0,
+    scheduledPublishAt: ''
   });
 
   const [isPreview, setIsPreview] = useState(false);
@@ -106,7 +108,8 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         brand: data.brand || '',
         price: data.price || '',
         releaseDate: data.release_date || '',
-        rating: data.rating || 0
+        rating: data.rating || 0,
+        scheduledPublishAt: data.scheduled_publish_at || ''
       });
       
       // 記事読み込み時に保存状態をリセット
@@ -936,10 +939,26 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     );
   };
 
-  const handleSave = async (status: 'draft' | 'published') => {
+  const handleSave = async (status: 'draft' | 'published' | 'scheduled') => {
     if (!article.title || !article.content) {
       alert('タイトルと本文は必須です');
       return;
+    }
+
+    // 予約公開の場合、日時が設定されているかチェック
+    if (status === 'scheduled' && !article.scheduledPublishAt) {
+      alert('予約公開日時を設定してください');
+      return;
+    }
+
+    // 予約公開日時が過去の場合はエラー
+    if (status === 'scheduled' && article.scheduledPublishAt) {
+      const scheduledDate = new Date(article.scheduledPublishAt);
+      const now = new Date();
+      if (scheduledDate <= now) {
+        alert('予約公開日時は未来の日時を設定してください');
+        return;
+      }
     }
 
     // カテゴリのバリデーション
@@ -974,7 +993,8 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         brand: article.brand || undefined,
         price: article.price || undefined,
         release_date: article.releaseDate || undefined,
-        rating: article.rating || undefined
+        rating: article.rating || undefined,
+        scheduled_publish_at: status === 'scheduled' && article.scheduledPublishAt ? article.scheduledPublishAt : undefined
       };
 
       let savedArticle;
@@ -1090,12 +1110,23 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
               >
                 {isSaving ? '保存中...' : '下書き保存'}
               </button>
+
+              {/* 予約公開ボタン */}
+              <button
+                onClick={() => handleSave('scheduled')}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+                disabled={isSaving || !article.scheduledPublishAt}
+                title={!article.scheduledPublishAt ? '予約公開日時を設定してください' : ''}
+              >
+                {isSaving ? '保存中...' : '予約公開'}
+              </button>
+
               <button
                 onClick={() => handleSave('published')}
                 className="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
                 disabled={isSaving}
               >
-                {isSaving ? '保存中...' : '公開'}
+                {isSaving ? '保存中...' : '即時公開'}
               </button>
             </div>
           </div>
@@ -1474,6 +1505,28 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                       ※ カテゴリ1とカテゴリ2のうち、最低1つは選択してください
                     </p>
                   </div>
+
+                  {/* 予約公開日時 */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      予約公開日時
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={article.scheduledPublishAt}
+                      onChange={(e) => setArticle(prev => ({ ...prev, scheduledPublishAt: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      設定すると「予約公開」ボタンが有効になります
+                    </p>
+                    {article.scheduledPublishAt && (
+                      <p className="text-xs text-purple-600 mt-1 font-medium">
+                        {new Date(article.scheduledPublishAt).toLocaleString('ja-JP')} に公開予定
+                      </p>
+                    )}
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       アイキャッチ画像URL

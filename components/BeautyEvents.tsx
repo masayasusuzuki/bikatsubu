@@ -10,7 +10,7 @@ const EventCard: React.FC<{ event: Article }> = ({ event }) => (
   <div
     className="bg-white text-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:-translate-y-1 transition-transform duration-300 cursor-pointer"
     style={{ height: '320px', display: 'flex', flexDirection: 'column' }}
-    onClick={() => window.location.href = `/article/${event.id}`}
+    onClick={() => window.location.href = `/article/${event.slug || event.id}`}
   >
     <div className="relative" style={{ flexShrink: 0 }}>
       <img src={optimizeAnyImageUrl(event.imageUrl, 384, 192)} alt={event.title} className="w-full h-48 object-cover" />

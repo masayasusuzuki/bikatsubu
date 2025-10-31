@@ -23,7 +23,9 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ slides }) => {
   };
 
   const handleSlideClick = (slide: HeroSlide) => {
-    if (slide.articleId) {
+    if (slide.articleSlug) {
+      window.location.href = `/article/${slide.articleSlug}`;
+    } else if (slide.articleId) {
       window.location.href = `/article/${slide.articleId}`;
     }
   };

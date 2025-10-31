@@ -16,7 +16,8 @@
       "Bash(cat:*)",
       "Bash(npm uninstall:*)",
       "Bash(curl:*)",
-      "Bash(npm run type-check:*)"
+      "Bash(npm run type-check:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

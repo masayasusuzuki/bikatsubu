@@ -10,7 +10,7 @@ const TipCard: React.FC<{ tip: Article }> = ({ tip }) => (
     <div
         className="bg-white rounded-2xl overflow-hidden group cursor-pointer hover:shadow-2xl transition-all duration-500 border border-slate-100 hover:border-slate-200 hover:-translate-y-2"
         style={{ height: '320px', display: 'flex', flexDirection: 'column' }}
-        onClick={() => window.location.href = `/article/${tip.id}`}
+        onClick={() => window.location.href = `/article/${tip.slug || tip.id}`}
     >
         <div className="overflow-hidden relative" style={{ flexShrink: 0 }}>
             <img src={optimizeAnyImageUrl(tip.imageUrl, 320, 160)} alt={tip.title} className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"/>

@@ -13,7 +13,7 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => (
     <div
         className="bg-white rounded-2xl overflow-hidden group cursor-pointer hover:shadow-2xl transition-all duration-500 border border-rose-100 hover:border-rose-200 hover:-translate-y-2"
         style={{ height: '320px', display: 'flex', flexDirection: 'column' }}
-        onClick={() => window.location.href = `/article/${article.id}`}
+        onClick={() => window.location.href = `/article/${article.slug || article.id}`}
     >
         <div className="overflow-hidden relative" style={{ flexShrink: 0 }}>
           <img src={optimizeAnyImageUrl(article.imageUrl, 320, 160)} alt={article.title} className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"/>
@@ -91,7 +91,7 @@ const BrandUpdates: React.FC<BrandUpdatesProps> = ({ articles, products, manufac
                 <div
                   key={article.id}
                   className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-rose-50 p-3 rounded-xl transition-all duration-300 border border-transparent hover:border-rose-200 hover:shadow-md"
-                  onClick={() => window.location.href = `/article/${article.id}`}
+                  onClick={() => window.location.href = `/article/${article.slug || article.id}`}
                 >
                   <div className="relative flex-shrink-0">
                     <img src={optimizeAnyImageUrl(article.imageUrl, 64, 64)} alt={article.title} className="w-16 h-16 object-cover rounded-lg shadow-sm" />

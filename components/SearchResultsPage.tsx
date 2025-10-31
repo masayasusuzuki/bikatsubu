@@ -31,7 +31,8 @@ const SearchResultsPage: React.FC = () => {
       imageUrl: dbArticle.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format',
       date: new Date(dbArticle.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
       category: dbArticle.category,
-      tag: dbArticle.keywords?.split(',')[0] || undefined
+      tag: dbArticle.keywords?.split(',')[0] || undefined,
+      slug: dbArticle.slug
     };
   };
 
@@ -117,7 +118,7 @@ const SearchResultsPage: React.FC = () => {
                 <div
                   key={article.id}
                   className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow cursor-pointer overflow-hidden group"
-                  onClick={() => window.location.href = `/article/${article.id}`}
+                  onClick={() => window.location.href = `/article/${article.slug || article.id}`}
                 >
                   <div className="overflow-hidden">
                     <img

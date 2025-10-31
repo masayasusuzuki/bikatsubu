@@ -10,7 +10,7 @@ interface ProductCarouselProps {
 const MostReadArticle: React.FC<{ article: Article }> = ({ article }) => (
   <div
     className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
-    onClick={() => window.location.href = `/article/${article.id}`}
+    onClick={() => window.location.href = `/article/${article.slug || article.id}`}
   >
     <img src={optimizeAnyImageUrl(article.imageUrl, 64, 64)} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
     <div>
@@ -46,7 +46,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, mostRead })
                   key={product.id}
                   className="group cursor-pointer"
                   style={{ height: '256px', display: 'flex', flexDirection: 'column' }}
-                  onClick={() => window.location.href = `/article/${product.id}`}
+                  onClick={() => window.location.href = `/article/${product.slug || product.id}`}
                 >
                   <div className="overflow-hidden" style={{ flexShrink: 0 }}>
                     <img src={optimizeAnyImageUrl(product.imageUrl, 320, 160)} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"/>

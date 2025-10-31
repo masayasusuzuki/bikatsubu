@@ -15,6 +15,11 @@ const AdminDashboard: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string>('');
 
+  // ページネーション関連の状態
+  const [totalArticles, setTotalArticles] = useState(0);
+  const [displayLimit, setDisplayLimit] = useState(20);
+  const [hasMore, setHasMore] = useState(false);
+
   // ログイン履歴関連の状態
   const [loginHistory, setLoginHistory] = useState<LoginHistoryEntry[]>([]);
   const [loginHistoryLoading, setLoginHistoryLoading] = useState(false);
@@ -73,11 +78,30 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const loadArticles = async () => {
+  const loadArticles = async (limit?: number) => {
     try {
       setLoading(true);
-      const data = await articlesAPI.getAllArticles();
+      const limitToUse = limit || displayLimit;
+      const { articles: data, total } = await articlesAPI.getArticlesPaginated(limitToUse, 0);
       setArticles(data);
+      setTotalArticles(total);
+      setHasMore(data.length < total);
+    } catch (error) {
+      console.error('記事の読み込みに失敗:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMoreArticles = async () => {
+    try {
+      setLoading(true);
+      const newLimit = displayLimit + 20;
+      setDisplayLimit(newLimit);
+      const { articles: data, total } = await articlesAPI.getArticlesPaginated(newLimit, 0);
+      setArticles(data);
+      setTotalArticles(total);
+      setHasMore(data.length < total);
     } catch (error) {
       console.error('記事の読み込みに失敗:', error);
     } finally {
@@ -382,6 +406,12 @@ const AdminDashboard: React.FC = () => {
       icon: 'edit'
     },
     {
+      title: '予約公開',
+      value: articles.filter(article => article.status === 'scheduled').length.toString(),
+      description: 'Scheduled Articles',
+      icon: 'clock'
+    },
+    {
       title: 'アナリティクス',
       value: 'GA4',
       description: 'Google Analytics',
@@ -452,7 +482,7 @@ const AdminDashboard: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {stats.map((stat, index) => (
             <div key={index} className="bg-white border border-gray-200 shadow-sm">
               <div className="p-4 sm:p-6">
@@ -574,6 +604,9 @@ const AdminDashboard: React.FC = () => {
                           作成日
                         </th>
                         <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
+                          公開日
+                        </th>
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           操作
                         </th>
                       </tr>
@@ -581,7 +614,7 @@ const AdminDashboard: React.FC = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {loading ? (
                         <tr>
-                          <td colSpan={7} className="px-4 sm:px-6 py-6 sm:py-8 text-center">
+                          <td colSpan={8} className="px-4 sm:px-6 py-6 sm:py-8 text-center">
                             <div className="flex justify-center items-center">
                               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
                               <span className="ml-2 text-sm sm:text-base text-slate-600">読み込み中...</span>
@@ -590,7 +623,7 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       ) : filteredArticles.length === 0 ? (
                         <tr>
-                          <td colSpan={7} className="px-4 sm:px-6 py-6 sm:py-8 text-center text-sm sm:text-base text-slate-500">
+                          <td colSpan={8} className="px-4 sm:px-6 py-6 sm:py-8 text-center text-sm sm:text-base text-slate-500">
                             {searchQuery ? '検索結果が見つかりませんでした' : '記事がありません'}
                           </td>
                         </tr>
@@ -598,7 +631,7 @@ const AdminDashboard: React.FC = () => {
                         filteredArticles.map((article) => (
                           <tr key={article.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-3 sm:px-6 py-3 sm:py-4">
-                              <div className="text-xs sm:text-sm font-medium text-slate-900 max-w-[150px] sm:max-w-xs">
+                              <div className="text-xs sm:text-sm font-medium text-slate-900 max-w-[120px] sm:max-w-[200px]">
                                 <div className="truncate">{article.title}</div>
                               </div>
                             </td>
@@ -622,49 +655,96 @@ const AdminDashboard: React.FC = () => {
                               </span>
                             </td>
                             <td className="px-3 sm:px-6 py-3 sm:py-4">
-                              <label className="inline-flex items-center">
-                                <div className="relative">
-                                  <input
-                                    type="checkbox"
-                                    className="sr-only"
-                                    checked={article.status === 'published'}
-                                    onChange={() => handleToggleStatus(article.id, article.status)}
-                                  />
-                                  <div className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full transition-colors cursor-pointer ${
-                                    article.status === 'published'
-                                      ? 'bg-emerald-500'
-                                      : 'bg-gray-300'
-                                  }`}>
-                                    <div className={`w-4 h-4 sm:w-5 sm:h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                                      article.status === 'published'
-                                        ? 'translate-x-5 sm:translate-x-6'
-                                        : 'translate-x-0.5'
-                                    } mt-0.5`}></div>
-                                  </div>
+                              {article.status === 'scheduled' ? (
+                                <div className="flex flex-col">
+                                  <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 whitespace-nowrap mb-1">
+                                    予約公開
+                                  </span>
+                                  {article.scheduled_publish_at && (
+                                    <span className="text-xs text-gray-500">
+                                      {new Date(article.scheduled_publish_at).toLocaleString('ja-JP', {
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      })}
+                                    </span>
+                                  )}
                                 </div>
-                                <span className={`ml-2 text-xs font-medium whitespace-nowrap ${
-                                  article.status === 'published'
-                                    ? 'text-emerald-800'
-                                    : 'text-gray-600'
-                                }`}>
-                                  {article.status === 'published' ? '公開中' : '下書き'}
-                                </span>
-                              </label>
+                              ) : (
+                                <label className="inline-flex items-center">
+                                  <div className="relative">
+                                    <input
+                                      type="checkbox"
+                                      className="sr-only"
+                                      checked={article.status === 'published'}
+                                      onChange={() => handleToggleStatus(article.id, article.status)}
+                                    />
+                                    <div className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full transition-colors cursor-pointer ${
+                                      article.status === 'published'
+                                        ? 'bg-emerald-500'
+                                        : 'bg-gray-300'
+                                    }`}>
+                                      <div className={`w-4 h-4 sm:w-5 sm:h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                                        article.status === 'published'
+                                          ? 'translate-x-5 sm:translate-x-6'
+                                          : 'translate-x-0.5'
+                                      } mt-0.5`}></div>
+                                    </div>
+                                  </div>
+                                  <span className={`ml-2 text-xs font-medium whitespace-nowrap ${
+                                    article.status === 'published'
+                                      ? 'text-emerald-800'
+                                      : 'text-gray-600'
+                                  }`}>
+                                    {article.status === 'published' ? '公開中' : '下書き'}
+                                  </span>
+                                </label>
+                              )}
                             </td>
                             <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-500 whitespace-nowrap">
                               {new Date(article.created_at).toLocaleDateString('ja-JP')}
                             </td>
+                            <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm whitespace-nowrap">
+                              {article.status === 'published' && article.published_at ? (
+                                <div className="text-slate-700">
+                                  {new Date(article.published_at).toLocaleDateString('ja-JP', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    weekday: 'short'
+                                  })}
+                                </div>
+                              ) : article.status === 'scheduled' && article.scheduled_publish_at ? (
+                                <div className="text-purple-600 font-medium">
+                                  {new Date(article.scheduled_publish_at).toLocaleDateString('ja-JP', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    weekday: 'short'
+                                  })}
+                                  <div className="text-xs text-purple-500">
+                                    ({new Date(article.scheduled_publish_at).toLocaleTimeString('ja-JP', {
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })})
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-gray-400 italic">未設定</span>
+                              )}
+                            </td>
                             <td className="px-3 sm:px-6 py-3 sm:py-4">
-                              <div className="flex gap-2 whitespace-nowrap">
+                              <div className="flex flex-col gap-1">
                                 <button
                                   onClick={() => handleEditArticle(article.id)}
-                                  className="text-slate-600 hover:text-slate-800 text-xs sm:text-sm font-medium"
+                                  className="text-slate-600 hover:text-slate-800 text-xs sm:text-sm font-medium text-left"
                                 >
                                   編集
                                 </button>
                                 <button
                                   onClick={() => handleDeleteArticle(article.id)}
-                                  className="text-red-600 hover:text-red-800 text-xs sm:text-sm font-medium"
+                                  className="text-red-600 hover:text-red-800 text-xs sm:text-sm font-medium text-left"
                                 >
                                   削除
                                 </button>
@@ -676,6 +756,18 @@ const AdminDashboard: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
+
+                {/* 続きを見るボタン */}
+                {hasMore && !loading && (
+                  <div className="mt-4 text-center border-t border-gray-200 pt-4">
+                    <button
+                      onClick={loadMoreArticles}
+                      className="bg-slate-700 hover:bg-slate-800 text-white px-6 py-2 text-sm font-medium transition-colors"
+                    >
+                      続きを見る（残り {totalArticles - articles.length} 件）
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 

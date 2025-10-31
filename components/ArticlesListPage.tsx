@@ -252,7 +252,7 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
             <article
               key={article.id}
               className="bg-white border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => window.location.href = `/article/${article.id}`}
+              onClick={() => window.location.href = `/article/${articles.find(a => a.id === article.id)?.slug || article.id}`}
               style={{ height: '200px' }}
             >
               <div className="flex items-start p-6 h-full">

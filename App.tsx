@@ -79,7 +79,8 @@ const App: React.FC = () => {
       imageUrl: dbArticle.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format',
       date: new Date(dbArticle.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
       category: dbArticle.category,
-      tag: dbArticle.keywords?.split(',')[0] || undefined
+      tag: dbArticle.keywords?.split(',')[0] || undefined,
+      slug: dbArticle.slug
     };
   };
 
@@ -89,7 +90,8 @@ const App: React.FC = () => {
       name: article.title,
       subText: article.category || '',
       imageUrl: article.imageUrl,
-      date: article.date
+      date: article.date,
+      slug: article.slug
     };
   };
 
@@ -98,7 +100,8 @@ const App: React.FC = () => {
       id: parseInt(dbSlide.id.split('-')[0], 16) % 1000, // Convert UUID to number for backward compatibility
       imageUrl: dbSlide.image_url,
       alt: dbSlide.alt_text,
-      articleId: dbSlide.article_id || undefined
+      articleId: dbSlide.article_id || undefined,
+      articleSlug: dbSlide.article?.slug || undefined
     };
   };
 
@@ -206,10 +209,10 @@ const App: React.FC = () => {
   }
 
   // Category pages routing
-  // Article detail routing: /article/<id>
+  // Article detail routing: /article/<slug>
   if (currentPath.startsWith('/article/')) {
-    const id = currentPath.replace('/article/', '');
-    return <ArticleDetail articleId={id} />;
+    const slug = currentPath.replace('/article/', '');
+    return <ArticleDetail articleSlug={slug} />;
   }
 
   if (currentPath === '/category/spots-dullness') {

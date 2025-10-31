@@ -17,7 +17,7 @@ export interface Article {
   meta_description?: string
   keywords?: string
   slug: string
-  status: 'draft' | 'published'
+  status: 'draft' | 'published' | 'scheduled'
   featured_image?: string
   category: string
   category2?: string
@@ -27,6 +27,8 @@ export interface Article {
   price?: string
   release_date?: string
   rating?: number
+  published_at?: string
+  scheduled_publish_at?: string
   created_at: string
   updated_at: string
 }
@@ -38,7 +40,7 @@ export interface CreateArticle {
   meta_description?: string
   keywords?: string
   slug: string
-  status: 'draft' | 'published'
+  status: 'draft' | 'published' | 'scheduled'
   featured_image?: string
   featured_image_alt?: string
   category: string
@@ -48,6 +50,7 @@ export interface CreateArticle {
   price?: string
   release_date?: string
   rating?: number
+  scheduled_publish_at?: string
 }
 
 // Cloudinary画像情報の型定義
@@ -143,6 +146,18 @@ export const articlesAPI = {
 
     if (error) throw error
     return data as Article[]
+  },
+
+  // 管理者用: ページネーション付きで記事を取得
+  async getArticlesPaginated(limit: number = 20, offset: number = 0) {
+    const { data, error, count } = await supabase
+      .from('articles')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (error) throw error
+    return { articles: data as Article[], total: count || 0 }
   },
 
   // 最新記事を取得（公開済みのみ、指定件数）

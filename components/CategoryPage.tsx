@@ -373,7 +373,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
             <article
               key={article.id}
               className="bg-white border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => window.location.href = `/article/${article.id}`}
+              onClick={() => window.location.href = `/article/${articles.find(a => a.id === article.id)?.slug || article.id}`}
             >
               <div className="flex flex-col md:flex-row items-start p-4 md:p-6">
                 {/* Thumbnail */}
