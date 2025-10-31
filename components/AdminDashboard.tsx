@@ -11,6 +11,8 @@ const AdminDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [userName, setUserName] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string>('');
 
   // ログイン履歴関連の状態
   const [loginHistory, setLoginHistory] = useState<LoginHistoryEntry[]>([]);
@@ -37,6 +39,21 @@ const AdminDashboard: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setIsAuthenticated(true);
+        setUserEmail(session.user.email || '');
+
+        // profilesテーブルからユーザー名を取得
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile?.username) {
+          setUserName(profile.username);
+        } else {
+          // usernameがない場合はemailの@より前を使用
+          setUserName(session.user.email?.split('@')[0] || '');
+        }
       } else {
         // Redirect to login
         window.location.href = '/admin';
@@ -368,11 +385,13 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div className="flex items-center space-x-2 sm:space-x-6">
               <div className="text-right hidden md:block">
-                <p className="text-sm font-medium text-slate-700">管理者</p>
-                <p className="text-xs text-slate-500">Administrator</p>
+                <p className="text-sm font-medium text-slate-700">{userName || 'ユーザー'}</p>
+                <p className="text-xs text-slate-500">{userEmail}</p>
               </div>
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-200 rounded flex items-center justify-center flex-shrink-0">
-                <span className="text-xs sm:text-sm font-semibold text-slate-700">A</span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-700">
+                  {userName ? userName.charAt(0).toUpperCase() : 'A'}
+                </span>
               </div>
               <button
                 onClick={handleLogout}
