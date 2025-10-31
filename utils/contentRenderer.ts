@@ -105,7 +105,7 @@ export const renderArticleContent = (content: string): { __html: string } => {
   html = html.replace(/^###\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
     const cleanTitle = title.trim();
     const id = customId || `h3-${cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')}`;
-    return `<h3 id="${id}" style="font-size: 1.25rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; line-height: 1.3;">${cleanTitle}<\/h3>`;
+    return `<h3 id="${id}" style="font-size: 1.25rem; font-weight: 600; margin: 0; line-height: 1.3;">${cleanTitle}<\/h3>`;
   });
   // H2見出しのID重複を防ぐためのカウンター
   let h2Counter = 0;
@@ -114,13 +114,13 @@ export const renderArticleContent = (content: string): { __html: string } => {
     let baseId = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
     if (!baseId) baseId = 'heading'; // 空の場合のフォールバック
     const id = customId || `h2-${baseId}-${++h2Counter}`;
-    return `<h2 id="${id}" style="font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; color: #d11a68; border-bottom: 2px solid #d11a68; padding-bottom: 0.5rem; line-height: 1.3;">${cleanTitle}<\/h2>`;
+    return `<h2 id="${id}" style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #d11a68; border-bottom: 2px solid #d11a68; padding-bottom: 0.5rem; line-height: 1.3;">${cleanTitle}<\/h2>`;
   });
   // H1 (単一の#のみ) を最後に処理
   html = html.replace(/^#(?!#)\s+(.+?)(?:\s*\{#([^}]+)\})?$/gm, (match, title, customId) => {
     const cleanTitle = title.trim();
     const id = customId || `h1-${cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')}`;
-    return `<h1 id="${id}" style="font-size: 1.875rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.25rem; line-height: 1.3;">${cleanTitle}<\/h1>`;
+    return `<h1 id="${id}" style="font-size: 1.875rem; font-weight: 700; margin: 0; line-height: 1.3;">${cleanTitle}<\/h1>`;
   });
   
   // 箇条書き（改良されたデザイン）
