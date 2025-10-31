@@ -4,7 +4,7 @@
 User-agent: *
 Allow: /
 
-# Sitemap
+# Sitemap (動的生成)
 Sitemap: https://www.bikatsubu-media.jp/sitemap.xml
 
 # Disallow admin pages
