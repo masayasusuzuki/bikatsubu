@@ -885,7 +885,7 @@ const AdminDashboard: React.FC = () => {
                             </td>
                             <td className="px-3 sm:px-6 py-3 sm:py-4">
                               <div className="text-xs sm:text-sm text-slate-900">
-                                <span className="font-medium">
+                                <span className="font-bold">
                                   {getDisplayUserName(log.user_name)}
                                 </span>
                                 が
