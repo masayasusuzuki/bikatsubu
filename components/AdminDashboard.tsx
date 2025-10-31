@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PageContentManager from './PageContentManager';
 import { articlesAPI, Article, supabase } from '../src/lib/supabase';
 import { loginHistoryService, LoginHistoryEntry } from '../services/loginHistoryService';
+import { activityLogService, ActivityLog } from '../services/activityLogService';
 import { useSessionTimeout } from '../src/hooks/useSessionTimeout';
 
 const AdminDashboard: React.FC = () => {
@@ -18,6 +19,10 @@ const AdminDashboard: React.FC = () => {
   const [loginHistory, setLoginHistory] = useState<LoginHistoryEntry[]>([]);
   const [loginHistoryLoading, setLoginHistoryLoading] = useState(false);
 
+  // アクティビティ履歴関連の状態
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [activityLogsLoading, setActivityLogsLoading] = useState(false);
+
   // セッションタイムアウト
   useSessionTimeout();
 
@@ -31,6 +36,8 @@ const AdminDashboard: React.FC = () => {
       loadArticles();
     } else if (isAuthenticated && activeTab === 'login-history') {
       loadLoginHistory();
+    } else if (isAuthenticated && activeTab === 'activity-logs') {
+      loadActivityLogs();
     }
   }, [activeTab, isAuthenticated]);
 
@@ -82,12 +89,25 @@ const AdminDashboard: React.FC = () => {
   const loadLoginHistory = async () => {
     try {
       setLoginHistoryLoading(true);
-      const data = await loginHistoryService.getLoginHistory(50, 0);
+      const data = await loginHistoryService.getLoginHistory(10, 0);
       setLoginHistory(data);
     } catch (error) {
       console.error('ログイン履歴の読み込みに失敗:', error);
     } finally {
       setLoginHistoryLoading(false);
+    }
+  };
+
+  // アクティビティログを読み込む関数
+  const loadActivityLogs = async () => {
+    try {
+      setActivityLogsLoading(true);
+      const data = await activityLogService.getActivityLogs(10, 0);
+      setActivityLogs(data);
+    } catch (error) {
+      console.error('アクティビティログの読み込みに失敗:', error);
+    } finally {
+      setActivityLogsLoading(false);
     }
   };
 
@@ -101,7 +121,20 @@ const AdminDashboard: React.FC = () => {
     if (!confirm('この記事を削除しますか？この操作は取り消せません。')) return;
 
     try {
+      // 記事情報を取得してタイトルを保存
+      const article = articles.find(a => a.id === articleId);
+      const articleTitle = article?.title || '不明な記事';
+
       await articlesAPI.deleteArticle(articleId);
+
+      // アクティビティログを記録
+      await activityLogService.logActivity({
+        operationType: 'delete',
+        targetType: 'article',
+        targetId: articleId,
+        targetTitle: articleTitle
+      });
+
       await loadArticles(); // Reload articles
       alert('記事を削除しました');
     } catch (error) {
@@ -112,9 +145,22 @@ const AdminDashboard: React.FC = () => {
 
   const handleToggleStatus = async (articleId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'published' ? 'draft' : 'published';
-    
+
     try {
+      // 記事情報を取得
+      const article = articles.find(a => a.id === articleId);
+      const articleTitle = article?.title || '不明な記事';
+
       await articlesAPI.updateArticle(articleId, { status: newStatus as 'draft' | 'published' });
+
+      // アクティビティログを記録
+      await activityLogService.logActivity({
+        operationType: newStatus === 'published' ? 'publish' : 'unpublish',
+        targetType: 'article',
+        targetId: articleId,
+        targetTitle: articleTitle
+      });
+
       await loadArticles(); // Reload articles
     } catch (error) {
       console.error('記事のステータス更新に失敗:', error);
@@ -471,6 +517,16 @@ const AdminDashboard: React.FC = () => {
               >
                 ログイン履歴
               </button>
+              <button
+                onClick={() => setActiveTab('activity-logs')}
+                className={`py-3 px-4 sm:py-4 sm:px-8 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
+                  activeTab === 'activity-logs'
+                    ? 'border-slate-800 text-slate-800 bg-slate-50'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                }`}
+              >
+                アクティビティ履歴
+              </button>
             </nav>
           </div>
 
@@ -672,6 +728,90 @@ const AdminDashboard: React.FC = () => {
                             </td>
                             <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-500 whitespace-nowrap">
                               {loginHistoryService.formatLoginTime(entry.login_time)}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'activity-logs' && (
+              <div>
+                <div className="mb-4 sm:mb-6 pb-3 border-b border-gray-200">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-800">アクティビティ履歴</h2>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1">最新10件の操作履歴を表示</p>
+                </div>
+
+                {/* アクティビティログテーブル */}
+                <div className="bg-white border border-gray-200 overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
+                          日時
+                        </th>
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
+                          ユーザー
+                        </th>
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
+                          操作
+                        </th>
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
+                          対象
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {activityLogsLoading ? (
+                        <tr>
+                          <td colSpan={4} className="px-4 sm:px-6 py-6 sm:py-8 text-center">
+                            <div className="flex justify-center items-center">
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
+                              <span className="ml-2 text-sm sm:text-base text-slate-600">読み込み中...</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : activityLogs.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="px-4 sm:px-6 py-6 sm:py-8 text-center text-sm sm:text-base text-slate-500">
+                            アクティビティ履歴がありません
+                          </td>
+                        </tr>
+                      ) : (
+                        activityLogs.map((log) => (
+                          <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-500 whitespace-nowrap">
+                              {activityLogService.formatActivityTime(log.created_at)}
+                            </td>
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <div className="text-xs sm:text-sm font-medium text-slate-900">
+                                {log.user_name}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                {log.user_email}
+                              </div>
+                            </td>
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
+                                log.operation_type === 'create' ? 'bg-green-100 text-green-800' :
+                                log.operation_type === 'update' ? 'bg-blue-100 text-blue-800' :
+                                log.operation_type === 'delete' ? 'bg-red-100 text-red-800' :
+                                log.operation_type === 'publish' ? 'bg-purple-100 text-purple-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {activityLogService.getOperationTypeLabel(log.operation_type)}
+                              </span>
+                            </td>
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <div className="text-xs sm:text-sm text-slate-900 max-w-xs">
+                                <div className="truncate">{log.target_title}</div>
+                                <div className="text-xs text-slate-500">
+                                  {activityLogService.getTargetTypeLabel(log.target_type)}
+                                </div>
+                              </div>
                             </td>
                           </tr>
                         ))

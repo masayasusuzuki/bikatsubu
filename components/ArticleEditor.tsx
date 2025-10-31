@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { articlesAPI, CreateArticle, imageFoldersAPI, imageMetadataAPI, ImageFolder } from '../src/lib/supabase';
 import { fetchCloudinaryImages, CloudinaryImage, deleteCloudinaryImage } from '../src/api/cloudinary';
+import { activityLogService } from '../services/activityLogService';
 import { useSessionTimeout } from '../src/hooks/useSessionTimeout';
 
 interface ArticleData {
@@ -980,17 +981,33 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       if (isEditMode) {
         savedArticle = await articlesAPI.updateArticle(articleId!, articleData);
         setSaveMessage(`記事を${status === 'draft' ? '下書きとして' : '公開して'}更新しました`);
+
+        // アクティビティログを記録（更新）
+        await activityLogService.logActivity({
+          operationType: 'update',
+          targetType: 'article',
+          targetId: articleId!,
+          targetTitle: article.title
+        });
       } else {
         savedArticle = await articlesAPI.createArticle(articleData);
         setSaveMessage(`記事を${status === 'draft' ? '下書きとして' : '公開して'}保存しました`);
+
+        // アクティビティログを記録（新規作成）
+        await activityLogService.logActivity({
+          operationType: 'create',
+          targetType: 'article',
+          targetId: savedArticle.id,
+          targetTitle: article.title
+        });
       }
-      
+
       console.log('Saved article:', savedArticle);
-      
+
       // 保存状態を更新
       setLastSaved(new Date());
       setHasUnsavedChanges(false);
-      
+
       // 成功メッセージを表示
       setTimeout(() => setSaveMessage(null), 3000);
     } catch (error) {
