@@ -109,13 +109,13 @@ const MediaPage: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="mailto:contact@bikatsu-bu.com"
+                href="mailto:m.suzuki@logicajapan.net"
                 className="bg-[#d11a68] hover:bg-[#b8175a] text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors"
               >
                 📧 メールでお問い合わせ
               </a>
               <a
-                href="tel:03-1234-5678"
+                href="tel:03-6434-9024"
                 className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors"
               >
                 📞 お電話でお問い合わせ
@@ -124,8 +124,8 @@ const MediaPage: React.FC = () => {
             <div className="mt-8 p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">
                 <strong>営業時間:</strong> 平日 9:00-18:00<br />
-                <strong>お電話:</strong> 03-1234-5678<br />
-                <strong>メール:</strong> contact@bikatsu-bu.com
+                <strong>お電話:</strong> 03-6434-9024<br />
+                <strong>メール:</strong> m.suzuki@logicajapan.net
               </p>
             </div>
           </div>

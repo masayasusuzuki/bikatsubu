@@ -437,7 +437,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleSlug }) => {
 
   const renderArticleCard = (article: Article) => (
     <div key={article.id} className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
-      <a href={`/article/${article.id}`} className="block hover:opacity-80 transition-opacity">
+      <a href={`/article/${article.slug || article.id}`} className="block hover:opacity-80 transition-opacity">
         <div className="flex gap-3">
           {article.featured_image && (
             <div className="w-20 h-20 flex-shrink-0 bg-gray-100 rounded overflow-hidden">

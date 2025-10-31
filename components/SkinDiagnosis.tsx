@@ -692,7 +692,7 @@ const SkinDiagnosis: React.FC = () => {
                               return (
                                 <div
                                   className="group bg-gradient-to-br from-white to-rose-50 border-2 border-rose-200 rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer"
-                                  onClick={() => window.open(`/article/${article.id}`, '_blank')}
+                                  onClick={() => window.open(`/article/${article.slug || article.id}`, '_blank')}
                                 >
                                   {article.featured_image && (
                                     <div className="aspect-video overflow-hidden">
