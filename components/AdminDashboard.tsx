@@ -15,10 +15,8 @@ const AdminDashboard: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string>('');
 
-  // ページネーション関連の状態
+  // 記事数関連の状態
   const [totalArticles, setTotalArticles] = useState(0);
-  const [displayLimit, setDisplayLimit] = useState(20);
-  const [hasMore, setHasMore] = useState(false);
 
   // ログイン履歴関連の状態
   const [loginHistory, setLoginHistory] = useState<LoginHistoryEntry[]>([]);
@@ -78,14 +76,13 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const loadArticles = async (limit?: number) => {
+  const loadArticles = async () => {
     try {
       setLoading(true);
-      const limitToUse = limit || displayLimit;
-      const { articles: data, total } = await articlesAPI.getArticlesPaginated(limitToUse, 0);
+      // 全記事を取得
+      const data = await articlesAPI.getAllArticles();
       setArticles(data);
-      setTotalArticles(total);
-      setHasMore(data.length < total);
+      setTotalArticles(data.length);
     } catch (error) {
       console.error('記事の読み込みに失敗:', error);
     } finally {
@@ -93,21 +90,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const loadMoreArticles = async () => {
-    try {
-      setLoading(true);
-      const newLimit = displayLimit + 20;
-      setDisplayLimit(newLimit);
-      const { articles: data, total } = await articlesAPI.getArticlesPaginated(newLimit, 0);
-      setArticles(data);
-      setTotalArticles(total);
-      setHasMore(data.length < total);
-    } catch (error) {
-      console.error('記事の読み込みに失敗:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // ログイン履歴を読み込む関数
   const loadLoginHistory = async () => {
@@ -757,17 +739,6 @@ const AdminDashboard: React.FC = () => {
                   </table>
                 </div>
 
-                {/* 続きを見るボタン */}
-                {hasMore && !loading && (
-                  <div className="mt-4 text-center border-t border-gray-200 pt-4">
-                    <button
-                      onClick={loadMoreArticles}
-                      className="bg-slate-700 hover:bg-slate-800 text-white px-6 py-2 text-sm font-medium transition-colors"
-                    >
-                      続きを見る（残り {totalArticles - articles.length} 件）
-                    </button>
-                  </div>
-                )}
               </div>
             )}
 
