@@ -699,18 +699,18 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         const fontSize = heading.level === 1 ? '14px' : '13px';
         const fontWeight = heading.level === 1 ? '700' : '600';
         const color = heading.level === 1 ? '#1e293b' : '#475569';
-        const marginTop = index === 0 ? '0' : (heading.level === 1 ? '1px' : '0px');
+        const marginTop = index === 0 ? '0' : (heading.level === 1 ? '2px' : '0px');
         const levelIcon = heading.level === 1 ? '📍' : '▸';
 
-        return `<li style="margin: ${marginTop} 0 0 ${indent}px; padding: 0; line-height: 1; display: block;">
+        return `<li style="margin: ${marginTop} 0 0 ${indent}px; padding: 0; line-height: 1.1; display: block;">
           <a href="#${heading.id}" style="color: ${color}; text-decoration: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: ${fontSize}; font-weight: ${fontWeight}; display: flex; align-items: center; padding: 2px 6px; border-radius: 4px; position: relative;" onclick="event.preventDefault(); document.getElementById('${heading.id}')?.scrollIntoView({behavior: 'smooth', block: 'start'});" onmouseover="this.style.color='#2563eb'; this.style.backgroundColor='#f1f5f9'; this.style.transform='translateX(2px)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)';" onmouseout="this.style.color='${color}'; this.style.backgroundColor='transparent'; this.style.transform='translateX(0)'; this.style.boxShadow='none';"><span style="margin-right: 6px; font-size: 10px; opacity: 0.7;">${levelIcon}</span>${heading.text}</a>
         </li>`;
       }).join('');
 
-      const autoToc = `<div style="background: linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 24px; margin: 24px auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05); max-width: 750px; width: fit-content; min-width: 400px; position: relative; overflow: hidden;">
-        <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); opacity: 0.6;"></div>
-        <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #cbd5e1; letter-spacing: 0.3px; display: flex; align-items: center;"><span style="margin-right: 8px; font-size: 16px;">📋</span>目次</div>
-        <ul style="list-style: none; padding: 0; margin: 0; line-height: 1.2;">${tocItems}</ul>
+      const autoToc = `<div class="toc-container" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px solid #e2e8f0; border-radius: 16px; padding: 24px; margin: 32px auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04); max-width: 750px; width: 100%; position: relative; overflow: hidden; box-sizing: border-box;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #d11a68 0%, #e91e63 50%, #d11a68 100%);"></div>
+        <div style="font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; letter-spacing: 0.5px;"><span style="margin-right: 12px; font-size: 20px; background: linear-gradient(135deg, #d11a68, #e91e63); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">📋</span>INDEX</div>
+        <ul style="list-style: none; padding: 0; margin: 0; line-height: 1; overflow-wrap: break-word; word-wrap: break-word;">${tocItems}</ul>
       </div>`;
 
       // 最初の見出しの前に目次を挿入
