@@ -117,6 +117,39 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // ユーザー名の変換関数
+  const getDisplayUserName = (userName: string) => {
+    const userNameMap: { [key: string]: string } = {
+      'm.suzuki': '鈴木',
+      'segawa': '瀬川',
+      'honda': '本田'
+    };
+    return userNameMap[userName] || userName;
+  };
+
+  // 記事タイトルクリック処理
+  const handleArticleTitleClick = async (targetId: string, targetTitle: string, operationType: string) => {
+    // 削除操作の場合は警告表示
+    if (operationType === 'delete') {
+      alert('その記事は削除されています');
+      return;
+    }
+
+    try {
+      // 記事が存在するか確認
+      const article = await articlesAPI.getArticleById(targetId);
+      if (article) {
+        // 記事編集画面に遷移
+        window.location.href = `/admin/articles/edit/${targetId}`;
+      } else {
+        alert('その記事は削除されています');
+      }
+    } catch (error) {
+      console.error('記事確認エラー:', error);
+      alert('その記事は削除されています');
+    }
+  };
+
 
 
   const handleEditArticle = (articleId: string) => {
@@ -816,21 +849,15 @@ const AdminDashboard: React.FC = () => {
                         <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
                           日時
                         </th>
-                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
-                          ユーザー
-                        </th>
-                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
-                          操作
-                        </th>
-                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider whitespace-nowrap">
-                          対象
+                        <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                          アクティビティ
                         </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {activityLogsLoading ? (
                         <tr>
-                          <td colSpan={4} className="px-4 sm:px-6 py-6 sm:py-8 text-center">
+                          <td colSpan={2} className="px-4 sm:px-6 py-6 sm:py-8 text-center">
                             <div className="flex justify-center items-center">
                               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-600"></div>
                               <span className="ml-2 text-sm sm:text-base text-slate-600">読み込み中...</span>
@@ -839,7 +866,7 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       ) : activityLogs.length === 0 ? (
                         <tr>
-                          <td colSpan={4} className="px-4 sm:px-6 py-6 sm:py-8 text-center text-sm sm:text-base text-slate-500">
+                          <td colSpan={2} className="px-4 sm:px-6 py-6 sm:py-8 text-center text-sm sm:text-base text-slate-500">
                             アクティビティ履歴がありません
                           </td>
                         </tr>
@@ -847,33 +874,39 @@ const AdminDashboard: React.FC = () => {
                         activityLogs.map((log) => (
                           <tr key={log.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-500 whitespace-nowrap">
-                              {activityLogService.formatActivityTime(log.created_at)}
+                              {new Date(log.created_at).toLocaleString('ja-JP', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                              })}
                             </td>
                             <td className="px-3 sm:px-6 py-3 sm:py-4">
-                              <div className="text-xs sm:text-sm font-medium text-slate-900">
-                                {log.user_name}
-                              </div>
-                              <div className="text-xs text-slate-500">
-                                {log.user_email}
-                              </div>
-                            </td>
-                            <td className="px-3 sm:px-6 py-3 sm:py-4">
-                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
-                                log.operation_type === 'create' ? 'bg-green-100 text-green-800' :
-                                log.operation_type === 'update' ? 'bg-blue-100 text-blue-800' :
-                                log.operation_type === 'delete' ? 'bg-red-100 text-red-800' :
-                                log.operation_type === 'publish' ? 'bg-purple-100 text-purple-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
-                                {activityLogService.getOperationTypeLabel(log.operation_type)}
-                              </span>
-                            </td>
-                            <td className="px-3 sm:px-6 py-3 sm:py-4">
-                              <div className="text-xs sm:text-sm text-slate-900 max-w-xs">
-                                <div className="truncate">{log.target_title}</div>
-                                <div className="text-xs text-slate-500">
-                                  {activityLogService.getTargetTypeLabel(log.target_type)}
-                                </div>
+                              <div className="text-xs sm:text-sm text-slate-900">
+                                <span className="font-medium">
+                                  {getDisplayUserName(log.user_name)}
+                                </span>
+                                が
+                                <span 
+                                  className="font-medium text-slate-700 italic underline cursor-pointer hover:text-blue-600 transition-colors"
+                                  onClick={() => handleArticleTitleClick(log.target_id, log.target_title, log.operation_type)}
+                                  title="クリックして記事を編集"
+                                >
+                                  {log.target_title}
+                                </span>
+                                を
+                                <span className={`font-medium ${
+                                  log.operation_type === 'create' ? 'text-green-600' :
+                                  log.operation_type === 'update' ? 'text-blue-600' :
+                                  log.operation_type === 'delete' ? 'text-red-600' :
+                                  log.operation_type === 'publish' ? 'text-purple-600' :
+                                  'text-gray-600'
+                                }`}>
+                                  {activityLogService.getOperationTypeLabel(log.operation_type)}
+                                </span>
+                                しました。
                               </div>
                             </td>
                           </tr>
