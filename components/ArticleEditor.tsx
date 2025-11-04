@@ -96,6 +96,19 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       setLoading(true);
       const data = await articlesAPI.getArticleById(articleId);
 
+      // データベースから取得したUTC時刻をローカル時刻に変換
+      let scheduledPublishAtLocal = '';
+      if (data.scheduled_publish_at) {
+        const utcDate = new Date(data.scheduled_publish_at);
+        // datetime-local 入力用に "YYYY-MM-DDTHH:mm" 形式に変換
+        const year = utcDate.getFullYear();
+        const month = String(utcDate.getMonth() + 1).padStart(2, '0');
+        const day = String(utcDate.getDate()).padStart(2, '0');
+        const hours = String(utcDate.getHours()).padStart(2, '0');
+        const minutes = String(utcDate.getMinutes()).padStart(2, '0');
+        scheduledPublishAtLocal = `${year}-${month}-${day}T${hours}:${minutes}`;
+      }
+
       setArticle({
         title: data.title,
         content: data.content,
@@ -112,7 +125,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         price: data.price || '',
         releaseDate: data.release_date || '',
         rating: data.rating || 0,
-        scheduledPublishAt: data.scheduled_publish_at || ''
+        scheduledPublishAt: scheduledPublishAtLocal
       });
       
       // 記事読み込み時に保存状態をリセット
@@ -794,6 +807,15 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     setSaveMessage(null);
 
     try {
+      // datetime-localの値をJSTからUTCに変換
+      let scheduledPublishAtUTC: string | undefined = undefined;
+      if (status === 'scheduled' && article.scheduledPublishAt) {
+        // datetime-local の値は "2025-01-15T14:30" のような形式
+        // これを日本時間として解釈し、UTC に変換する
+        const localDate = new Date(article.scheduledPublishAt);
+        scheduledPublishAtUTC = localDate.toISOString();
+      }
+
       const articleData: CreateArticle = {
         title: article.title,
         content: article.content,
@@ -810,7 +832,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         price: article.price || undefined,
         release_date: article.releaseDate || undefined,
         rating: article.rating || undefined,
-        scheduled_publish_at: status === 'scheduled' && article.scheduledPublishAt ? article.scheduledPublishAt : undefined
+        scheduled_publish_at: scheduledPublishAtUTC
       };
 
       let savedArticle;
