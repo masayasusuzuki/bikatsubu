@@ -352,10 +352,10 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleSlug }) => {
                       <a href={`/category/${encodeURIComponent(article.category)}`} className="text-xs text-[#d11a68]">{article.category}</a>
                       <h1 className="text-3xl font-bold text-gray-900 mt-2">{article.title}</h1>
                       <div className="text-gray-500 text-sm mt-2">
-                        公開日：{new Date(article.created_at).toLocaleDateString('ja-JP', { 
-                          year: 'numeric', 
-                          month: 'numeric', 
-                          day: 'numeric' 
+                        公開日：{new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP', {
+                          year: 'numeric',
+                          month: 'numeric',
+                          day: 'numeric'
                         })}
                       </div>
                     </div>
