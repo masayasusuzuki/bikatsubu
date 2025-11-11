@@ -4,6 +4,7 @@ import Footer from './Footer';
 import { articlesAPI, pageSectionsAPI, Article } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 import { renderArticleContent } from '../utils/contentRenderer';
+import { useCanonical } from '../src/hooks/useCanonical';
 
 interface ArticleDetailProps {
   articleSlug: string;
@@ -16,6 +17,9 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleSlug }) => {
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
   const [sameCategoyArticles, setSameCategoryArticles] = useState<Article[]>([]);
   const [nextArticle, setNextArticle] = useState<Article | null>(null);
+
+  // Canonicalタグを設定
+  useCanonical(article ? `https://www.bikatsubu-media.jp/article/${article.slug}` : '');
 
   // SEOメタタグを設定
   useEffect(() => {

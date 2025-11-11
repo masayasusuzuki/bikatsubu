@@ -28,6 +28,7 @@ import Sitemap from './components/Sitemap';
 import { heroSlides as fallbackHeroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
 import { pageSectionsAPI, articlesAPI, heroSlidesAPI, Article as DBArticle, HeroSlide as DBHeroSlide } from './src/lib/supabase';
 import type { Article, Product, HeroSlide } from './types';
+import { useCanonical } from './src/hooks/useCanonical';
 
 const App: React.FC = () => {
   const currentPath = window.location.pathname;
@@ -45,6 +46,9 @@ const App: React.FC = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [showSkinDiagnosisCard, setShowSkinDiagnosisCard] = useState(true);
   const [isCardExpanded, setIsCardExpanded] = useState(false);
+
+  // Canonicalタグを設定（トップページのみ）
+  useCanonical(currentPath === '/' ? 'https://www.bikatsubu-media.jp/' : '');
 
   // SEOメタタグを設定
   useEffect(() => {

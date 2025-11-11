@@ -3,6 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { articlesAPI, Article } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
+import { useCanonical } from '../src/hooks/useCanonical';
 
 interface CategoryArticle {
   id: string;
@@ -23,6 +24,26 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // カテゴリー名からURLパスへのマッピング
+  const getCategoryUrl = (category: string): string => {
+    const categoryUrlMap: { [key: string]: string } = {
+      'シミ・くすみ': 'https://www.bikatsubu-media.jp/category/spots-dullness',
+      '毛穴': 'https://www.bikatsubu-media.jp/category/pores',
+      '赤み・赤ら顔': 'https://www.bikatsubu-media.jp/category/redness',
+      'たるみ・しわ': 'https://www.bikatsubu-media.jp/category/aging',
+      'ニキビ・ニキビ跡': 'https://www.bikatsubu-media.jp/category/acne',
+      '肌育': 'https://www.bikatsubu-media.jp/category/skin-development',
+      '最新の美容機器': 'https://www.bikatsubu-media.jp/category/beauty-technology',
+      'ホームケア': 'https://www.bikatsubu-media.jp/category/home-care',
+      'サロン経営': 'https://www.bikatsubu-media.jp/category/salon-management',
+      '海外トレンド': 'https://www.bikatsubu-media.jp/category/global-trends'
+    };
+    return categoryUrlMap[category] || '';
+  };
+
+  // Canonicalタグを設定
+  useCanonical(getCategoryUrl(category));
 
   const getCategoryInfo = (category: string) => {
     const categoryMap: { [key: string]: {

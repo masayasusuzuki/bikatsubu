@@ -3,6 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { articlesAPI, Article, pageSectionsAPI } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
+import { useCanonical } from '../src/hooks/useCanonical';
 
 interface ArticleListItem {
   id: string;
@@ -24,6 +25,21 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // セクションタイプからURLへのマッピング
+  const getSectionUrl = (sectionType: string): string => {
+    const urlMap: { [key: string]: string } = {
+      'hot_cosmetics': 'https://www.bikatsubu-media.jp/articles/hot-cosmetics',
+      'brand_updates': 'https://www.bikatsubu-media.jp/articles/brand-updates',
+      'management_tips': 'https://www.bikatsubu-media.jp/articles/management-tips',
+      'beauty_events': 'https://www.bikatsubu-media.jp/articles/beauty-events',
+      'surveys': 'https://www.bikatsubu-media.jp/articles/surveys'
+    };
+    return urlMap[sectionType] || '';
+  };
+
+  // Canonicalタグを設定
+  useCanonical(getSectionUrl(sectionType));
 
   const getSectionInfo = (sectionType: string) => {
     const sectionMap: { [key: string]: {
