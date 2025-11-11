@@ -50,6 +50,19 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({ con
                 };
               },
             },
+            width: {
+              default: null,
+              parseHTML: element => element.getAttribute('data-width'),
+              renderHTML: attributes => {
+                if (!attributes.width) {
+                  return {};
+                }
+                return {
+                  'data-width': attributes.width,
+                  style: `width: ${attributes.width}; height: auto;`,
+                };
+              },
+            },
           };
         },
       }).configure({
@@ -269,6 +282,30 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({ con
           },
           disabled: !editor.isActive('image'),
           color: 'bg-green-100'
+        },
+        {
+          label: 'サイズ:小',
+          action: () => {
+            editor.chain().focus().updateAttributes('image', { width: '200px' }).run();
+          },
+          disabled: !editor.isActive('image'),
+          color: 'bg-purple-50'
+        },
+        {
+          label: 'サイズ:中',
+          action: () => {
+            editor.chain().focus().updateAttributes('image', { width: '400px' }).run();
+          },
+          disabled: !editor.isActive('image'),
+          color: 'bg-purple-100'
+        },
+        {
+          label: 'サイズ:大',
+          action: () => {
+            editor.chain().focus().updateAttributes('image', { width: '600px' }).run();
+          },
+          disabled: !editor.isActive('image'),
+          color: 'bg-purple-200'
         },
         { label: '表を挿入', action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(), active: false, color: 'bg-blue-100' },
         { label: '列追加(左)', action: () => editor.chain().focus().addColumnBefore().run(), disabled: !editor.can().addColumnBefore() },
@@ -554,13 +591,25 @@ RichTextEditor.displayName = 'RichTextEditor';
 function editorToMarkdown(html: string): string {
   let markdown = html;
 
-  // 画像（最初に処理して保護、リンクがあればそれも保存）
+  // 画像（最初に処理して保護、リンクとサイズがあればそれも保存）
   markdown = markdown.replace(/<img([^>]*)src="([^"]*)"([^>]*)\/?>/g, (match, before, src, after) => {
-    const hrefMatch = (before + after).match(/data-href="([^"]*)"/);
-    if (hrefMatch) {
-      return `[![](${src})](${hrefMatch[1]})`;
+    const allAttrs = before + after;
+    const hrefMatch = allAttrs.match(/data-href="([^"]*)"/);
+    const widthMatch = allAttrs.match(/data-width="([^"]*)"/);
+
+    let result = `![](${src})`;
+
+    // サイズ情報を追加 (カスタム記法: ![](url){width})
+    if (widthMatch) {
+      result = `![](${src}){${widthMatch[1]}}`;
     }
-    return `![](${src})`;
+
+    // リンク情報を追加
+    if (hrefMatch) {
+      result = `[${result}](${hrefMatch[1]})`;
+    }
+
+    return result;
   });
 
   // 表（HTMLのまま保存 - プレースホルダーで保護、前後の改行も保持）
@@ -626,10 +675,16 @@ function markdownToHTML(markdown: string): string {
     return `\n__TABLE_${tables.length - 1}__\n`;
   });
 
-  // リンク付き画像（先に処理）
+  // リンク付き画像（サイズあり）: [![](url){width}](link)
+  html = html.replace(/\[!\[\]\(([^)]+)\)\{([^}]+)\}\]\(([^)]+)\)/g, '<img src="$1" data-href="$3" data-width="$2">');
+
+  // リンク付き画像（サイズなし）: [![](url)](link)
   html = html.replace(/\[!\[\]\(([^)]+)\)\]\(([^)]+)\)/g, '<img src="$1" data-href="$2">');
 
-  // 通常の画像
+  // 通常の画像（サイズあり）: ![](url){width}
+  html = html.replace(/!\[(.*?)\]\(([^)]+)\)\{([^}]+)\}/g, '<img src="$2" alt="$1" data-width="$3">');
+
+  // 通常の画像（サイズなし）: ![](url)
   html = html.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1">');
 
   // 見出し

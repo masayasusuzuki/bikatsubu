@@ -139,10 +139,16 @@ export const renderArticleContent = (content: string): { __html: string } => {
     </div>`;
   });
   
-  // リンク付き画像 [![](url)](link)（画像の前に処理）
+  // リンク付き画像（サイズあり）: [![](url){width}](link)
+  html = html.replace(/\[!\[\]\(([^)]+)\)\{([^}]+)\}\]\(([^)]+)\)/g, '<a href="$3" target="_blank" rel="noopener"><img src="$1" alt="" style="width: $2; height: auto; cursor: pointer;" class="my-4" /></a>');
+
+  // リンク付き画像（サイズなし）: [![](url)](link)
   html = html.replace(/\[!\[\]\(([^)]+)\)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener"><img src="$1" alt="" class="max-w-full h-auto my-4" style="cursor: pointer;" /></a>');
 
-  // 画像 ![alt](url)
+  // 画像（サイズあり）: ![alt](url){width}
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)\{([^}]+)\}/g, '<img src="$2" alt="$1" style="width: $3; height: auto;" class="my-4" />');
+
+  // 画像（サイズなし）: ![alt](url)
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto my-4" />');
   // リンク [text](url)
   html = html.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-blue-600 underline">$1<\/a>');
