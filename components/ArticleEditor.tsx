@@ -1299,7 +1299,6 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         )}
       </div>
     </div>
-    </>
 
     {/* 画像選択モーダル */}
     <ImageSelectorModal
