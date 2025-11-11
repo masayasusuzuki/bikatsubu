@@ -20,7 +20,9 @@
       "Bash(npm run build:*)",
       "Bash(psql:*)",
       "Bash(npm run generate:sitemap:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(tsx scripts/generate-html-with-canonical.ts:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []
