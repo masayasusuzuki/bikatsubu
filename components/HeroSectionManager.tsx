@@ -358,7 +358,7 @@ const HeroSectionManager: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
                 >
                   <option value="">記事を選択（リンクなし）</option>
-                  {articles.map((article) => (
+                  {articles.filter(article => article.status === 'published').map((article) => (
                     <option key={article.id} value={article.id}>
                       {article.title} - {article.category}
                     </option>

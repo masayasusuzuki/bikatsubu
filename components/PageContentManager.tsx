@@ -157,8 +157,10 @@ const PageContentManager: React.FC = () => {
     : { [selectedSection]: groupedSections[selectedSection] };
 
   const filteredArticles = articles.filter(article =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.category.toLowerCase().includes(searchQuery.toLowerCase())
+    // 公開済み記事のみを表示
+    article.status === 'published' &&
+    (article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.category.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
