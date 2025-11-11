@@ -1,5 +1,9 @@
 import { supabase } from '../src/lib/supabase';
 
+export const config = {
+  runtime: 'nodejs20.x',
+};
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
