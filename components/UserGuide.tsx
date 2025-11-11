@@ -185,7 +185,7 @@ const UserGuide: React.FC = () => {
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
               <li>よくある質問ページをご確認ください</li>
               <li>フッターの「お問い合わせ」からご連絡ください</li>
-              <li>SNS（Instagram、Twitter）からのDMも受け付けています</li>
+              <li>SNS（Twitter）からのDMも受け付けています</li>
             </ul>
           </section>
         </div>
