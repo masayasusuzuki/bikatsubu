@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Article, Product, Manufacturer } from '../types';
-import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
+import OptimizedImage from './OptimizedImage';
 
 interface BrandUpdatesProps {
   articles: Article[];
@@ -15,8 +15,15 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => (
         style={{ height: '320px', display: 'flex', flexDirection: 'column' }}
         onClick={() => window.location.href = `/article/${article.slug || article.id}`}
     >
-        <div className="overflow-hidden relative" style={{ flexShrink: 0 }}>
-          <img src={optimizeAnyImageUrl(article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=320&h=160&fit=crop&auto=format', 320, 160)} alt={article.title} className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"/>
+        <div className="overflow-hidden relative" style={{ flexShrink: 0, height: '192px' }}>
+          <OptimizedImage
+            src={article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=320&h=160&fit=crop&auto=format'}
+            alt={article.title}
+            width={320}
+            height={192}
+            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-rose-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </div>
         <div className="p-5" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -37,7 +44,16 @@ const SidebarProduct: React.FC<{ product: Product }> = ({ product }) => (
         className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-rose-50 p-3 rounded-xl transition-all duration-300 border border-transparent hover:border-rose-200 hover:shadow-md"
         onClick={() => window.location.href = `/article/${product.id}`}
     >
-        <img src={optimizeAnyImageUrl(product.imageUrl, 64, 64)} alt={product.name} className="w-16 h-16 object-cover flex-shrink-0 rounded-lg shadow-sm" />
+        <div className="w-16 h-16 flex-shrink-0">
+            <OptimizedImage
+                src={product.imageUrl}
+                alt={product.name}
+                width={64}
+                height={64}
+                className="rounded-lg shadow-sm"
+                sizes="64px"
+            />
+        </div>
         <div>
             <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-rose-500 transition-colors">{product.name}</p>
             <p className="text-xs text-gray-500 mt-1">{product.subText}</p>

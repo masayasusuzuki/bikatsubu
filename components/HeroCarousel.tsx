@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import type { HeroSlide } from '../types';
+import OptimizedImage from './OptimizedImage';
 
 interface HeroCarouselProps {
   slides: HeroSlide[];
@@ -46,7 +47,13 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ slides }) => {
             }}
             onClick={() => handleSlideClick(slide)}
           >
-            <img src={slide.imageUrl.replace('/upload/', '/upload/c_fill,w_1200,h_675,q_auto,f_auto/')} alt={slide.alt} className="w-full h-full object-cover" />
+            <OptimizedImage
+              src={slide.imageUrl}
+              alt={slide.alt}
+              className="w-full h-full object-cover"
+              sizes="65vw"
+              priority={index === 0 || index === 1} // 最初の2枚は優先的に読み込み
+            />
             <div className={`absolute inset-0 bg-black transition-opacity duration-1000 ease-in-out ${
               index !== currentIndex ? 'opacity-30' : 'opacity-0'
             }`}></div>

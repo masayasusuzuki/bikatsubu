@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Product } from '../types';
 import type { Article } from '../src/lib/supabase';
-import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
+import OptimizedImage from './OptimizedImage';
 
 interface ProductCarouselProps {
   products: Product[];
@@ -13,7 +13,16 @@ const MostReadArticle: React.FC<{ article: Article }> = ({ article }) => (
     className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
     onClick={() => window.location.href = `/article/${article.slug || article.id}`}
   >
-    <img src={optimizeAnyImageUrl(article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=64&h=64&fit=crop&auto=format', 64, 64)} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
+    <div className="w-16 h-16 flex-shrink-0">
+      <OptimizedImage
+        src={article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=64&h=64&fit=crop&auto=format'}
+        alt={article.title}
+        width={64}
+        height={64}
+        className="rounded"
+        sizes="64px"
+      />
+    </div>
     <div>
       <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-brand-primary">{article.title}</p>
       <p className="text-xs text-gray-500 mt-1">{article.category}</p>
@@ -49,8 +58,15 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, mostRead })
                   style={{ height: '256px', display: 'flex', flexDirection: 'column' }}
                   onClick={() => window.location.href = `/article/${product.slug || product.id}`}
                 >
-                  <div className="overflow-hidden" style={{ flexShrink: 0 }}>
-                    <img src={optimizeAnyImageUrl(product.imageUrl, 320, 160)} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"/>
+                  <div className="overflow-hidden" style={{ flexShrink: 0, height: '160px' }}>
+                    <OptimizedImage
+                      src={product.imageUrl}
+                      alt={product.name}
+                      width={320}
+                      height={160}
+                      className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
                   </div>
                   <div className="py-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <p className="text-sm font-semibold text-gray-800 group-hover:text-brand-primary" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>

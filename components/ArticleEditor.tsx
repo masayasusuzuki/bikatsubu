@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { articlesAPI, CreateArticle, imageFoldersAPI, imageMetadataAPI, ImageFolder } from '../src/lib/supabase';
+import { articlesAPI, CreateArticle } from '../src/lib/supabase';
 import { fetchCloudinaryImages, CloudinaryImage, deleteCloudinaryImage } from '../src/api/cloudinary';
 import { activityLogService } from '../services/activityLogService';
 import { useSessionTimeout } from '../src/hooks/useSessionTimeout';
 import { renderArticleContent } from '../utils/contentRenderer';
 import { generateSEOMetadata } from '../services/geminiService';
 import RichTextEditor, { RichTextEditorRef } from './RichTextEditor';
+import ImageSelectorModal from './ImageSelectorModal';
+import FeaturedImageModal from './FeaturedImageModal';
 
 interface ArticleData {
   title: string;
@@ -58,13 +60,6 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   const [cloudinaryImages, setCloudinaryImages] = useState<CloudinaryImage[]>([]);
   const [loadingCloudinary, setLoadingCloudinary] = useState(false);
 
-  // Image folder management state
-  const [folders, setFolders] = useState<ImageFolder[]>([]);
-  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
-  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
-  const [newFolderName, setNewFolderName] = useState('');
-  const [dragOverFolderId, setDragOverFolderId] = useState<string | null | undefined>(undefined);
-
   // 編集モードとプレビューモードのスクロール位置を独立管理
   const [editScrollTop, setEditScrollTop] = useState(0);
   const [previewScrollTop, setPreviewScrollTop] = useState(0);
@@ -81,6 +76,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const richTextEditorRef = useRef<RichTextEditorRef>(null);
 
+  // モーダルの状態
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isFeaturedImageModalOpen, setIsFeaturedImageModalOpen] = useState(false);
+
   const isEditMode = Boolean(articleId);
 
   useEffect(() => {
@@ -88,7 +87,6 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
       loadArticle();
     }
     loadCloudinaryImages();
-    loadFolders();
   }, [articleId]);
 
   const loadArticle = async () => {
@@ -153,177 +151,6 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     }
   };
 
-  const loadFolders = async () => {
-    try {
-      const loadedFolders = await imageFoldersAPI.getAllFolders();
-      setFolders(loadedFolders);
-    } catch (error) {
-      console.error('フォルダの読み込みに失敗:', error);
-    }
-  };
-
-  const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) {
-      alert('フォルダ名を入力してください');
-      return;
-    }
-    try {
-      await imageFoldersAPI.createFolder(newFolderName.trim());
-      setNewFolderName('');
-      await loadFolders();
-    } catch (error) {
-      console.error('フォルダの作成に失敗:', error);
-      alert('フォルダの作成に失敗しました');
-    }
-  };
-
-  const handleMoveImages = async (targetFolderId: string | null) => {
-    if (selectedImages.size === 0) {
-      alert('移動する画像を選択してください');
-      return;
-    }
-    try {
-      await imageMetadataAPI.moveMultipleImages(Array.from(selectedImages), targetFolderId);
-      setSelectedImages(new Set());
-      await loadFolders();
-      alert('画像を移動しました');
-    } catch (error) {
-      console.error('画像の移動に失敗:', error);
-      alert('画像の移動に失敗しました');
-    }
-  };
-
-  const toggleImageSelection = (imageUrl: string) => {
-    setSelectedImages(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(imageUrl)) {
-        newSet.delete(imageUrl);
-      } else {
-        newSet.add(imageUrl);
-      }
-      return newSet;
-    });
-  };
-
-  // ドラッグ&ドロップハンドラー
-  const handleDragStart = (e: React.DragEvent, imageUrl: string) => {
-    // 選択中の画像があれば、それらをまとめてドラッグ
-    // なければ、この画像だけをドラッグ
-    const imagesToDrag = selectedImages.has(imageUrl) && selectedImages.size > 0
-      ? Array.from(selectedImages)
-      : [imageUrl];
-
-    e.dataTransfer.setData('imageUrls', JSON.stringify(imagesToDrag));
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, folderId: string | null) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverFolderId(folderId);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverFolderId(undefined);
-  };
-
-  const handleDrop = async (e: React.DragEvent, targetFolderId: string | null) => {
-    e.preventDefault();
-    setDragOverFolderId(undefined);
-
-    try {
-      const imageUrls = JSON.parse(e.dataTransfer.getData('imageUrls'));
-
-      if (!imageUrls || imageUrls.length === 0) return;
-
-      await imageMetadataAPI.moveMultipleImages(imageUrls, targetFolderId);
-      setSelectedImages(new Set());
-      await loadFolders();
-
-      // 成功メッセージ
-      const folderName = targetFolderId
-        ? folders.find(f => f.id === targetFolderId)?.name
-        : 'すべての画像';
-      alert(`${imageUrls.length}枚の画像を「${folderName}」に移動しました`);
-    } catch (error) {
-      console.error('画像の移動に失敗:', error);
-      alert('画像の移動に失敗しました');
-    }
-  };
-
-  const getFilteredImages = async () => {
-    if (selectedFolderId === null) {
-      return cloudinaryImages;
-    }
-
-    try {
-      const metadata = await imageMetadataAPI.getMetadataByFolder(selectedFolderId);
-      const imageUrlsInFolder = new Set(metadata.map(m => m.image_url));
-      return cloudinaryImages.filter(img => imageUrlsInFolder.has(img.secure_url));
-    } catch (error) {
-      console.error('フォルダ画像のフィルタリングに失敗:', error);
-      return cloudinaryImages;
-    }
-  };
-
-  const [filteredImages, setFilteredImages] = useState<CloudinaryImage[]>([]);
-
-  useEffect(() => {
-    const loadFilteredImages = async () => {
-      const filtered = await getFilteredImages();
-      setFilteredImages(filtered);
-    };
-    loadFilteredImages();
-  }, [selectedFolderId, cloudinaryImages]);
-
-  const handleDeleteFolder = async (folderId: string) => {
-    const folder = folders.find(f => f.id === folderId);
-    if (!folder) return;
-
-    if (!confirm(`フォルダ「${folder.name}」を削除しますか？\n※フォルダ内の画像は「未分類」に移動されます`)) {
-      return;
-    }
-
-    try {
-      await imageFoldersAPI.deleteFolder(folderId);
-      await loadFolders();
-      if (selectedFolderId === folderId) {
-        setSelectedFolderId(null);
-      }
-      alert('フォルダを削除しました');
-    } catch (error) {
-      console.error('フォルダの削除に失敗:', error);
-      alert('フォルダの削除に失敗しました');
-    }
-  };
-
-  const handleDeleteImages = async () => {
-    if (selectedImages.size === 0) {
-      alert('削除する画像を選択してください');
-      return;
-    }
-
-    if (!confirm(`選択した${selectedImages.size}枚の画像を削除しますか？\n※この操作は取り消せません`)) {
-      return;
-    }
-
-    try {
-      // 画像メタデータを一括削除
-      await imageMetadataAPI.deleteMultipleImages(Array.from(selectedImages));
-
-      // 選択をクリア
-      setSelectedImages(new Set());
-
-      // 画像リストを再読み込み
-      await loadCloudinaryImages();
-      await loadFolders();
-
-      alert('画像を削除しました');
-    } catch (error) {
-      console.error('画像の削除に失敗:', error);
-      alert('画像の削除に失敗しました');
-    }
-  };
 
   const wrapSelection = (before: string, after: string = before) => {
     const textarea = textareaRef.current;
@@ -423,9 +250,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
     const file = files[0];
     
-    // ファイルサイズチェック（1MB = 1 * 1024 * 1024 bytes）
-    if (file.size > 1 * 1024 * 1024) {
-      alert('ファイルサイズが大きすぎます。1MB以下のファイルを選択してください。');
+    // ファイルサイズチェック（5MB = 5 * 1024 * 1024 bytes）
+    // Cloudinaryが自動的に最適化（JPEG変換・圧縮）するため5MBまで許可
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ファイルサイズが大きすぎます。5MB以下のファイルを選択してください。');
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -441,10 +269,26 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         throw new Error('VITE_CLOUDINARY_CLOUD_NAME が設定されていません');
       }
 
-      // Cloudinaryにアップロード
+      // Cloudinaryにアップロード（WebP変換付き）
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', 'ml_default');
+
+      // アップロード時の自動変換設定
+      // WebP形式で保存することで容量を約30-50%削減
+      // 注意: eager transformationは変換済みバージョンを作成するだけで、
+      // 元画像も保存されるため、完全な容量削減にはならない
+
+      // 方法1: eager transformation（変換済みバージョンを生成）
+      // formData.append('eager', 'w_2000,h_2000,c_limit,q_auto:good,f_webp');
+      // formData.append('eager_async', 'true');
+
+      // 方法2: incoming transformation（元画像自体を変換）
+      // この場合、upload_presetで設定する必要がある
+      // Cloudinaryダッシュボードで'ml_default'プリセットに以下を追加:
+      // - Format: webp
+      // - Quality: auto:good
+      // - Resize: limit, 2000x2000
 
       const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
       console.log('Upload URL:', uploadUrl);
@@ -484,9 +328,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
     const file = files[0];
     
-    // ファイルサイズチェック（1MB = 1 * 1024 * 1024 bytes）
-    if (file.size > 1 * 1024 * 1024) {
-      alert('ファイルサイズが大きすぎます。1MB以下のファイルを選択してください。');
+    // ファイルサイズチェック（5MB = 5 * 1024 * 1024 bytes）
+    // Cloudinaryが自動的に最適化（JPEG変換・圧縮）するため5MBまで許可
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ファイルサイズが大きすぎます。5MB以下のファイルを選択してください。');
       if (featuredImageInputRef.current) featuredImageInputRef.current.value = '';
       return;
     }
@@ -502,10 +347,26 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         throw new Error('VITE_CLOUDINARY_CLOUD_NAME が設定されていません');
       }
 
-      // Cloudinaryにアップロード
+      // Cloudinaryにアップロード（WebP変換付き）
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', 'ml_default');
+
+      // アップロード時の自動変換設定
+      // WebP形式で保存することで容量を約30-50%削減
+      // 注意: eager transformationは変換済みバージョンを作成するだけで、
+      // 元画像も保存されるため、完全な容量削減にはならない
+
+      // 方法1: eager transformation（変換済みバージョンを生成）
+      // formData.append('eager', 'w_2000,h_2000,c_limit,q_auto:good,f_webp');
+      // formData.append('eager_async', 'true');
+
+      // 方法2: incoming transformation（元画像自体を変換）
+      // この場合、upload_presetで設定する必要がある
+      // Cloudinaryダッシュボードで'ml_default'プリセットに以下を追加:
+      // - Format: webp
+      // - Quality: auto:good
+      // - Resize: limit, 2000x2000
 
       const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
       console.log('Featured Image Upload URL:', uploadUrl);
@@ -542,6 +403,18 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     if (richTextEditorRef.current) {
       richTextEditorRef.current.insertImage(imageUrl);
     }
+  };
+
+  // モーダルから画像を選択した時の処理
+  const handleImageSelectFromModal = (imageUrl: string) => {
+    insertImageIntoContent(imageUrl);
+    setIsImageModalOpen(false);
+  };
+
+  // アイキャッチ画像をモーダルから選択した時の処理
+  const handleFeaturedImageSelectFromModal = (imageUrl: string) => {
+    setArticle(prev => ({ ...prev, featuredImage: imageUrl }));
+    setIsFeaturedImageModalOpen(false);
   };
 
   // 目次生成機能
@@ -879,8 +752,9 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
+    <>
+      <div className="min-h-screen bg-gray-100">
+        {/* Header */}
       <header className="bg-white border-b border-gray-300 shadow-sm fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -982,30 +856,21 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
               <div className="bg-white border border-gray-200 p-6">
               {/* Fixed Toolbar */}
               <div className="mb-4 pb-4 border-b border-gray-200 space-y-3">
-                {/* Image Upload Buttons */}
+                {/* Image Selection Button */}
                 <div className="flex flex-wrap gap-2">
                   <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 text-sm font-medium transition-colors"
-                    disabled={isUploading}
+                    type="button"
+                    onClick={() => setIsImageModalOpen(true)}
+                    className="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
                   >
-                    {isUploading ? 'アップロード中...' : '画像をアップロード'}
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    画像を挿入
                   </button>
-                  <a
-                    href="https://www.iloveimg.com/ja/compress-image"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm font-medium rounded transition-colors"
-                  >
-                    画像変換サイト
-                  </a>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
+                  <span className="ml-2 text-xs text-gray-500">
+                    ※ クリックして画像を選択またはアップロード
+                  </span>
                 </div>
 
                 {/* Editor Toolbar Placeholder - Will be populated by RichTextEditor */}
@@ -1023,227 +888,6 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                   }}
                   placeholder="記事の内容を入力してください... ## で見出し、**太字**、*斜体* など"
                 />
-              </div>
-              </div>
-            </div>
-
-            {/* Right side: Image Library */}
-            <div className="w-96 space-y-6">
-              {/* Uploaded Images */}
-              {uploadedImages.length > 0 && (
-                <div className="bg-white border border-gray-200 p-6">
-                  <h3 className="text-sm font-medium text-slate-700 mb-4">アップロード済み画像</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {uploadedImages.map((url, index) => (
-                      <div key={index} className="relative group">
-                        <div className="aspect-video bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center text-xs text-slate-500">
-                          画像プレビュー
-                        </div>
-                        <button
-                          onClick={() => navigator.clipboard.writeText(url)}
-                          className="absolute inset-0 bg-black bg-opacity-50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                        >
-                          URLをコピー
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Cloudinary画像ライブラリ */}
-              <div className="bg-white border border-gray-200 p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-sm font-medium text-slate-700">
-                    Cloudinary画像ライブラリ
-                    <span className="ml-2 text-xs text-gray-500">({filteredImages.length}件)</span>
-                  </h3>
-                  <button
-                    onClick={loadCloudinaryImages}
-                    className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
-                    disabled={loadingCloudinary}
-                  >
-                    {loadingCloudinary ? '読み込み中...' : '🔄 更新'}
-                  </button>
-                </div>
-
-                {/* Folder management UI */}
-                <div className="mb-6 space-y-4">
-                  {/* Folder list on top */}
-                  <div className="bg-gray-50 border border-gray-200 rounded p-3 flex flex-col" style={{ maxHeight: '300px' }}>
-                    <div className="text-xs font-semibold text-gray-700 mb-2">フォルダ</div>
-                    <div className="space-y-1 flex-1 overflow-y-auto mb-3">
-                      <button
-                        onClick={() => setSelectedFolderId(null)}
-                        onDragOver={(e) => handleDragOver(e, null)}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, null)}
-                        className={`w-full text-left text-xs px-2 py-1 rounded transition-all ${
-                          dragOverFolderId === null
-                            ? 'bg-green-200 text-green-900 font-bold ring-2 ring-green-400'
-                            : selectedFolderId === null
-                            ? 'bg-blue-100 text-blue-700 font-medium'
-                            : 'hover:bg-gray-100 text-gray-600'
-                        }`}
-                      >
-                        📁 すべての画像 ({cloudinaryImages.length})
-                      </button>
-                      {folders.map(folder => (
-                        <div key={folder.id} className="flex items-center gap-1 group">
-                          <button
-                            onClick={() => setSelectedFolderId(folder.id)}
-                            onDragOver={(e) => handleDragOver(e, folder.id)}
-                            onDragLeave={handleDragLeave}
-                            onDrop={(e) => handleDrop(e, folder.id)}
-                            className={`flex-1 text-left text-xs px-2 py-1 rounded transition-all ${
-                              dragOverFolderId === folder.id
-                                ? 'bg-green-200 text-green-900 font-bold ring-2 ring-green-400'
-                                : selectedFolderId === folder.id
-                                ? 'bg-blue-100 text-blue-700 font-medium'
-                                : 'hover:bg-gray-100 text-gray-600'
-                            }`}
-                          >
-                            📁 {folder.name} ({folder.image_count || 0})
-                          </button>
-                          <button
-                            onClick={() => handleDeleteFolder(folder.id)}
-                            className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 text-xs px-1 transition-opacity"
-                            title="削除"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* New folder creation */}
-                    <div className="pt-3 border-t border-gray-200">
-                      <div className="text-xs font-semibold text-gray-700 mb-2">新規フォルダ</div>
-                      <input
-                        type="text"
-                        value={newFolderName}
-                        onChange={(e) => setNewFolderName(e.target.value)}
-                        placeholder="フォルダ名"
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-xs mb-2"
-                      />
-                      <button
-                        onClick={handleCreateFolder}
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded transition-colors"
-                      >
-                        + 作成
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Image grid below */}
-                  <div className="overflow-y-auto" style={{ maxHeight: '600px' }}>
-                    {/* Move images dropdown */}
-                    {selectedImages.size > 0 && (
-                      <div className="mb-4 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded p-3 sticky top-0 z-10">
-                        <span className="text-xs text-blue-700 font-medium">
-                          {selectedImages.size}枚選択中
-                        </span>
-                        <select
-                          onChange={(e) => handleMoveImages(e.target.value || null)}
-                          className="text-xs border border-gray-300 rounded px-2 py-1"
-                          defaultValue=""
-                        >
-                          <option value="">フォルダに移動...</option>
-                          {folders.map(folder => (
-                            <option key={folder.id} value={folder.id}>
-                              {folder.name}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          onClick={handleDeleteImages}
-                          className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded transition-colors"
-                        >
-                          🗑️ 削除
-                        </button>
-                        <button
-                          onClick={() => setSelectedImages(new Set())}
-                          className="text-xs text-gray-600 hover:text-gray-800"
-                        >
-                          選択解除
-                        </button>
-                      </div>
-                    )}
-
-                    {filteredImages.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-3 pb-4">
-                        {filteredImages.map((image) => (
-                          <div
-                            key={image.public_id}
-                            className="relative group cursor-move"
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, image.secure_url)}
-                          >
-                            {/* Checkbox for selection */}
-                            <div className="absolute top-2 left-2 z-20">
-                              <input
-                                type="checkbox"
-                                checked={selectedImages.has(image.secure_url)}
-                                onChange={() => toggleImageSelection(image.secure_url)}
-                                onClick={(e) => e.stopPropagation()}
-                                className="w-4 h-4 rounded border-gray-300 cursor-pointer"
-                              />
-                            </div>
-
-                            <div className="aspect-video bg-gray-100 border-2 border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                              <img
-                                src={image.secure_url}
-                                alt={image.public_id}
-                                className="w-full h-full object-cover pointer-events-none"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  target.parentElement!.innerHTML = '<div class="w-full h-full bg-gray-100 flex items-center justify-center text-xs text-slate-500">画像を読み込めません</div>';
-                                }}
-                              />
-                            </div>
-                            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg pointer-events-none">
-                              <div className="flex gap-2 pointer-events-auto">
-                                <div className="relative group/copy">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigator.clipboard.writeText(image.secure_url);
-                                    }}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded shadow transition-all hover:scale-105"
-                                  >
-                                    📋
-                                  </button>
-                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover/copy:opacity-100 transition-opacity pointer-events-none">
-                                    URLをコピー
-                                  </div>
-                                </div>
-                                <div className="relative group/insert">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      insertImageIntoContent(image.secure_url);
-                                    }}
-                                    className="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1.5 rounded shadow transition-all hover:scale-105"
-                                  >
-                                    ➕
-                                  </button>
-                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover/insert:opacity-100 transition-opacity pointer-events-none">
-                                    本文に挿入
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-slate-500">
-                        {loadingCloudinary ? 'Cloudinary画像を読み込み中...' : 'このフォルダには画像がありません'}
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -1362,22 +1006,17 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                         </p>
                       </div>
 
-                      {/* ファイルアップロード */}
+                      {/* 画像選択ボタン */}
                       <div className="flex items-center space-x-3">
-                        <input
-                          type="file"
-                          ref={featuredImageInputRef}
-                          onChange={handleFeaturedImageUpload}
-                          accept="image/*"
-                          className="hidden"
-                        />
                         <button
                           type="button"
-                          onClick={() => featuredImageInputRef.current?.click()}
-                          disabled={isUploadingFeatured}
-                          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 text-sm font-medium border border-gray-300 disabled:opacity-50 transition-colors"
+                          onClick={() => setIsFeaturedImageModalOpen(true)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
                         >
-                          {isUploadingFeatured ? 'アップロード中...' : 'ファイルを選択'}
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          画像を選択
                         </button>
                         <span className="text-xs text-gray-500">または上記URLを直接入力</span>
                       </div>
@@ -1601,6 +1240,49 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         )}
       </div>
     </div>
+
+    {/* 画像選択モーダル */}
+    <ImageSelectorModal
+      isOpen={isImageModalOpen}
+      onClose={() => setIsImageModalOpen(false)}
+      onSelect={handleImageSelectFromModal}
+      cloudinaryImages={cloudinaryImages}
+      isLoadingImages={loadingCloudinary}
+      onUpload={async (file: File) => {
+        // ダミーのイベントオブジェクトを作成
+        const dummyEvent = {
+          target: {
+            files: [file],
+            value: ''
+          }
+        } as any;
+        await handleImageUpload(dummyEvent);
+        // 画像リストを再読み込み
+        await loadCloudinaryImages();
+      }}
+    />
+
+    {/* アイキャッチ画像選択モーダル */}
+    <FeaturedImageModal
+      isOpen={isFeaturedImageModalOpen}
+      onClose={() => setIsFeaturedImageModalOpen(false)}
+      onSelect={handleFeaturedImageSelectFromModal}
+      cloudinaryImages={cloudinaryImages}
+      currentImage={article.featuredImage}
+      onUpload={async (file: File) => {
+        // ダミーのイベントオブジェクトを作成
+        const dummyEvent = {
+          target: {
+            files: [file],
+            value: ''
+          }
+        } as any;
+        await handleFeaturedImageUpload(dummyEvent);
+        // 画像リストを再読み込み
+        await loadCloudinaryImages();
+      }}
+    />
+    </>
   );
 };
 

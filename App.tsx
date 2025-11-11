@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+// 常に必要なコンポーネント（トップページで使用）
 import Header from './components/Header';
 import HeroCarousel from './components/HeroCarousel';
 import ProductCarousel from './components/ProductCarousel';
@@ -9,22 +10,24 @@ import ManagementTips from './components/ManagementTips';
 import SurveyReports from './components/SurveyReports';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
-import AdminLogin from './components/AdminLogin';
-import AdminDashboard from './components/AdminDashboard';
-import ArticleEditor from './components/ArticleEditor';
-import CategoryPage from './components/CategoryPage';
-import ArticleDetail from './components/ArticleDetail';
-import SkinDiagnosis from './components/SkinDiagnosis';
-import MediaPage from './components/MediaPage';
-import ArticlesListPage from './components/ArticlesListPage';
-import UserGuide from './components/UserGuide';
-import FAQ from './components/FAQ';
-import PrivacyPolicy from './components/PrivacyPolicy';
-import TermsOfService from './components/TermsOfService';
-import CommercialTransactionAct from './components/CommercialTransactionAct';
 import SearchBar from './components/SearchBar';
-import SearchResultsPage from './components/SearchResultsPage';
-import Sitemap from './components/Sitemap';
+
+// 遅延読み込みするコンポーネント（必要な時だけロード）
+const AdminLogin = lazy(() => import('./components/AdminLogin'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const ArticleEditor = lazy(() => import('./components/ArticleEditor'));
+const CategoryPage = lazy(() => import('./components/CategoryPage'));
+const ArticleDetail = lazy(() => import('./components/ArticleDetail'));
+const SkinDiagnosis = lazy(() => import('./components/SkinDiagnosis'));
+const MediaPage = lazy(() => import('./components/MediaPage'));
+const ArticlesListPage = lazy(() => import('./components/ArticlesListPage'));
+const UserGuide = lazy(() => import('./components/UserGuide'));
+const FAQ = lazy(() => import('./components/FAQ'));
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./components/TermsOfService'));
+const CommercialTransactionAct = lazy(() => import('./components/CommercialTransactionAct'));
+const SearchResultsPage = lazy(() => import('./components/SearchResultsPage'));
+const Sitemap = lazy(() => import('./components/Sitemap'));
 import { heroSlides as fallbackHeroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
 import { pageSectionsAPI, articlesAPI, heroSlidesAPI, Article, HeroSlide as DBHeroSlide } from './src/lib/supabase';
 import type { Product, HeroSlide } from './types';
@@ -212,128 +215,251 @@ const App: React.FC = () => {
     }
   };
 
+  // Suspenseラッパー用のローディングコンポーネント
+  const LazyLoadWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <Suspense fallback={<LoadingScreen />}>
+      {children}
+    </Suspense>
+  );
+
   // Simple routing
   if (currentPath === '/admin') {
-    return <AdminLogin />;
+    return (
+      <LazyLoadWrapper>
+        <AdminLogin />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/admin/dashboard') {
-    return <AdminDashboard />;
+    return (
+      <LazyLoadWrapper>
+        <AdminDashboard />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/admin/articles/new') {
-    return <ArticleEditor />;
+    return (
+      <LazyLoadWrapper>
+        <ArticleEditor />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath.startsWith('/admin/articles/edit/')) {
     const articleId = currentPath.replace('/admin/articles/edit/', '');
-    return <ArticleEditor articleId={articleId} />;
+    return (
+      <LazyLoadWrapper>
+        <ArticleEditor articleId={articleId} />
+      </LazyLoadWrapper>
+    );
   }
 
   // Category pages routing
   // Article detail routing: /article/<slug>
   if (currentPath.startsWith('/article/')) {
     const slug = currentPath.replace('/article/', '');
-    return <ArticleDetail articleSlug={slug} />;
+    return (
+      <LazyLoadWrapper>
+        <ArticleDetail articleSlug={slug} />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/category/spots-dullness') {
-    return <CategoryPage category="シミ・くすみ" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="シミ・くすみ" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/category/pores') {
-    return <CategoryPage category="毛穴" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="毛穴" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/category/redness') {
-    return <CategoryPage category="赤み・赤ら顔" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="赤み・赤ら顔" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/category/aging') {
-    return <CategoryPage category="たるみ・しわ" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="たるみ・しわ" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/category/acne') {
-    return <CategoryPage category="ニキビ・ニキビ跡" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="ニキビ・ニキビ跡" />
+      </LazyLoadWrapper>
+    );
   }
 
   // 新しいカテゴリーページのルーティング
   if (currentPath === '/category/skin-development') {
-    return <CategoryPage category="肌育" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="肌育" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/category/beauty-technology') {
-    return <CategoryPage category="最新の美容機器" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="最新の美容機器" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/category/home-care') {
-    return <CategoryPage category="ホームケア" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="ホームケア" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/category/salon-management') {
-    return <CategoryPage category="サロン経営" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="サロン経営" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/category/global-trends') {
-    return <CategoryPage category="海外トレンド" />;
+    return (
+      <LazyLoadWrapper>
+        <CategoryPage category="海外トレンド" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/skin-diagnosis') {
-    return <SkinDiagnosis />;
+    return (
+      <LazyLoadWrapper>
+        <SkinDiagnosis />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/media') {
-    return <MediaPage />;
+    return (
+      <LazyLoadWrapper>
+        <MediaPage />
+      </LazyLoadWrapper>
+    );
   }
 
   // Articles list pages routing
   if (currentPath === '/articles/hot-cosmetics') {
-    return <ArticlesListPage sectionType="hot_cosmetics" />;
+    return (
+      <LazyLoadWrapper>
+        <ArticlesListPage sectionType="hot_cosmetics" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/articles/beauty-topics') {
-    return <ArticlesListPage sectionType="brand_updates" />;
+    return (
+      <LazyLoadWrapper>
+        <ArticlesListPage sectionType="brand_updates" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/articles/professional-column') {
-    return <ArticlesListPage sectionType="management_tips" />;
+    return (
+      <LazyLoadWrapper>
+        <ArticlesListPage sectionType="management_tips" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/articles/events') {
-    return <ArticlesListPage sectionType="beauty_events" />;
+    return (
+      <LazyLoadWrapper>
+        <ArticlesListPage sectionType="beauty_events" />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/articles/surveys') {
-    return <ArticlesListPage sectionType="surveys" />;
+    return (
+      <LazyLoadWrapper>
+        <ArticlesListPage sectionType="surveys" />
+      </LazyLoadWrapper>
+    );
   }
 
   // Footer pages routing
   if (currentPath === '/guide') {
-    return <UserGuide />;
+    return (
+      <LazyLoadWrapper>
+        <UserGuide />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/faq') {
-    return <FAQ />;
+    return (
+      <LazyLoadWrapper>
+        <FAQ />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/privacy') {
-    return <PrivacyPolicy />;
+    return (
+      <LazyLoadWrapper>
+        <PrivacyPolicy />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/terms') {
-    return <TermsOfService />;
+    return (
+      <LazyLoadWrapper>
+        <TermsOfService />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/commercial-transaction') {
-    return <CommercialTransactionAct />;
+    return (
+      <LazyLoadWrapper>
+        <CommercialTransactionAct />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/search') {
-    return <SearchResultsPage />;
+    return (
+      <LazyLoadWrapper>
+        <SearchResultsPage />
+      </LazyLoadWrapper>
+    );
   }
 
   if (currentPath === '/sitemap') {
-    return <Sitemap />;
+    return (
+      <LazyLoadWrapper>
+        <Sitemap />
+      </LazyLoadWrapper>
+    );
   }
 
   // トップページの初回ローディング画面
