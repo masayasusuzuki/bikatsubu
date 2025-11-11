@@ -18,6 +18,7 @@
     "@tiptap/react": "^3.10.4",
     "@tiptap/starter-kit": "^3.10.4",
     "@tiptap/suggestion": "^3.10.5",
+    "@vercel/node": "^5.5.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "recharts": "^3.2.1",

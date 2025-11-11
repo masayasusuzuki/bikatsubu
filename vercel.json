@@ -10,6 +10,30 @@
       "destination": "/api/sitemap.xml"
     },
     {
+      "source": "/",
+      "destination": "/api/index?path=/"
+    },
+    {
+      "source": "/category/:category",
+      "destination": "/api/index?path=/category/:category"
+    },
+    {
+      "source": "/article/:slug",
+      "destination": "/api/index?path=/article/:slug"
+    },
+    {
+      "source": "/articles/:section",
+      "destination": "/api/index?path=/articles/:section"
+    },
+    {
+      "source": "/skin-diagnosis",
+      "destination": "/api/index?path=/skin-diagnosis"
+    },
+    {
+      "source": "/media",
+      "destination": "/api/index?path=/media"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
