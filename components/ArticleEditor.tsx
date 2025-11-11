@@ -80,6 +80,9 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isFeaturedImageModalOpen, setIsFeaturedImageModalOpen] = useState(false);
 
+  // タブの状態管理
+  const [activeTab, setActiveTab] = useState<'basic' | 'publish' | 'seo'>('basic');
+
   const isEditMode = Boolean(articleId);
 
   useEffect(() => {
@@ -835,22 +838,74 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
           </div>
         ) : (
           <>
+          {/* タブナビゲーション */}
+          <div className="bg-white border-b border-gray-200 mb-6">
+            <div className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('basic')}
+                className={`py-4 px-6 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'basic'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  基本設定
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('publish')}
+                className={`py-4 px-6 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'publish'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  公開設定
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('seo')}
+                className={`py-4 px-6 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'seo'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  SEO設定
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* タブコンテンツ */}
           <div className="flex gap-6">
-            {/* Left side: Title & Editor */}
-            <div className="flex-1 space-y-6">
-              {/* Title */}
-              <div className="bg-white border border-gray-200 p-6">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  記事タイトル
-                </label>
-                <input
-                  type="text"
-                  value={article.title}
-                  onChange={(e) => handleTitleChange(e.target.value)}
-                  placeholder="記事のタイトルを入力してください"
-                  className="w-full px-3 py-2 border border-gray-300 text-lg focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
-                />
-              </div>
+            {activeTab === 'basic' && (
+              <div className="flex-1 space-y-6">
+                {/* Title */}
+                <div className="bg-white border border-gray-200 p-6">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    記事タイトル
+                  </label>
+                  <input
+                    type="text"
+                    value={article.title}
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    placeholder="記事のタイトルを入力してください"
+                    className="w-full px-3 py-2 border border-gray-300 text-lg focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
+                  />
+                </div>
 
               {/* Toolbar & Content Editor */}
               <div className="bg-white border border-gray-200 p-6">
@@ -888,13 +943,12 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                   }}
                   placeholder="記事の内容を入力してください... ## で見出し、**太字**、*斜体* など"
                 />
+                </div>
               </div>
-            </div>
-          </div>
-          </div>
+            )}
 
-          {/* Publication Settings & SEO Settings - Full Width at Bottom */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            {activeTab === 'publish' && (
+              <div className="flex-1 space-y-6">
               {/* Publication Settings */}
               <div className="bg-white border border-gray-200 p-6">
                 <h3 className="text-base font-semibold text-slate-700 mb-4 pb-2 border-b border-gray-100">
@@ -1118,9 +1172,13 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                   </div>
                 </div>
               )}
+              </div>
+            )}
 
-              {/* SEO Settings with Preview */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-400 p-6 shadow-lg">
+            {activeTab === 'seo' && (
+              <div className="flex-1 space-y-6">
+                {/* SEO Settings with Preview */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-400 p-6 shadow-lg">
                 <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-blue-300">
                   <h3 className="flex items-center text-lg font-bold text-blue-900">
                   <span className="text-2xl mr-2">🎯</span>
@@ -1236,6 +1294,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                   </div>
                 </div>
               </div>
+            )}
           </div>
           </>
         )}

@@ -23,7 +23,8 @@
       "Bash(awk:*)",
       "Bash(tsx scripts/generate-html-with-canonical.ts:*)",
       "Bash(npx tsx:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(mcp-claudepoint get-changes:*)"
     ],
     "deny": [],
     "ask": []
