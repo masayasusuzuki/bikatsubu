@@ -12,9 +12,16 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.57.4",
+    "@tiptap/extension-image": "^3.10.4",
+    "@tiptap/extension-placeholder": "^3.10.4",
+    "@tiptap/extension-table": "^3.10.5",
+    "@tiptap/react": "^3.10.4",
+    "@tiptap/starter-kit": "^3.10.4",
+    "@tiptap/suggestion": "^3.10.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "recharts": "^3.2.1"
+    "recharts": "^3.2.1",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

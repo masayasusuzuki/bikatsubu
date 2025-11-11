@@ -5,6 +5,7 @@ import { activityLogService } from '../services/activityLogService';
 import { useSessionTimeout } from '../src/hooks/useSessionTimeout';
 import { renderArticleContent } from '../utils/contentRenderer';
 import { generateSEOMetadata } from '../services/geminiService';
+import RichTextEditor, { RichTextEditorRef } from './RichTextEditor';
 
 interface ArticleData {
   title: string;
@@ -78,6 +79,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const featuredImageInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const richTextEditorRef = useRef<RichTextEditorRef>(null);
 
   const isEditMode = Boolean(articleId);
 
@@ -536,28 +538,9 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
   };
 
   const insertImageIntoContent = (imageUrl: string) => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const imageMarkdown = `\n![画像の説明](${imageUrl})\n`;
-
-      const newContent =
-        article.content.substring(0, start) +
-        imageMarkdown +
-        article.content.substring(end);
-
-      setArticle(prev => ({ ...prev, content: newContent }));
-
-      setTimeout(() => {
-        const scrollTop = textarea.scrollTop;
-        textarea.focus();
-        textarea.setSelectionRange(
-          start + imageMarkdown.length,
-          start + imageMarkdown.length
-        );
-        textarea.scrollTop = scrollTop;
-      }, 0);
+    // RichTextEditorに画像を挿入
+    if (richTextEditorRef.current) {
+      richTextEditorRef.current.insertImage(imageUrl);
     }
   };
 
@@ -971,15 +954,16 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 pt-24">
+      <div className="max-w-full mx-auto px-6 lg:px-8 py-8 pt-24">
         {isPreview ? (
           <div className="container mx-auto px-4 py-10 max-w-4xl">
             <div dangerouslySetInnerHTML={{ __html: renderPreview() }} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Editor */}
-            <div className="lg:col-span-2 space-y-6">
+          <>
+          <div className="flex gap-6">
+            {/* Left side: Title & Editor */}
+            <div className="flex-1 space-y-6">
               {/* Title */}
               <div className="bg-white border border-gray-200 p-6">
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -994,90 +978,65 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                 />
               </div>
 
-              {/* Content Editor */}
+              {/* Toolbar & Content Editor */}
               <div className="bg-white border border-gray-200 p-6">
-                <div className="mb-4">
-                  <div className="flex flex-col gap-2">
-                    {/* 1行目：装飾タグ関連 */}
-                    <div className="flex flex-wrap gap-2">
-                      <button onClick={() => insertAtLineStart('# ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H1</button>
-                      <button onClick={() => insertAtLineStart('## ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H2</button>
-                      <button onClick={() => insertAtLineStart('### ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">H3</button>
-                      <button onClick={() => wrapSelection('**', '**')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">太字</button>
-                      <button onClick={() => insertAtMultipleLines('- ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">• リスト</button>
-                      <button onClick={() => insertAtMultipleLines('1. ')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">1. リスト</button>
-                      <button onClick={() => wrapSelection('[', '](https://)')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">リンク</button>
-                      <button onClick={() => insertAtLineStart('---\n')} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-xs">——</button>
-                    </div>
-
-                    {/* 2行目：囲いタグ関連 */}
-                    <div className="flex flex-wrap gap-2">
-                      <button onClick={() => applyDecoration('info')} className="px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs border border-blue-300 rounded">💡 本記事のテーマ</button>
-                      <button onClick={() => applyDecoration('warning')} className="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 text-xs border border-yellow-300 rounded">⚠️ 注意</button>
-                      <button onClick={() => applyDecoration('success')} className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs border border-green-300 rounded">💡ミライのひとことアドバイス</button>
-                      <button onClick={() => applyDecoration('error')} className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs border border-red-300 rounded">❌ 警告</button>
-                      <button onClick={() => applyDecoration('quote')} className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs border border-gray-300 rounded">💬 引用</button>
-                      <button onClick={() => applyDecoration('speech-bubble')} className="px-2 py-1 bg-pink-100 hover:bg-pink-200 text-pink-700 text-xs border border-pink-300 rounded">💭 吹き出し</button>
-                    </div>
-
-                    {/* 3行目：画像関連 */}
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 text-sm font-medium transition-colors"
-                        disabled={isUploading}
-                      >
-                        {isUploading ? 'アップロード中...' : '画像をアップロード'}
-                      </button>
-                      <button
-                        onClick={insertImageTextLayout}
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-3 py-1 text-sm font-medium rounded transition-colors shadow-md"
-                        title="左側に画像、右側に説明文を配置するレイアウトを挿入"
-                      >
-                        🖼️ 画像+テキストレイアウト
-                      </button>
-                      <a
-                        href="https://www.iloveimg.com/ja/compress-image"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm font-medium rounded transition-colors"
-                      >
-                        画像変換サイト
-                      </a>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </div>
-                  </div>
+              {/* Fixed Toolbar */}
+              <div className="mb-4 pb-4 border-b border-gray-200 space-y-3">
+                {/* Image Upload Buttons */}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 text-sm font-medium transition-colors"
+                    disabled={isUploading}
+                  >
+                    {isUploading ? 'アップロード中...' : '画像をアップロード'}
+                  </button>
+                  <a
+                    href="https://www.iloveimg.com/ja/compress-image"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm font-medium rounded transition-colors"
+                  >
+                    画像変換サイト
+                  </a>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
                 </div>
-                <textarea
-                  ref={textareaRef}
-                  value={article.content}
-                  onChange={(e) => {
-                    setArticle(prev => ({ ...prev, content: e.target.value }));
-                    setHasUnsavedChanges(true);
-                  }}
-                  placeholder="記事の内容を入力してください。画像を挿入するには上の「画像をアップロード」ボタンを使用してください。"
-                  rows={35}
-                  className="w-full px-3 py-2 border border-gray-300 text-sm focus:ring-1 focus:ring-slate-500 focus:border-slate-500 font-mono"
-                />
-                <div className="mt-2 text-xs text-slate-500">
-                  画像は ![説明](URL) の形式で挿入されます。アップロードボタンを使用すると自動で挿入されます。
-                </div>
+
+                {/* Editor Toolbar Placeholder - Will be populated by RichTextEditor */}
+                <div id="editor-toolbar-container" className="bg-gray-50 border border-gray-300 rounded p-2"></div>
               </div>
 
+              {/* Scrollable Editor Area */}
+              <div className="max-h-[700px] overflow-y-auto">
+                <RichTextEditor
+                  ref={richTextEditorRef}
+                  content={article.content}
+                  onChange={(newContent) => {
+                    setArticle(prev => ({ ...prev, content: newContent }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  placeholder="記事の内容を入力してください... ## で見出し、**太字**、*斜体* など"
+                />
+              </div>
+              </div>
+            </div>
+
+            {/* Right side: Image Library */}
+            <div className="w-96 space-y-6">
               {/* Uploaded Images */}
               {uploadedImages.length > 0 && (
                 <div className="bg-white border border-gray-200 p-6">
                   <h3 className="text-sm font-medium text-slate-700 mb-4">アップロード済み画像</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     {uploadedImages.map((url, index) => (
                       <div key={index} className="relative group">
-                        <div className="aspect-video bg-gray-100 border border-gray-200 flex items-center justify-center text-xs text-slate-500">
+                        <div className="aspect-video bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center text-xs text-slate-500">
                           画像プレビュー
                         </div>
                         <button
@@ -1109,9 +1068,9 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                 </div>
 
                 {/* Folder management UI */}
-                <div className="mb-6 flex gap-4" style={{ minHeight: '600px' }}>
-                  {/* Folder list on left */}
-                  <div className="w-56 bg-gray-50 border border-gray-200 rounded p-3 flex flex-col" style={{ height: '600px' }}>
+                <div className="mb-6 space-y-4">
+                  {/* Folder list on top */}
+                  <div className="bg-gray-50 border border-gray-200 rounded p-3 flex flex-col" style={{ maxHeight: '300px' }}>
                     <div className="text-xs font-semibold text-gray-700 mb-2">フォルダ</div>
                     <div className="space-y-1 flex-1 overflow-y-auto mb-3">
                       <button
@@ -1176,8 +1135,8 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                     </div>
                   </div>
 
-                  {/* Image grid on right */}
-                  <div className="flex-1 overflow-y-auto" style={{ height: '600px' }}>
+                  {/* Image grid below */}
+                  <div className="overflow-y-auto" style={{ maxHeight: '600px' }}>
                     {/* Move images dropdown */}
                     {selectedImages.size > 0 && (
                       <div className="mb-4 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded p-3 sticky top-0 z-10">
@@ -1212,7 +1171,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                     )}
 
                     {filteredImages.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-4">
+                      <div className="grid grid-cols-2 gap-3 pb-4">
                         {filteredImages.map((image) => (
                           <div
                             key={image.public_id}
@@ -1221,13 +1180,13 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                             onDragStart={(e) => handleDragStart(e, image.secure_url)}
                           >
                             {/* Checkbox for selection */}
-                            <div className="absolute top-3 left-3 z-20">
+                            <div className="absolute top-2 left-2 z-20">
                               <input
                                 type="checkbox"
                                 checked={selectedImages.has(image.secure_url)}
                                 onChange={() => toggleImageSelection(image.secure_url)}
                                 onClick={(e) => e.stopPropagation()}
-                                className="w-5 h-5 rounded border-gray-300 cursor-pointer"
+                                className="w-4 h-4 rounded border-gray-300 cursor-pointer"
                               />
                             </div>
 
@@ -1287,9 +1246,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* SEO Settings Sidebar */}
-            <div className="space-y-6">
+          {/* Publication Settings & SEO Settings - Full Width at Bottom */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               {/* Publication Settings */}
               <div className="bg-white border border-gray-200 p-6">
                 <h3 className="text-base font-semibold text-slate-700 mb-4 pb-2 border-b border-gray-100">
@@ -1519,7 +1479,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                 </div>
               )}
 
-              {/* SEO Settings */}
+              {/* SEO Settings with Preview */}
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-400 p-6 shadow-lg">
                 <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-blue-300">
                   <h3 className="flex items-center text-lg font-bold text-blue-900">
@@ -1549,91 +1509,95 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                     )}
                   </button>
                 </div>
-                <div className="space-y-4">
-                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
-                    <label className="flex items-center text-sm font-bold text-blue-900 mb-2">
-                      <span className="mr-2">🔗</span>
-                      URL スラッグ
-                    </label>
-                    <input
-                      type="text"
-                      value={article.slug}
-                      onChange={(e) => setArticle(prev => ({ ...prev, slug: e.target.value }))}
-                      placeholder="article-url-slug"
-                      className="w-full px-3 py-2 border-2 border-blue-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
-                    />
-                    <div className="mt-1 text-xs text-blue-700 font-medium">
-                      URL: /articles/{article.slug}
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
-                    <label className="flex items-center text-sm font-bold text-blue-900 mb-2">
-                      <span className="mr-2">📝</span>
-                      メタディスクリプション
-                    </label>
-                    <textarea
-                      value={article.metaDescription}
-                      onChange={(e) => setArticle(prev => ({ ...prev, metaDescription: e.target.value }))}
-                      placeholder="検索結果に表示される記事の説明文（155文字以内推奨）"
-                      rows={3}
-                      maxLength={160}
-                      className="w-full px-3 py-2 border-2 border-blue-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
-                    />
-                    <div className="mt-1 text-xs text-blue-700 font-medium">
-                      {article.metaDescription.length}/160文字
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
-                    <label className="flex items-center text-sm font-bold text-blue-900 mb-2">
-                      <span className="mr-2">🏷️</span>
-                      キーワード
-                    </label>
-                    <input
-                      type="text"
-                      value={article.keywords}
-                      onChange={(e) => setArticle(prev => ({ ...prev, keywords: e.target.value }))}
-                      placeholder="スキンケア, 美容液, 保湿"
-                      className="w-full px-3 py-2 border-2 border-blue-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
-                    />
-                    <div className="mt-1 text-xs text-blue-700 font-medium">
-                      カンマ区切りで入力
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4 bg-blue-100 border-l-4 border-blue-500 p-3 rounded">
-                  <p className="text-xs text-blue-900 font-semibold">
-                    💡 検索エンジン最適化のため、すべての項目を入力することを強く推奨します
-                  </p>
-                </div>
-              </div>
 
-              {/* SEO Preview */}
-              <div className="bg-white border border-gray-200 p-6">
-                <h3 className="text-base font-semibold text-slate-700 mb-4 pb-2 border-b border-gray-100">
-                  検索結果プレビュー
-                </h3>
-                <div className="space-y-2">
-                  <div className="text-blue-600 text-sm hover:underline cursor-pointer">
-                    {article.title || 'タイトルを入力してください'}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Left: SEO Input Fields */}
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
+                      <label className="flex items-center text-sm font-bold text-blue-900 mb-2">
+                        <span className="mr-2">🔗</span>
+                        URL スラッグ
+                      </label>
+                      <input
+                        type="text"
+                        value={article.slug}
+                        onChange={(e) => setArticle(prev => ({ ...prev, slug: e.target.value }))}
+                        placeholder="article-url-slug"
+                        className="w-full px-3 py-2 border-2 border-blue-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
+                      />
+                      <div className="mt-1 text-xs text-blue-700 font-medium">
+                        URL: /articles/{article.slug}
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
+                      <label className="flex items-center text-sm font-bold text-blue-900 mb-2">
+                        <span className="mr-2">📝</span>
+                        メタディスクリプション
+                      </label>
+                      <textarea
+                        value={article.metaDescription}
+                        onChange={(e) => setArticle(prev => ({ ...prev, metaDescription: e.target.value }))}
+                        placeholder="検索結果に表示される記事の説明文（155文字以内推奨）"
+                        rows={3}
+                        maxLength={160}
+                        className="w-full px-3 py-2 border-2 border-blue-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
+                      />
+                      <div className="mt-1 text-xs text-blue-700 font-medium">
+                        {article.metaDescription.length}/160文字
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
+                      <label className="flex items-center text-sm font-bold text-blue-900 mb-2">
+                        <span className="mr-2">🏷️</span>
+                        キーワード
+                      </label>
+                      <input
+                        type="text"
+                        value={article.keywords}
+                        onChange={(e) => setArticle(prev => ({ ...prev, keywords: e.target.value }))}
+                        placeholder="スキンケア, 美容液, 保湿"
+                        className="w-full px-3 py-2 border-2 border-blue-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded"
+                      />
+                      <div className="mt-1 text-xs text-blue-700 font-medium">
+                        カンマ区切りで入力
+                      </div>
+                    </div>
+                    <div className="bg-blue-100 border-l-4 border-blue-500 p-3 rounded">
+                      <p className="text-xs text-blue-900 font-semibold">
+                        💡 検索エンジン最適化のため、すべての項目を入力することを強く推奨します
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-green-700 text-xs">
-                    https://bikatsu-bu.com/articles/{article.slug || 'url-slug'}
-                  </div>
-                  <div className="text-gray-700 text-sm leading-5">
-                    {(() => {
-                      const description = article.metaDescription || 'メタディスクリプションを入力してください';
-                      const maxLength = 155; // Googleの推奨文字数
-                      if (description.length <= maxLength) {
-                        return description;
-                      }
-                      // 155文字で切って「...」を追加
-                      return description.substring(0, maxLength) + '...';
-                    })()}
+
+                  {/* Right: SEO Preview */}
+                  <div className="bg-white rounded-lg p-6 border-2 border-blue-200">
+                    <h4 className="text-sm font-bold text-blue-900 mb-4 pb-2 border-b border-blue-200">
+                      🔍 検索結果プレビュー
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="text-blue-600 text-sm hover:underline cursor-pointer">
+                        {article.title || 'タイトルを入力してください'}
+                      </div>
+                      <div className="text-green-700 text-xs">
+                        https://bikatsu-bu.com/articles/{article.slug || 'url-slug'}
+                      </div>
+                      <div className="text-gray-700 text-sm leading-5">
+                        {(() => {
+                          const description = article.metaDescription || 'メタディスクリプションを入力してください';
+                          const maxLength = 155; // Googleの推奨文字数
+                          if (description.length <= maxLength) {
+                            return description;
+                          }
+                          // 155文字で切って「...」を追加
+                          return description.substring(0, maxLength) + '...';
+                        })()}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
           </div>
+          </>
         )}
       </div>
     </div>

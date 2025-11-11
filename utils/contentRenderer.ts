@@ -67,19 +67,65 @@ export const renderArticleContent = (content: string): { __html: string } => {
   });
   html = html.replace(/&lt;\/a&gt;/g, '</a>');
 
-  // Table tags
-  html = html.replace(/&lt;table class="([^"]*)"&gt;/g, '<table class="$1">');
+  // Table tags - 包括的な復元（属性の有無に関わらず）
+  // 開始タグ（属性あり・なし両対応）
+  html = html.replace(/&lt;table([^&]*?)&gt;/g, (match, attrs) => {
+    const restoredAttrs = attrs.replace(/&quot;/g, '"');
+    // スタイルを追加して表を見やすくする
+    return `<table${restoredAttrs} style="width: 100%; border-collapse: collapse; border: 1px solid #e5e7eb; margin: 16px 0;">`;
+  });
   html = html.replace(/&lt;\/table&gt;/g, '</table>');
-  html = html.replace(/&lt;thead&gt;/g, '<thead>');
+
+  html = html.replace(/&lt;thead([^&]*?)&gt;/g, (match, attrs) => {
+    const restoredAttrs = attrs.replace(/&quot;/g, '"');
+    return `<thead${restoredAttrs}>`;
+  });
   html = html.replace(/&lt;\/thead&gt;/g, '</thead>');
-  html = html.replace(/&lt;tbody&gt;/g, '<tbody>');
+
+  html = html.replace(/&lt;tbody([^&]*?)&gt;/g, (match, attrs) => {
+    const restoredAttrs = attrs.replace(/&quot;/g, '"');
+    return `<tbody${restoredAttrs}>`;
+  });
   html = html.replace(/&lt;\/tbody&gt;/g, '</tbody>');
-  html = html.replace(/&lt;tr&gt;/g, '<tr>');
+
+  html = html.replace(/&lt;tr([^&]*?)&gt;/g, (match, attrs) => {
+    const restoredAttrs = attrs.replace(/&quot;/g, '"');
+    return `<tr${restoredAttrs}>`;
+  });
   html = html.replace(/&lt;\/tr&gt;/g, '</tr>');
-  html = html.replace(/&lt;th class="([^"]*)"&gt;/g, '<th class="$1">');
+
+  html = html.replace(/&lt;th([^&]*?)&gt;/g, (match, attrs) => {
+    const restoredAttrs = attrs.replace(/&quot;/g, '"');
+    return `<th${restoredAttrs} style="border: 1px solid #d1d5db; padding: 12px; background-color: #f9fafb; font-weight: 600; text-align: left;">`;
+  });
   html = html.replace(/&lt;\/th&gt;/g, '</th>');
-  html = html.replace(/&lt;td class="([^"]*)"&gt;/g, '<td class="$1">');
+
+  html = html.replace(/&lt;td([^&]*?)&gt;/g, (match, attrs) => {
+    const restoredAttrs = attrs.replace(/&quot;/g, '"');
+    return `<td${restoredAttrs} style="border: 1px solid #d1d5db; padding: 12px;">`;
+  });
   html = html.replace(/&lt;\/td&gt;/g, '</td>');
+
+  // colgroup関連タグ（Tiptapのテーブルで使用される可能性）
+  html = html.replace(/&lt;colgroup([^&]*?)&gt;/g, (match, attrs) => {
+    const restoredAttrs = attrs.replace(/&quot;/g, '"');
+    return `<colgroup${restoredAttrs}>`;
+  });
+  html = html.replace(/&lt;\/colgroup&gt;/g, '</colgroup>');
+  html = html.replace(/&lt;col([^&]*?)&gt;/g, (match, attrs) => {
+    const restoredAttrs = attrs.replace(/&quot;/g, '"');
+    return `<col${restoredAttrs}>`;
+  });
+
+  // pタグの復元（表のセル内のpタグを処理するため）
+  html = html.replace(/&lt;p([^&]*?)&gt;/g, (match, attrs) => {
+    const restoredAttrs = attrs.replace(/&quot;/g, '"');
+    return `<p${restoredAttrs}>`;
+  });
+  html = html.replace(/&lt;\/p&gt;/g, '</p>');
+
+  // テーブルセル内の不要なpタグを削除（表示を整えるため）
+  html = html.replace(/<(td|th)([^>]*)><p>(.*?)<\/p><\/(td|th)>/g, '<$1$2>$3</$4>');
 
   // 左右レイアウト記法 [image-text]![alt](url)|説明文[/image-text]
   html = html.replace(/\[image-text\]!\[([^\]]*)\]\(([^)]+)\)\|([^[]+)\[\/image-text\]/g, (match, alt, url, description) => {
@@ -93,6 +139,9 @@ export const renderArticleContent = (content: string): { __html: string } => {
     </div>`;
   });
   
+  // リンク付き画像 [![](url)](link)（画像の前に処理）
+  html = html.replace(/\[!\[\]\(([^)]+)\)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener"><img src="$1" alt="" class="max-w-full h-auto my-4" style="cursor: pointer;" /></a>');
+
   // 画像 ![alt](url)
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto my-4" />');
   // リンク [text](url)
