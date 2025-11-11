@@ -1,8 +1,18 @@
 import fs from 'fs';
 import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
-// 生成するページのリスト
-const pages = [
+const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Warning: Supabase environment variables are not set. Skipping article pages.');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// 静的ページのリスト
+const staticPages = [
   { path: '/', url: 'https://www.bikatsubu-media.jp/' },
   { path: '/category/spots-dullness', url: 'https://www.bikatsubu-media.jp/category/spots-dullness' },
   { path: '/category/pores', url: 'https://www.bikatsubu-media.jp/category/pores' },
@@ -21,6 +31,27 @@ const pages = [
   { path: '/articles/management-tips', url: 'https://www.bikatsubu-media.jp/articles/management-tips' },
   { path: '/articles/beauty-events', url: 'https://www.bikatsubu-media.jp/articles/beauty-events' },
 ];
+
+// 公開記事を取得
+const { data: articles, error } = await supabase
+  .from('articles')
+  .select('slug')
+  .eq('status', 'published')
+  .order('published_at', { ascending: false });
+
+if (error) {
+  console.error('Error fetching articles:', error);
+}
+
+console.log(`Found ${articles?.length || 0} published articles`);
+
+// 記事ページを追加
+const articlePages = (articles || []).map(article => ({
+  path: `/article/${article.slug}`,
+  url: `https://www.bikatsubu-media.jp/article/${article.slug}`
+}));
+
+const pages = [...staticPages, ...articlePages];
 
 // ベースのindex.htmlを読み込み
 const baseHtmlPath = path.join(process.cwd(), 'dist', 'index.html');
