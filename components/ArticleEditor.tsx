@@ -1236,6 +1236,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                 </div>
               </div>
           </div>
+          </>
         )}
       </div>
     </div>
