@@ -47,7 +47,7 @@ const MediaPage: React.FC = () => {
         <div className="max-w-4xl mx-auto mb-16">
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-              <span className="text-[#d11a68]">こんなお悩みはありませんか？</span>
+              <span className="text-brand-primary">こんなお悩みはありませんか？</span>
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-red-50 border-l-4 border-red-400 p-6 rounded-lg">
@@ -110,7 +110,7 @@ const MediaPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="mailto:m.suzuki@logicajapan.net"
-                className="bg-[#d11a68] hover:bg-[#b8175a] text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors"
+                className="bg-brand-primary hover:bg-[#b8175a] text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors"
               >
                 📧 メールでお問い合わせ
               </a>

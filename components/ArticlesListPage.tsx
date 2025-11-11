@@ -196,12 +196,12 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
         <div className="container mx-auto px-4 py-3">
           <ol className="flex items-center space-x-2 text-sm">
             <li>
-              <a href="/" className="text-gray-500 hover:text-[#d11a68] transition-colors">
+              <a href="/" className="text-gray-500 hover:text-brand-primary transition-colors">
                 ホーム
               </a>
             </li>
             <li className="text-gray-400">/</li>
-            <li className="text-[#d11a68] font-medium">{sectionInfo.title}</li>
+            <li className="text-brand-primary font-medium">{sectionInfo.title}</li>
           </ol>
         </div>
       </nav>
@@ -257,7 +257,7 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
               <h3 className="text-xl font-semibold text-gray-600 mb-2">{error}</h3>
               <button
                 onClick={() => window.location.reload()}
-                className="text-[#d11a68] hover:underline"
+                className="text-brand-primary hover:underline"
               >
                 再読み込み
               </button>
@@ -275,7 +275,7 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
                 {/* Left side - Thumbnail */}
                 <div className="flex-shrink-0 w-48 h-32 mr-6">
                   <img
-                    src={optimizeAnyImageUrl(article.imageUrl, 320, 160)}
+                    src={optimizeAnyImageUrl(article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=320&h=160&fit=crop&auto=format', 320, 160)}
                     alt={article.title}
                     className="w-full h-full object-cover rounded"
                   />
@@ -298,15 +298,15 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
                       </div>
                     </div>
 
-                    <p className="text-sm text-[#d11a68] font-semibold mb-2">{article.category}</p>
+                    <p className="text-sm text-brand-primary font-semibold mb-2">{article.category}</p>
 
-                    <h3 className="text-xl font-semibold text-gray-800 mb-3 hover:text-[#d11a68] transition-colors" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-3 hover:text-brand-primary transition-colors" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {article.title}
                     </h3>
                   </div>
 
                   <div className="mt-4">
-                    <span className="text-[#d11a68] hover:text-pink-700 text-sm font-medium">
+                    <span className="text-brand-primary hover:text-pink-700 text-sm font-medium">
                       続きを読む →
                     </span>
                   </div>

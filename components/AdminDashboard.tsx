@@ -518,7 +518,7 @@ const AdminDashboard: React.FC = () => {
                     href="https://analytics.google.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs bg-[#d11a68] text-white px-3 py-2 rounded hover:bg-opacity-80 transition-colors inline-block"
+                    className="text-xs bg-brand-primary text-white px-3 py-2 rounded hover:bg-opacity-80 transition-colors inline-block"
                   >
                     Google Analyticsを開く
                   </a>

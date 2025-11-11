@@ -23,7 +23,7 @@ const LoadingScreen: React.FC = () => {
 
           {/* 中央のドット */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className="w-2 h-2 bg-[#d11a68] rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse"></div>
           </div>
         </div>
 

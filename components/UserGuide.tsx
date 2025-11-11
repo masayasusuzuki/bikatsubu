@@ -13,7 +13,7 @@ const UserGuide: React.FC = () => {
           
           {/* サイト概要 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">美活部について</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">美活部について</h2>
             <p className="text-gray-700 mb-4 leading-relaxed">
               「美活部」は、あなたのキレイを応援する総合美容メディアです。最新のコスメトレンド、スキンケア、メイクアップ、ヘアケアから、プロが教える美容テクニックまで、美しくなるための情報をお届けします。
             </p>
@@ -24,7 +24,7 @@ const UserGuide: React.FC = () => {
 
           {/* 記事の見つけ方 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">記事の見つけ方</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">記事の見つけ方</h2>
             
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">1. カテゴリーから探す</h3>
@@ -68,7 +68,7 @@ const UserGuide: React.FC = () => {
 
           {/* 記事の読み方 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">記事の読み方</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">記事の読み方</h2>
             
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">記事の構成</h3>
@@ -96,7 +96,7 @@ const UserGuide: React.FC = () => {
 
           {/* 機能について */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">その他の機能</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">その他の機能</h2>
             
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">肌タイプ診断</h3>
@@ -127,7 +127,7 @@ const UserGuide: React.FC = () => {
 
           {/* 推奨環境 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">推奨環境</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">推奨環境</h2>
             
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">対応ブラウザ</h3>
@@ -154,7 +154,7 @@ const UserGuide: React.FC = () => {
 
           {/* 注意事項 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">ご利用時の注意事項</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">ご利用時の注意事項</h2>
             
             <ul className="list-disc pl-6 text-gray-700 space-y-3">
               <li>
@@ -178,7 +178,7 @@ const UserGuide: React.FC = () => {
 
           {/* お問い合わせ */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">お問い合わせ</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">お問い合わせ</h2>
             <p className="text-gray-700 mb-4">
               ご不明な点やご質問がございましたら、以下の方法でお気軽にお問い合わせください：
             </p>

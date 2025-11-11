@@ -241,7 +241,7 @@ const HeroSectionManager: React.FC = () => {
           <div key={slide.id} className="border border-gray-200 rounded p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <div className="flex items-center gap-3 sm:gap-4">
               {/* 順序表示 */}
-              <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 bg-[#d11a68] text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium">
+              <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 bg-brand-primary text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium">
                 {slide.order}
               </div>
 
@@ -397,7 +397,7 @@ const HeroSectionManager: React.FC = () => {
               <button
                 onClick={handleSaveSlide}
                 disabled={!editingSlide.imageUrl || !editingSlide.alt || saving}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-[#d11a68] text-white hover:bg-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded whitespace-nowrap"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-brand-primary text-white hover:bg-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded whitespace-nowrap"
               >
                 {saving ? '保存中...' : '保存'}
               </button>

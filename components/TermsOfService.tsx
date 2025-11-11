@@ -25,7 +25,7 @@ const TermsOfService: React.FC = () => {
 
           {/* サービス内容 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第1条（サービス内容）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第1条（サービス内容）</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               本サービスは、美容に関する情報を発信する専門メディアサイトです。以下のサービスを提供します：
@@ -41,7 +41,7 @@ const TermsOfService: React.FC = () => {
 
           {/* ユーザーの責務 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第2条（ユーザーの責務）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第2条（ユーザーの責務）</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               ユーザーは、本サービスの利用にあたり、以下の事項を遵守するものとします：
@@ -57,7 +57,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 禁止行為 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第3条（禁止行為）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第3条（禁止行為）</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               ユーザーは、本サービスの利用にあたり、以下の行為を行ってはなりません：
@@ -83,7 +83,7 @@ const TermsOfService: React.FC = () => {
 
           {/* コンテンツの取り扱い */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第4条（コンテンツの取り扱い）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第4条（コンテンツの取り扱い）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -109,7 +109,7 @@ const TermsOfService: React.FC = () => {
 
           {/* サービスの変更・停止 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第5条（サービスの変更・停止）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第5条（サービスの変更・停止）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -135,7 +135,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 利用制限 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第6条（利用制限）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第6条（利用制限）</h2>
 
             <p className="text-gray-700 leading-relaxed">
               当社は、ユーザーが本規約に違反した場合、事前の通知なく、当該ユーザーの本サービス利用を制限または停止することができます。
@@ -144,7 +144,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 免責事項 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第7条（免責事項）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第7条（免責事項）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -168,7 +168,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 損害賠償 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第8条（損害賠償）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第8条（損害賠償）</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               ユーザーが本規約に違反し、当社に損害を与えた場合、ユーザーは当社に対して損害を賠償する責任を負います。
@@ -181,7 +181,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 個人情報の取り扱い */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第9条（個人情報の取り扱い）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第9条（個人情報の取り扱い）</h2>
             
             <p className="text-gray-700 leading-relaxed">
               当社は、ユーザーの個人情報を、別途定めるプライバシーポリシーに従って適切に取り扱います。
@@ -190,7 +190,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 規約の変更 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第10条（規約の変更）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第10条（規約の変更）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -207,7 +207,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 準拠法・管轄裁判所 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第11条（準拠法・管轄裁判所）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第11条（準拠法・管轄裁判所）</h2>
             
             <ol className="list-decimal pl-6 text-gray-700 space-y-3">
               <li>
@@ -221,7 +221,7 @@ const TermsOfService: React.FC = () => {
 
           {/* 協議解決 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第12条（協議解決）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第12条（協議解決）</h2>
             
             <p className="text-gray-700 leading-relaxed">
               本規約に定めのない事項または本規約の解釈に関して疑義が生じた場合は、ユーザーと当社が誠実に協議の上解決を図るものとします。
@@ -230,7 +230,7 @@ const TermsOfService: React.FC = () => {
 
           {/* お問い合わせ */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">第13条（お問い合わせ）</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">第13条（お問い合わせ）</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               本規約に関するお問い合わせは、以下までご連絡ください：

@@ -232,7 +232,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleSlug }) => {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <div className="text-xs text-[#d11a68] mb-1">{article.category}</div>
+            <div className="text-xs text-brand-primary mb-1">{article.category}</div>
             <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-2 leading-tight">{article.title}</h3>
             <div className="text-xs text-gray-500">
               {new Date(article.created_at).toLocaleDateString('ja-JP')}
@@ -312,18 +312,18 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleSlug }) => {
           <div className="container mx-auto px-4 py-3">
             <ol className="flex items-center space-x-2 text-sm">
               <li>
-                <a href="/" className="text-gray-500 hover:text-[#d11a68] transition-colors">
+                <a href="/" className="text-gray-500 hover:text-brand-primary transition-colors">
                   ホーム
                 </a>
               </li>
               <li className="text-gray-400">/</li>
               <li>
-                <a href={`/category/${encodeURIComponent(article.category)}`} className="text-gray-500 hover:text-[#d11a68] transition-colors">
+                <a href={`/category/${encodeURIComponent(article.category)}`} className="text-gray-500 hover:text-brand-primary transition-colors">
                   {article.category}
                 </a>
               </li>
               <li className="text-gray-400">/</li>
-              <li className="text-[#d11a68] font-medium truncate max-w-xs">{article.title}</li>
+              <li className="text-brand-primary font-medium truncate max-w-xs">{article.title}</li>
             </ol>
           </div>
         </nav>
@@ -343,7 +343,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleSlug }) => {
               <div className="lg:col-span-4 text-center py-20">
                 <div className="text-red-500 text-4xl mb-4">⚠️</div>
                 <h1 className="text-2xl font-bold text-gray-700 mb-2">{error}</h1>
-                <a href="/" className="text-[#d11a68] hover:underline">トップに戻る</a>
+                <a href="/" className="text-brand-primary hover:underline">トップに戻る</a>
               </div>
             )}
 
@@ -353,7 +353,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ articleSlug }) => {
                 <div className="lg:col-span-3">
                   <article className="bg-white border border-gray-200 p-6">
                     <div className="mb-6">
-                      <a href={`/category/${encodeURIComponent(article.category)}`} className="text-xs text-[#d11a68]">{article.category}</a>
+                      <a href={`/category/${encodeURIComponent(article.category)}`} className="text-xs text-brand-primary">{article.category}</a>
                       <h1 className="text-3xl font-bold text-gray-900 mt-2">{article.title}</h1>
                       <div className="text-gray-500 text-sm mt-2">
                         公開日：{new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP', {

@@ -24,7 +24,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* 販売業者情報 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">販売業者</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">販売業者</h2>
             
             <div className="bg-gray-50 p-6 rounded-lg">
               <table className="w-full">
@@ -63,7 +63,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* 販売価格 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">販売価格</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">販売価格</h2>
             
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">広告掲載サービス</h3>
@@ -90,7 +90,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* 代金の支払方法 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">代金の支払方法</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">代金の支払方法</h2>
             
             <ul className="list-disc pl-6 text-gray-700 space-y-2">
               <li><strong>銀行振込</strong>（前払い）</li>
@@ -110,7 +110,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* サービス提供時期 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">サービス提供時期</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">サービス提供時期</h2>
             
             <div className="space-y-4">
               <div>
@@ -134,7 +134,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* 申込の有効期限 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">申込の有効期限</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">申込の有効期限</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               お見積書の有効期限は発行日から30日間です。期限を過ぎた場合は、改めてお見積もりをいたします。
@@ -147,7 +147,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* キャンセル・変更 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">キャンセル・変更について</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">キャンセル・変更について</h2>
             
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">キャンセル規定</h3>
@@ -191,7 +191,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* 返金について */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">返金について</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">返金について</h2>
             
             <div className="space-y-4">
               <div>
@@ -212,7 +212,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* 不良品・誤納品 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">不良品・誤納品について</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">不良品・誤納品について</h2>
             
             <div className="space-y-4">
               <div>
@@ -235,7 +235,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* 個人情報保護 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">個人情報の取り扱い</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">個人情報の取り扱い</h2>
             
             <p className="text-gray-700 leading-relaxed">
               お客様からお預かりした個人情報は、当社の「プライバシーポリシー」に従って適切に管理し、サービス提供以外の目的では使用いたしません。詳細は当サイトの「プライバシーポリシー」をご確認ください。
@@ -244,7 +244,7 @@ const CommercialTransactionAct: React.FC = () => {
 
           {/* その他の事項 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">その他の事項</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">その他の事項</h2>
             
             <div className="space-y-4">
               <div>

@@ -16,7 +16,7 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => (
         onClick={() => window.location.href = `/article/${article.slug || article.id}`}
     >
         <div className="overflow-hidden relative" style={{ flexShrink: 0 }}>
-          <img src={optimizeAnyImageUrl(article.imageUrl, 320, 160)} alt={article.title} className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"/>
+          <img src={optimizeAnyImageUrl(article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=320&h=160&fit=crop&auto=format', 320, 160)} alt={article.title} className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"/>
           <div className="absolute inset-0 bg-gradient-to-t from-rose-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </div>
         <div className="p-5" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -25,7 +25,7 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => (
                 <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/>
                 </svg>
-                {article.date}
+                {new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')}
             </p>
         </div>
     </div>
@@ -49,7 +49,7 @@ const SidebarManufacturer: React.FC<{ manufacturer: Manufacturer }> = ({ manufac
     <div className="flex items-start space-x-3 mb-4 p-3 border rounded hover:shadow-md transition-shadow">
         <img src={manufacturer.logoUrl} alt={manufacturer.name} className="w-16 h-16 object-contain flex-shrink-0" />
         <div>
-            <p className="text-sm font-bold text-[#d11a68] leading-tight">{manufacturer.name}</p>
+            <p className="text-sm font-bold text-brand-primary leading-tight">{manufacturer.name}</p>
             <p className="text-xs text-gray-600 mt-1">{manufacturer.description}</p>
         </div>
     </div>
@@ -94,14 +94,14 @@ const BrandUpdates: React.FC<BrandUpdatesProps> = ({ articles, products, manufac
                   onClick={() => window.location.href = `/article/${article.slug || article.id}`}
                 >
                   <div className="relative flex-shrink-0">
-                    <img src={optimizeAnyImageUrl(article.imageUrl, 64, 64)} alt={article.title} className="w-16 h-16 object-cover rounded-lg shadow-sm" />
+                    <img src={optimizeAnyImageUrl(article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=64&h=64&fit=crop&auto=format', 64, 64)} alt={article.title} className="w-16 h-16 object-cover rounded-lg shadow-sm" />
                     <div className="absolute -top-2 -left-2 bg-gradient-to-br from-rose-500 to-pink-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg">
                       {index + 1}
                     </div>
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-rose-500 transition-colors">{article.title}</p>
-                    <p className="text-xs text-gray-500 mt-1">{article.category || article.date}</p>
+                    <p className="text-xs text-gray-500 mt-1">{article.category}</p>
                   </div>
                 </div>
               ))

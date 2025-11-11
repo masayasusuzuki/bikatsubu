@@ -13,8 +13,8 @@ const EventCard: React.FC<{ event: Article }> = ({ event }) => (
     onClick={() => window.location.href = `/article/${event.slug || event.id}`}
   >
     <div className="relative" style={{ flexShrink: 0 }}>
-      <img src={optimizeAnyImageUrl(event.imageUrl, 384, 192)} alt={event.title} className="w-full h-48 object-cover" />
-      {event.tag && <span className="absolute top-2 left-2 bg-[#d11a68] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">{event.tag}</span>}
+      <img src={optimizeAnyImageUrl(event.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=384&h=192&fit=crop&auto=format', 384, 192)} alt={event.title} className="w-full h-48 object-cover" />
+      {event.article_type && <span className="absolute top-2 left-2 bg-brand-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">{event.article_type}</span>}
     </div>
     <div className="p-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <div>
@@ -47,7 +47,7 @@ const BeautyEvents: React.FC<BeautyEventsProps> = ({ events }) => {
       <div className="text-center mt-10">
         <button
           onClick={handleViewAllEvents}
-          className="bg-white text-[#d11a68] font-bold py-3 px-12 hover:bg-gray-200 transition-colors text-lg rounded-md"
+          className="bg-white text-brand-primary font-bold py-3 px-12 hover:bg-gray-200 transition-colors text-lg rounded-md"
         >
             イベント一覧を見る
         </button>

@@ -32,7 +32,7 @@ const BeautyTip: React.FC = () => {
         <button
           onClick={handleGenerateTip}
           disabled={isLoading}
-          className="bg-[#d11a68] text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center w-52"
+          className="bg-brand-primary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center w-52"
         >
           {isLoading ? (
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

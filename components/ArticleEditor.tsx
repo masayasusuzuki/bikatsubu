@@ -697,7 +697,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
     return `
       <article class="bg-white border border-gray-200 p-6">
         <div class="mb-6">
-          <a href="#" class="text-xs text-[#d11a68]">${article.category || 'カテゴリなし'}</a>
+          <a href="#" class="text-xs text-brand-primary">${article.category || 'カテゴリなし'}</a>
           <h1 class="text-3xl font-bold text-gray-900 mt-2">${article.title || 'タイトル未設定'}</h1>
           <div class="text-gray-500 text-sm mt-2">
             ${new Date().toLocaleDateString('ja-JP', {

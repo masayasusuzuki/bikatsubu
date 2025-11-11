@@ -30,15 +30,15 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#d11a68] text-white">
+    <footer className="bg-brand-primary text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-8">
             <div>
                 <h2 className="text-3xl font-bold">美活部</h2>
             </div>
             <div className="flex space-x-4">
-                <a href="https://x.com/bikatsubu_mirai" target="_blank" rel="noopener noreferrer" className="text-xl p-2 bg-white text-[#d11a68] rounded-full w-10 h-10 flex items-center justify-center"><i className="fab fa-x-twitter"></i></a>
-                <a href="https://www.tiktok.com/@bikatsubu_mirai" target="_blank" rel="noopener noreferrer" className="text-xl p-2 bg-white text-[#d11a68] rounded-full w-10 h-10 flex items-center justify-center"><i className="fab fa-tiktok"></i></a>
+                <a href="https://x.com/bikatsubu_mirai" target="_blank" rel="noopener noreferrer" className="text-xl p-2 bg-white text-brand-primary rounded-full w-10 h-10 flex items-center justify-center"><i className="fab fa-x-twitter"></i></a>
+                <a href="https://www.tiktok.com/@bikatsubu_mirai" target="_blank" rel="noopener noreferrer" className="text-xl p-2 bg-white text-brand-primary rounded-full w-10 h-10 flex items-center justify-center"><i className="fab fa-tiktok"></i></a>
             </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-white/30 pt-8">

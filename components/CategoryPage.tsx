@@ -5,16 +5,6 @@ import { articlesAPI, Article } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 import { useCanonical } from '../src/hooks/useCanonical';
 
-interface CategoryArticle {
-  id: string;
-  title: string;
-  excerpt: string;
-  imageUrl: string;
-  readTime: string;
-  publishDate: string;
-  tags: string[];
-}
-
 interface CategoryPageProps {
   category: string;
 }
@@ -267,25 +257,11 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
 
   const categoryInfo = getCategoryInfo(category);
 
-  // Supabaseから取得した記事を表示用にフォーマット
-  const formatArticleForDisplay = (article: Article): CategoryArticle => {
-    return {
-      id: article.id,
-      title: article.title,
-      excerpt: article.meta_description || article.content.substring(0, 200) + '...',
-      imageUrl: article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format',
-      readTime: '',
-      publishDate: article.published_at || article.created_at,
-      tags: article.keywords ? article.keywords.split(',') : []
-    };
-  };
-
-  const displayArticles = articles.map(formatArticleForDisplay);
-
-  const filteredArticles = displayArticles.filter(article =>
+  const filteredArticles = articles.filter(article =>
     article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    article.meta_description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.keywords?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // 構造化データ（パンくずリスト）
@@ -322,12 +298,12 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
         <div className="container mx-auto px-4 py-3">
           <ol className="flex items-center space-x-2 text-sm">
             <li>
-              <a href="/" className="text-gray-500 hover:text-[#d11a68] transition-colors">
+              <a href="/" className="text-gray-500 hover:text-brand-primary transition-colors">
                 ホーム
               </a>
             </li>
             <li className="text-gray-400">/</li>
-            <li className="text-[#d11a68] font-medium">{categoryInfo.title}</li>
+            <li className="text-brand-primary font-medium">{categoryInfo.title}</li>
           </ol>
         </div>
       </nav>
@@ -361,7 +337,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
               </div>
             </div>
             <p className="text-xs md:text-sm text-gray-600 mt-2 text-center">
-              {searchQuery ? `"${searchQuery}" の検索結果: ${filteredArticles.length}件` : `${displayArticles.length}件の記事があります`}
+              {searchQuery ? `"${searchQuery}" の検索結果: ${filteredArticles.length}件` : `${articles.length}件の記事があります`}
             </p>
           </div>
         </div>
@@ -383,7 +359,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
               <h3 className="text-xl font-semibold text-gray-600 mb-2">{error}</h3>
               <button
                 onClick={() => window.location.reload()}
-                className="text-[#d11a68] hover:underline"
+                className="text-brand-primary hover:underline"
               >
                 再読み込み
               </button>
@@ -394,14 +370,14 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
             <article
               key={article.id}
               className="bg-white border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => window.location.href = `/article/${articles.find(a => a.id === article.id)?.slug || article.id}`}
+              onClick={() => window.location.href = `/article/${article.slug || article.id}`}
             >
               <div className="flex flex-col md:flex-row items-start p-4 md:p-6">
                 {/* Thumbnail */}
                 <div className="flex-shrink-0 w-full md:w-48 h-48 md:h-32 mb-4 md:mb-0 md:mr-6">
                   <img
-                    src={article.imageUrl}
-                    alt={article.title}
+                    src={article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format'}
+                    alt={article.featured_image_alt || article.title}
                     className="w-full h-full object-cover rounded"
                   />
                 </div>
@@ -411,26 +387,26 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
                   <div>
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
                       <div className="flex flex-wrap gap-2 mb-2 md:mb-0">
-                        {article.tags.slice(0, 3).map((tag, index) => (
+                        {article.keywords?.split(',').slice(0, 3).map((tag, index) => (
                           <span key={index} className="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded">
-                            {tag}
+                            {tag.trim()}
                           </span>
                         ))}
                       </div>
                       <div className="flex items-center text-xs text-gray-500">
-                        <span>{new Date(article.publishDate).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <span>{new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                       </div>
                     </div>
 
-                    <p className="text-sm text-[#d11a68] font-semibold mb-2">{category}</p>
+                    <p className="text-sm text-brand-primary font-semibold mb-2">{category}</p>
 
-                    <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3 hover:text-[#d11a68] transition-colors" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3 hover:text-brand-primary transition-colors" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {article.title}
                     </h3>
                   </div>
 
                   <div className="mt-4">
-                    <span className="text-[#d11a68] hover:text-pink-700 text-sm font-medium">
+                    <span className="text-brand-primary hover:text-pink-700 text-sm font-medium">
                       続きを読む →
                     </span>
                   </div>

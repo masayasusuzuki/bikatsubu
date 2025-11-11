@@ -20,7 +20,7 @@ const Header: React.FC = () => {
             </a>
           </div>
           <div className="flex items-center space-x-4">
-            <a href="/media" className="text-sm text-gray-600 hover:text-[#d11a68] hidden md:block">美活部に掲載</a>
+            <a href="/media" className="text-sm text-gray-600 hover:text-brand-primary hidden md:block">美活部に掲載</a>
             {/* ハンバーガーメニューボタン */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -75,7 +75,7 @@ const Header: React.FC = () => {
                         href={getHref(item)}
                         className={`text-center px-3 py-2 rounded-md text-sm font-medium w-36 ${
                             item === '肌タイプ診断'
-                                ? 'text-[#d11a68] font-bold hover:bg-gray-100'
+                                ? 'text-brand-primary font-bold hover:bg-gray-100'
                                 : 'text-gray-700 hover:bg-gray-100'
                         }`}
                     >
@@ -109,7 +109,7 @@ const Header: React.FC = () => {
                     href={getHref(item)}
                     className={`px-4 py-3 rounded-md text-sm font-medium transition-colors ${
                       item === '肌タイプ診断'
-                        ? 'text-[#d11a68] font-bold bg-pink-50 hover:bg-pink-100'
+                        ? 'text-brand-primary font-bold bg-beauty-pink-50 hover:bg-beauty-pink-100'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -134,7 +134,7 @@ const Header: React.FC = () => {
        <div className="bg-gray-100">
         <div className="container mx-auto px-4 flex justify-end items-center py-2 space-x-6">
             {subNavItems.map(item => (
-                <a key={item} href="#" className="text-gray-700 hover:text-[#d11a68] px-3 py-1 rounded-md text-sm font-semibold">{item}</a>
+                <a key={item} href="#" className="text-gray-700 hover:text-brand-primary px-3 py-1 rounded-md text-sm font-semibold">{item}</a>
             ))}
         </div>
       </div>

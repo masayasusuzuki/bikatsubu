@@ -35,8 +35,8 @@ const CategoryCard: React.FC<{ category: Category }> = ({ category }) => {
         <ul className="space-y-2">
           {category.subcategories.map(sub => (
             <li key={sub} className="text-sm text-gray-700 flex items-center">
-              <span className="inline-block w-2 h-2 bg-[#d11a68] rounded-full mr-3 flex-shrink-0"></span>
-              <a href="#" className="hover:text-[#d11a68] transition-colors">{sub}</a>
+              <span className="inline-block w-2 h-2 bg-brand-primary rounded-full mr-3 flex-shrink-0"></span>
+              <a href="#" className="hover:text-brand-primary transition-colors">{sub}</a>
             </li>
           ))}
         </ul>

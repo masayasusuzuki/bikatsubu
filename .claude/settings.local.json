@@ -22,7 +22,8 @@
       "Bash(npm run generate:sitemap:*)",
       "Bash(awk:*)",
       "Bash(tsx scripts/generate-html-with-canonical.ts:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

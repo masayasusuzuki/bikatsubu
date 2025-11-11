@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import type { Product, Article } from '../types';
+import type { Product } from '../types';
+import type { Article } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface ProductCarouselProps {
@@ -12,10 +13,10 @@ const MostReadArticle: React.FC<{ article: Article }> = ({ article }) => (
     className="flex items-start space-x-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
     onClick={() => window.location.href = `/article/${article.slug || article.id}`}
   >
-    <img src={optimizeAnyImageUrl(article.imageUrl, 64, 64)} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
+    <img src={optimizeAnyImageUrl(article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=64&h=64&fit=crop&auto=format', 64, 64)} alt={article.title} className="w-16 h-16 object-cover flex-shrink-0 rounded" />
     <div>
-      <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-[#d11a68]">{article.title}</p>
-      <p className="text-xs text-gray-500 mt-1">{article.category || article.date}</p>
+      <p className="text-sm font-semibold text-gray-800 leading-tight hover:text-brand-primary">{article.title}</p>
+      <p className="text-xs text-gray-500 mt-1">{article.category}</p>
     </div>
   </div>
 );
@@ -52,7 +53,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, mostRead })
                     <img src={optimizeAnyImageUrl(product.imageUrl, 320, 160)} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"/>
                   </div>
                   <div className="py-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <p className="text-sm font-semibold text-gray-800 group-hover:text-[#d11a68]" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
+                    <p className="text-sm font-semibold text-gray-800 group-hover:text-brand-primary" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
                     <p className="text-xs text-gray-500 mt-1">{product.date}</p>
                   </div>
                 </div>

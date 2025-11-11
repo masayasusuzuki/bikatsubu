@@ -147,7 +147,7 @@ const FAQ: React.FC = () => {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     selectedCategory === category.id
-                      ? 'bg-[#d11a68] text-white'
+                      ? 'bg-brand-primary text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -195,7 +195,7 @@ const FAQ: React.FC = () => {
                   <div className="px-6 pb-6">
                     <div className="pt-2 border-t border-gray-100">
                       <p className="text-gray-700 leading-relaxed">
-                        <strong className="text-[#d11a68]">A.</strong> {item.answer}
+                        <strong className="text-brand-primary">A.</strong> {item.answer}
                       </p>
                     </div>
                   </div>
@@ -220,10 +220,10 @@ const FAQ: React.FC = () => {
               お気軽にお問い合わせください。
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-[#d11a68] font-bold py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors">
+              <button className="bg-white text-brand-primary font-bold py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors">
                 お問い合わせフォーム
               </button>
-              <button className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 rounded-lg hover:bg-white hover:text-[#d11a68] transition-colors">
+              <button className="bg-transparent border-2 border-white text-white font-bold py-3 px-6 rounded-lg hover:bg-white hover:text-brand-primary transition-colors">
                 SNSで質問する
               </button>
             </div>

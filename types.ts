@@ -1,12 +1,25 @@
 
+// データベース関連の型はsupabase.tsから再エクスポート
+export type {
+  Article,
+  CreateArticle,
+  PageSection,
+  HeroSlide as DBHeroSlide,  // データベース型はDBHeroSlideとして再エクスポート
+  CreateHeroSlide,
+  ImageFolder,
+  ImageMetadata,
+  CloudinaryImageFromDB
+} from './src/lib/supabase';
+
+// UIコンポーネント用の型定義
+// HeroCarousel等のUIコンポーネント用
 export interface HeroSlide {
-  id: number;
+  id: string;  // stringに統一
   imageUrl: string;
   alt: string;
-  articleId?: string; // 記事IDを追加
-  articleSlug?: string; // 記事スラッグを追加
+  articleId?: string;
+  articleSlug?: string;
 }
-
 export interface Product {
   id: string;
   name: string;
@@ -21,16 +34,6 @@ export interface Category {
   subtitle: string;
   imageUrl: string;
   subcategories: string[];
-}
-
-export interface Article {
-  id: string;
-  title: string;
-  imageUrl: string;
-  date: string;
-  category?: string;
-  tag?: string;
-  slug?: string;
 }
 
 export interface Manufacturer {

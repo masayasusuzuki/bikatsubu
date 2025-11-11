@@ -26,8 +26,8 @@ import SearchBar from './components/SearchBar';
 import SearchResultsPage from './components/SearchResultsPage';
 import Sitemap from './components/Sitemap';
 import { heroSlides as fallbackHeroSlides, newProducts, categories, mostViewedProducts, mostViewedManufacturers } from './constants';
-import { pageSectionsAPI, articlesAPI, heroSlidesAPI, Article as DBArticle, HeroSlide as DBHeroSlide } from './src/lib/supabase';
-import type { Article, Product, HeroSlide } from './types';
+import { pageSectionsAPI, articlesAPI, heroSlidesAPI, Article, HeroSlide as DBHeroSlide } from './src/lib/supabase';
+import type { Product, HeroSlide } from './types';
 import { useCanonical } from './src/hooks/useCanonical';
 
 const App: React.FC = () => {
@@ -106,25 +106,13 @@ const App: React.FC = () => {
     }, remainingTime);
   };
 
-  const convertDBArticleToUIArticle = (dbArticle: DBArticle): Article => {
-    return {
-      id: dbArticle.id, // Keep UUID as string
-      title: dbArticle.title,
-      imageUrl: dbArticle.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format',
-      date: new Date(dbArticle.published_at || dbArticle.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
-      category: dbArticle.category,
-      tag: dbArticle.keywords?.split(',')[0] || undefined,
-      slug: dbArticle.slug
-    };
-  };
-
   const convertArticleToProduct = (article: Article): Product => {
     return {
       id: article.id,
       name: article.title,
       subText: article.category || '',
-      imageUrl: article.imageUrl,
-      date: article.date,
+      imageUrl: article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format',
+      date: new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
       slug: article.slug
     };
   };
@@ -168,35 +156,35 @@ const App: React.FC = () => {
       const hotCosmetics = sections
         .filter(s => s.section_name === 'hot_cosmetics' && s.article)
         .sort((a, b) => a.position - b.position)
-        .map(s => convertDBArticleToUIArticle(s.article!));
+        .map(s => s.article!);
 
       const popularMedicalBeauty = sections
         .filter(s => s.section_name === 'popular_medical_beauty' && s.article)
         .sort((a, b) => a.position - b.position)
-        .map(s => convertDBArticleToUIArticle(s.article!));
+        .map(s => s.article!);
 
       const brandUpdates = sections
         .filter(s => s.section_name === 'brand_updates' && s.article)
         .sort((a, b) => a.position - b.position)
-        .map(s => convertDBArticleToUIArticle(s.article!));
+        .map(s => s.article!);
 
       const beautyEvents = sections
         .filter(s => s.section_name === 'beauty_events' && s.article)
         .sort((a, b) => a.position - b.position)
-        .map(s => convertDBArticleToUIArticle(s.article!));
+        .map(s => s.article!);
 
       const managementTips = sections
         .filter(s => s.section_name === 'management_tips' && s.article)
         .sort((a, b) => a.position - b.position)
-        .map(s => convertDBArticleToUIArticle(s.article!));
+        .map(s => s.article!);
 
       // 調査レポートを取得（article_type='survey'）
       const surveyReportsData = await articlesAPI.getArticlesByType('survey');
-      const surveyReports = surveyReportsData.slice(0, 3).map(convertDBArticleToUIArticle);
+      const surveyReports = surveyReportsData.slice(0, 3);
 
       // 最新記事を取得（mostReadArticlesの代わり）
       const latestArticlesData = await articlesAPI.getLatestArticles(5);
-      const mostReadArticles = latestArticlesData.map(convertDBArticleToUIArticle);
+      const mostReadArticles = latestArticlesData;
 
       setPageData({
         hotCosmetics,

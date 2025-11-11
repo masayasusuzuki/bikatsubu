@@ -28,7 +28,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* 個人情報の定義 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">1. 個人情報の定義</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">1. 個人情報の定義</h2>
             <p className="text-gray-700 leading-relaxed">
               本プライバシーポリシーにおいて「個人情報」とは、個人情報保護法第2条第1項に定義される、生存する個人に関する情報であって、当該情報に含まれる氏名、メールアドレス、その他の記述により特定の個人を識別することができるもの（他の情報と容易に照合することができ、それにより特定の個人を識別することができることとなるものを含む）を指します。
             </p>
@@ -36,7 +36,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* 収集する情報 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">2. 収集する個人情報</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">2. 収集する個人情報</h2>
 
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">2.1 サイト利用時に自動的に収集される情報</h3>
@@ -63,7 +63,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* 利用目的 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">3. 個人情報の利用目的</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">3. 個人情報の利用目的</h2>
             
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">3.1 サービス提供のための利用</h3>
@@ -105,7 +105,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* Cookie等の利用 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">4. Cookie及びアクセス解析ツールについて</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">4. Cookie及びアクセス解析ツールについて</h2>
             
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">4.1 Cookieの利用</h3>
@@ -136,7 +136,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* 第三者提供 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">5. 個人情報の第三者提供</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">5. 個人情報の第三者提供</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               当サイトは、以下の場合を除き、ユーザーの同意なく個人情報を第三者に提供することはありません：
@@ -152,7 +152,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* 外部サービス */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">6. 外部サービスの利用</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">6. 外部サービスの利用</h2>
             
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-3">6.1 利用している外部サービス</h3>
@@ -170,7 +170,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* セキュリティ */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">7. 個人情報の安全管理</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">7. 個人情報の安全管理</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               当サイトは、個人情報の漏えい、滅失または毀損の防止その他の個人情報の安全管理のため、必要かつ適切な措置を講じます：
@@ -186,7 +186,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* 保存期間 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">8. 個人情報の保存期間</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">8. 個人情報の保存期間</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               収集した個人情報は、利用目的達成のために必要な期間に限り保存します：
@@ -201,7 +201,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* ユーザーの権利 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">9. ユーザーの権利</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">9. ユーザーの権利</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               ユーザーは、自身の個人情報について以下の権利を有します：
@@ -221,7 +221,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* 未成年者 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">10. 未成年者の個人情報</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">10. 未成年者の個人情報</h2>
             
             <p className="text-gray-700 leading-relaxed">
               当サイトは、15歳未満の方からは個人情報を収集しません。15歳以上18歳未満の方がサイトを利用される場合は、保護者の同意を得た上でご利用ください。
@@ -230,7 +230,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* プライバシーポリシーの変更 */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">11. プライバシーポリシーの変更</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">11. プライバシーポリシーの変更</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               当サイトは、法令の変更やサービスの改善等に伴い、本プライバシーポリシーを変更することがあります。
@@ -243,7 +243,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* お問い合わせ */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-[#d11a68] mb-4 pb-2 border-b border-gray-200">12. お問い合わせ</h2>
+            <h2 className="text-2xl font-bold text-brand-primary mb-4 pb-2 border-b border-gray-200">12. お問い合わせ</h2>
             
             <p className="text-gray-700 leading-relaxed mb-4">
               個人情報の取り扱いに関するお問い合わせ、開示請求等については、以下までご連絡ください：

@@ -13,7 +13,7 @@ const ReportCard: React.FC<{ report: Article }> = ({ report }) => (
         onClick={() => window.location.href = `/article/${report.slug || report.id}`}
     >
         <div className="overflow-hidden relative" style={{ flexShrink: 0 }}>
-            <img src={optimizeAnyImageUrl(report.imageUrl, 320, 160)} alt={report.title} className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"/>
+            <img src={optimizeAnyImageUrl(report.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=320&h=160&fit=crop&auto=format', 320, 160)} alt={report.title} className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"/>
             <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="absolute top-3 right-3 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                 調査データ
@@ -28,7 +28,7 @@ const ReportCard: React.FC<{ report: Article }> = ({ report }) => (
                 <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/>
                 </svg>
-                {report.date}
+                {new Date(report.published_at || report.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')}
             </p>
         </div>
     </div>

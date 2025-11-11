@@ -110,7 +110,7 @@ const AdminLogin: React.FC = () => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#d11a68] mb-2">美活部</h1>
+          <h1 className="text-3xl font-bold text-brand-primary mb-2">美活部</h1>
           <h2 className="text-xl font-semibold text-gray-800">管理者ログイン</h2>
         </div>
 
@@ -124,7 +124,7 @@ const AdminLogin: React.FC = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d11a68]"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary"
               required
             />
           </div>
@@ -138,7 +138,7 @@ const AdminLogin: React.FC = () => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d11a68]"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary"
               required
             />
           </div>
@@ -155,7 +155,7 @@ const AdminLogin: React.FC = () => {
             className={`w-full py-2 px-4 rounded-md transition-colors font-semibold ${
               isLocked
                 ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                : 'bg-[#d11a68] text-white hover:bg-opacity-90'
+                : 'bg-brand-primary text-white hover:bg-opacity-90'
             }`}
           >
             {isLocked ? 'アカウントロック中' : 'ログイン'}
@@ -163,7 +163,7 @@ const AdminLogin: React.FC = () => {
         </form>
 
         <div className="mt-6 text-center">
-          <a href="/" className="text-sm text-gray-600 hover:text-[#d11a68]">
+          <a href="/" className="text-sm text-gray-600 hover:text-brand-primary">
             サイトトップに戻る
           </a>
         </div>

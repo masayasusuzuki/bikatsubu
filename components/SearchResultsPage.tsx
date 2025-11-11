@@ -122,7 +122,7 @@ const SearchResultsPage: React.FC = () => {
                 >
                   <div className="overflow-hidden">
                     <img
-                      src={optimizeAnyImageUrl(article.imageUrl, 400, 250)}
+                      src={optimizeAnyImageUrl(article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format', 400, 250)}
                       alt={article.title}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -134,16 +134,16 @@ const SearchResultsPage: React.FC = () => {
                           {article.category}
                         </span>
                       )}
-                      {article.tag && (
+                      {article.category2 && (
                         <span className="inline-block bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full">
-                          {article.tag}
+                          {article.category2}
                         </span>
                       )}
                     </div>
                     <h3 className="text-lg font-bold text-gray-800 group-hover:text-pink-600 transition-colors mb-2 line-clamp-2">
                       {article.title}
                     </h3>
-                    <p className="text-sm text-gray-500">{article.date}</p>
+                    <p className="text-sm text-gray-500">{new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')}</p>
                   </div>
                 </div>
               ))}
