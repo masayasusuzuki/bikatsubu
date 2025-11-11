@@ -274,8 +274,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
       title: article.title,
       excerpt: article.meta_description || article.content.substring(0, 200) + '...',
       imageUrl: article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format',
-      readTime: '5分', // 固定値または計算で求める
-      publishDate: article.created_at,
+      readTime: '',
+      publishDate: article.published_at || article.created_at,
       tags: article.keywords ? article.keywords.split(',') : []
     };
   };
@@ -417,9 +417,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
                           </span>
                         ))}
                       </div>
-                      <div className="flex items-center text-xs text-gray-500 space-x-3">
-                        <span>{new Date(article.publishDate).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })}</span>
-                        <span>{article.readTime}</span>
+                      <div className="flex items-center text-xs text-gray-500">
+                        <span>{new Date(article.publishDate).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                       </div>
                     </div>
 
