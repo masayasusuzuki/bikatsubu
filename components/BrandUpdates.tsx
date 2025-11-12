@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Article, Product, Manufacturer } from '../types';
 import OptimizedImage from './OptimizedImage';
+import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface BrandUpdatesProps {
   articles: Article[];

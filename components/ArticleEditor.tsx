@@ -756,7 +756,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
         {/* Header */}
       <header className="bg-white border-b border-gray-300 shadow-sm fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -944,6 +944,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                   placeholder="記事の内容を入力してください... ## で見出し、**太字**、*斜体* など"
                 />
                 </div>
+              </div>
               </div>
             )}
 
@@ -1294,8 +1295,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
                   </div>
                 </div>
               </div>
+            </div>
             )}
           </div>
+          </>
         )}
       </div>
     </div>
