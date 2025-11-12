@@ -24,7 +24,10 @@
       "Bash(tsx scripts/generate-html-with-canonical.ts:*)",
       "Bash(npx tsx:*)",
       "Bash(npx tsc:*)",
-      "Bash(mcp-claudepoint get-changes:*)"
+      "Bash(mcp-claudepoint get-changes:*)",
+      "Bash(git checkout:*)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias=\"@/*\" --yes)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
