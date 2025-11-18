@@ -24,7 +24,8 @@
       "Bash(tsx scripts/generate-html-with-canonical.ts:*)",
       "Bash(npx tsx:*)",
       "Bash(npx tsc:*)",
-      "Bash(mcp-claudepoint get-changes:*)"
+      "Bash(mcp-claudepoint get-changes:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
