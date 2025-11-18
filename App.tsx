@@ -483,30 +483,26 @@ const App: React.FC = () => {
         <SearchBar />
         <div className="container mx-auto px-4 py-8">
            <ProductCarousel products={pageData.hotCosmetics.map(convertArticleToProduct)} mostRead={pageData.mostReadArticles} />
-           <div className="my-8 md:my-12 rounded-2xl shadow-xl overflow-hidden">
-              {/* モバイル版バナー */}
-              <a href="#" className="block md:hidden">
+           {/* モバイル版バナー */}
+           <div className="my-8 md:my-12 md:hidden rounded-2xl shadow-xl overflow-hidden">
+              <a href="#" className="block">
                 <img
                   src="https://res.cloudinary.com/dmxlepoau/image/upload/v1763459741/vnwmyzvqikjxvheqwvkn.jpg"
                   alt="ハリ弾力UP - ニキビ跡やシミ・赤みが気にになる方"
                   className="w-full h-auto"
                 />
               </a>
+            </div>
 
-              {/* PC版バナー（暫定的にグラデーション背景を維持） */}
-              <div className="hidden md:block p-8 md:p-12 bg-gradient-to-br from-rose-400 via-pink-400 to-purple-400 text-white text-center relative overflow-hidden">
-                {/* 装飾的な背景要素 */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-
-                <div className="relative z-10">
-                  <h2 className="text-2xl md:text-4xl font-bold mb-2 drop-shadow-lg">Find Your Perfect Beauty Item</h2>
-                  <p className="mt-2 md:mt-3 mb-6 md:mb-8 text-sm md:text-lg text-white/90 font-light">あなたのための美容製品、テクニック、サロンがきっと見つかる</p>
-                  <button className="bg-white text-rose-500 font-bold py-3 md:py-4 px-8 md:px-12 text-base md:text-lg hover:bg-rose-50 hover:scale-105 transition-all duration-300 rounded-full shadow-lg hover:shadow-2xl">
-                    アイテムを探す
-                  </button>
-                </div>
-              </div>
+           {/* PC版バナー */}
+           <div className="hidden md:block my-8 md:my-12 mx-auto w-3/4 rounded-2xl shadow-xl overflow-hidden">
+              <a href="#" className="block">
+                <img
+                  src="https://res.cloudinary.com/dmxlepoau/image/upload/v1763462298/dbtqxc3lruw4kvmsugkb.jpg"
+                  alt="Find Your Perfect Beauty Item"
+                  className="w-full h-auto"
+                />
+              </a>
             </div>
            <CategoryGrid categories={categories} />
         </div>
