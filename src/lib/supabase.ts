@@ -167,7 +167,7 @@ export const articlesAPI = {
       .from('articles')
       .select('*')
       .eq('status', 'published')
-      .order('created_at', { ascending: false })
+      .order('published_at', { ascending: false })
       .limit(limit)
 
     if (error) throw error

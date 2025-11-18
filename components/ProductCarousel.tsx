@@ -31,77 +31,65 @@ const MostReadArticle: React.FC<{ article: Article }> = ({ article }) => (
 );
 
 const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, mostRead }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerPage = 4;
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const displayedArticles = mostRead.slice(0, 5);
 
-  const prev = () => setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : totalPages - 1);
-  const next = () => setCurrentIndex(currentIndex < totalPages - 1 ? currentIndex + 1 : 0);
-  
   return (
     <section>
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold">Hot Medical Beauty</h2>
-        <p className="text-gray-600">話題の美容医療 (Latest Medical Beauty)</p>
+        <h2 className="text-3xl font-bold">最新の記事一覧</h2>
+        <p className="text-gray-600">Latest Articles</p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Main Content */}
-        <div className="w-full lg:w-2/3">
-          {products.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {products.map(product => (
+      <div className="w-full">
+        {displayedArticles.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+              {displayedArticles.map(article => (
                 <div
-                  key={product.id}
+                  key={article.id}
                   className="group cursor-pointer"
-                  style={{ height: '256px', display: 'flex', flexDirection: 'column' }}
-                  onClick={() => window.location.href = `/article/${product.slug || product.id}`}
+                  onClick={() => window.location.href = `/article/${article.slug || article.id}`}
                 >
-                  <div className="overflow-hidden" style={{ flexShrink: 0, height: '160px' }}>
+                  <div className="overflow-hidden rounded-lg">
                     <OptimizedImage
-                      src={product.imageUrl}
-                      alt={product.name}
+                      src={article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format'}
+                      alt={article.title}
                       width={320}
-                      height={160}
-                      className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      height={180}
+                      className="w-full h-32 md:h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
                     />
                   </div>
-                  <div className="py-4" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <p className="text-sm font-semibold text-gray-800 group-hover:text-brand-primary" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</p>
-                    <p className="text-xs text-gray-500 mt-1">{product.date}</p>
+                  <div className="py-3">
+                    <p className="text-sm font-semibold text-gray-800 group-hover:text-brand-primary line-clamp-2">{article.title}</p>
+                    <p className="text-xs text-gray-500 mt-1">{article.category}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                      })}
+                    </p>
                   </div>
                 </div>
-                ))}
-              </div>
-              <div className="text-center mt-8">
-                <button 
-                  className="bg-gray-800 text-white font-bold py-3 px-12 hover:bg-gray-700 transition-colors rounded-md"
-                  onClick={() => window.location.href = '/articles/hot-cosmetics'}
-                >
-                  記事一覧を見る
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 text-4xl mb-4">📝</div>
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">記事がありません</h3>
-              <p className="text-gray-500">管理画面から記事を追加してください</p>
+              ))}
             </div>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <aside className="w-full lg:w-1/3">
-          <div className="mb-8">
-            <h3 className="font-bold text-lg border-b-2 border-gray-300 pb-2 mb-4">最新の記事一覧</h3>
-            {mostRead.map(article => (
-              <MostReadArticle key={article.id} article={article} />
-            ))}
+            <div className="text-center mt-8">
+              <button
+                className="bg-gray-800 text-white font-bold py-3 px-12 hover:bg-gray-700 transition-colors rounded-md"
+                onClick={() => window.location.href = '/articles/latest'}
+              >
+                記事一覧を見る
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-4xl mb-4">📝</div>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">記事がありません</h3>
+            <p className="text-gray-500">管理画面から記事を追加してください</p>
           </div>
-        </aside>
+        )}
       </div>
     </section>
   );

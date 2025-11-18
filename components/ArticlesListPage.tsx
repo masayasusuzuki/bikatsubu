@@ -17,7 +17,7 @@ interface ArticleListItem {
 }
 
 interface ArticlesListPageProps {
-  sectionType: 'hot_cosmetics' | 'brand_updates' | 'management_tips' | 'beauty_events' | 'surveys';
+  sectionType: 'hot_cosmetics' | 'brand_updates' | 'management_tips' | 'beauty_events' | 'surveys' | 'latest';
 }
 
 const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
@@ -33,7 +33,8 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
       'brand_updates': 'https://www.bikatsubu-media.jp/articles/brand-updates',
       'management_tips': 'https://www.bikatsubu-media.jp/articles/management-tips',
       'beauty_events': 'https://www.bikatsubu-media.jp/articles/beauty-events',
-      'surveys': 'https://www.bikatsubu-media.jp/articles/surveys'
+      'surveys': 'https://www.bikatsubu-media.jp/articles/surveys',
+      'latest': 'https://www.bikatsubu-media.jp/articles/latest'
     };
     return urlMap[sectionType] || '';
   };
@@ -83,6 +84,13 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
         heroImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&h=400&fit=crop&auto=format',
         bgColor: 'bg-indigo-50',
         pageTitle: '美容調査レポート一覧'
+      },
+      'latest': {
+        title: '最新の記事一覧',
+        description: '最新の美容記事を新しい順にご覧いただけます',
+        heroImage: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=1200&h=400&fit=crop&auto=format',
+        bgColor: 'bg-rose-50',
+        pageTitle: '最新の記事一覧'
       }
     };
 
@@ -132,6 +140,10 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
           // 調査レポートの場合は、article_type='survey'の記事を取得
           const surveyArticles = await articlesAPI.getArticlesByType('survey');
           setArticles(surveyArticles);
+        } else if (sectionType === 'latest') {
+          // 最新記事の場合は、すべての公開記事を新しい順に取得
+          const latestArticles = await articlesAPI.getLatestArticles(100);
+          setArticles(latestArticles);
         } else {
           // 他のセクションは従来通り
           const sections = await pageSectionsAPI.getSectionByName(sectionType);
@@ -269,22 +281,21 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
               key={article.id}
               className="bg-white border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => window.location.href = `/article/${articles.find(a => a.id === article.id)?.slug || article.id}`}
-              style={{ height: '200px' }}
             >
-              <div className="flex items-start p-6 h-full">
-                {/* Left side - Thumbnail */}
-                <div className="flex-shrink-0 w-48 h-32 mr-6">
+              <div className="flex flex-col md:flex-row md:items-start p-6">
+                {/* Thumbnail */}
+                <div className="flex-shrink-0 w-full md:w-48 h-48 md:h-32 mb-4 md:mb-0 md:mr-6">
                   <img
-                    src={optimizeAnyImageUrl(article.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=320&h=160&fit=crop&auto=format', 320, 160)}
+                    src={optimizeAnyImageUrl(article.imageUrl, 320, 160)}
                     alt={article.title}
                     className="w-full h-full object-cover rounded"
                   />
                 </div>
 
-                {/* Right side - Content */}
-                <div className="flex-1 flex flex-col justify-between h-full">
+                {/* Content */}
+                <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 gap-2">
                       <div className="flex flex-wrap gap-2">
                         {article.tags.slice(0, 3).map((tag, index) => (
                           <span key={index} className="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded">
@@ -300,7 +311,7 @@ const ArticlesListPage: React.FC<ArticlesListPageProps> = ({ sectionType }) => {
 
                     <p className="text-sm text-brand-primary font-semibold mb-2">{article.category}</p>
 
-                    <h3 className="text-xl font-semibold text-gray-800 mb-3 hover:text-brand-primary transition-colors" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-3 hover:text-brand-primary transition-colors line-clamp-3">
                       {article.title}
                     </h3>
                   </div>
