@@ -122,7 +122,7 @@ const App: React.FC = () => {
 
   const convertDBHeroSlideToUIHeroSlide = (dbSlide: DBHeroSlide): HeroSlide => {
     return {
-      id: parseInt(dbSlide.id.split('-')[0], 16) % 1000, // Convert UUID to number for backward compatibility
+      id: dbSlide.id,
       imageUrl: dbSlide.image_url,
       alt: dbSlide.alt_text,
       articleId: dbSlide.article_id || undefined,
@@ -485,7 +485,7 @@ const App: React.FC = () => {
            <ProductCarousel products={pageData.hotCosmetics.map(convertArticleToProduct)} mostRead={pageData.mostReadArticles} />
            {/* モバイル版バナー */}
            <div className="my-8 md:my-12 md:hidden rounded-2xl shadow-xl overflow-hidden">
-              <a href="#" className="block">
+              <a href="https://bikatsubu-media.jp/article/article-20251119-2022" className="block">
                 <img
                   src="https://res.cloudinary.com/dmxlepoau/image/upload/v1763459741/vnwmyzvqikjxvheqwvkn.jpg"
                   alt="ハリ弾力UP - ニキビ跡やシミ・赤みが気にになる方"
@@ -496,7 +496,7 @@ const App: React.FC = () => {
 
            {/* PC版バナー */}
            <div className="hidden md:block my-8 md:my-12 mx-auto w-3/4 rounded-2xl shadow-xl overflow-hidden">
-              <a href="#" className="block">
+              <a href="https://bikatsubu-media.jp/article/article-20251119-2022" className="block">
                 <img
                   src="https://res.cloudinary.com/dmxlepoau/image/upload/v1763462298/dbtqxc3lruw4kvmsugkb.jpg"
                   alt="Find Your Perfect Beauty Item"
