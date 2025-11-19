@@ -518,9 +518,32 @@ const App: React.FC = () => {
                     <BrandUpdates articles={pageData.brandUpdates} products={mostViewedProducts} manufacturers={mostViewedManufacturers} popularMedicalBeauty={pageData.popularMedicalBeauty}/>
                 </div>
             </div>
-            <div className="bg-gradient-to-br from-pink-500 via-rose-500 to-purple-600 text-white py-16 my-12">
-               <BeautyEvents events={pageData.beautyEvents} />
+            {/* イベントバナー - モバイル版 */}
+            <div className="container mx-auto px-4 my-8 md:my-12 md:hidden">
+              <div className="rounded-2xl shadow-xl overflow-hidden">
+                <a href="https://bikatsubu-media.jp/articles/events" className="block">
+                  <img
+                    src="https://res.cloudinary.com/dmxlepoau/image/upload/v1763553057/k7chnfzszaoyqpz8pag4.jpg"
+                    alt="美容医療イベント情報"
+                    className="w-full h-auto"
+                  />
+                </a>
+              </div>
             </div>
+
+            {/* イベントバナー - PC版 */}
+            <div className="container mx-auto px-4 hidden md:block my-8 md:my-12">
+              <div className="mx-auto w-3/4 rounded-2xl shadow-xl overflow-hidden">
+                <a href="https://bikatsubu-media.jp/articles/events" className="block">
+                  <img
+                    src="https://res.cloudinary.com/dmxlepoau/image/upload/v1763553057/k7chnfzszaoyqpz8pag4.jpg"
+                    alt="美容医療イベント情報"
+                    className="w-full h-auto"
+                  />
+                </a>
+              </div>
+            </div>
+
             <div className="bg-gradient-to-b from-slate-50 to-gray-50 py-16">
                  <div className="container mx-auto px-4">
                     <ManagementTips tips={pageData.managementTips} />
