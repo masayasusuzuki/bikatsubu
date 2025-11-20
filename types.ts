@@ -19,6 +19,7 @@ export interface HeroSlide {
   alt: string;
   articleId?: string;
   articleSlug?: string;
+  externalLink?: string;
 }
 export interface Product {
   id: string;
@@ -46,12 +47,26 @@ export interface Manufacturer {
 export interface BeautyEvent {
   id: string;
   title: string;
-  date: string;
-  endDate?: string;
+  event_date: string;
+  end_date?: string;
   category: string;
   brand?: string;
   location: string;
   description: string;
-  link?: string;
-  image?: string;
+  external_link?: string;
+  image_url?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateBeautyEvent {
+  title: string;
+  event_date: string;
+  end_date?: string;
+  category: string;
+  brand?: string;
+  location: string;
+  description: string;
+  external_link?: string;
+  image_url?: string;
 }

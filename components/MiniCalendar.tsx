@@ -24,9 +24,9 @@ const MiniCalendar: React.FC<MiniCalendarProps> = ({ events, selectedDate, onDat
   const hasEventOnDate = (date: Date): boolean => {
     const dateStr = date.toISOString().split('T')[0];
     return events.some(event => {
-      const eventStart = new Date(event.date).toISOString().split('T')[0];
-      if (event.endDate) {
-        const eventEnd = new Date(event.endDate).toISOString().split('T')[0];
+      const eventStart = new Date(event.event_date).toISOString().split('T')[0];
+      if (event.end_date) {
+        const eventEnd = new Date(event.end_date).toISOString().split('T')[0];
         return dateStr >= eventStart && dateStr <= eventEnd;
       }
       return dateStr === eventStart;

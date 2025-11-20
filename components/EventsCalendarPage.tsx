@@ -4,21 +4,34 @@ import Footer from './Footer';
 import MiniCalendar from './MiniCalendar';
 import EventTimeline from './EventTimeline';
 import type { BeautyEvent } from '../types';
-import { beautyEvents } from '../src/data/eventsData';
+import { beautyEventsAPI } from '../src/lib/supabase';
 import { useCanonical } from '../src/hooks/useCanonical';
 
 const EventsCalendarPage: React.FC = () => {
   const [events, setEvents] = useState<BeautyEvent[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useCanonical('https://www.bikatsubu-media.jp/articles/events');
 
   useEffect(() => {
-    // データを直接ロード
-    setEvents(beautyEvents);
-    setLoading(false);
+    loadEvents();
   }, []);
+
+  const loadEvents = async () => {
+    try {
+      setLoading(true);
+      const data = await beautyEventsAPI.getAllEvents();
+      setEvents(data);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to load events:', err);
+      setError('イベントの読み込みに失敗しました');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
@@ -74,7 +87,20 @@ const EventsCalendarPage: React.FC = () => {
         </div>
       )}
 
-      {!loading && (
+      {error && (
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">{error}</h3>
+          <button
+            onClick={loadEvents}
+            className="text-rose-600 hover:underline font-semibold mt-4"
+          >
+            再読み込み
+          </button>
+        </div>
+      )}
+
+      {!loading && !error && (
         <div className="container mx-auto px-4 py-12">
           {/* Category Filter */}
           <div className="mb-8 flex justify-center">

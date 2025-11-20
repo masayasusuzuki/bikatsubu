@@ -1,6 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import * as fs from 'fs';
 import * as path from 'path';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
@@ -231,10 +235,17 @@ ${articles?.map((article: Article) => `  <url>
 
 </urlset>`;
 
-    // public/sitemap.xmlに書き込み
-    const publicPath = path.join(process.cwd(), 'public', 'sitemap.xml');
-    fs.writeFileSync(publicPath, sitemap, 'utf-8');
-    console.log(`✓ Sitemap generated: ${publicPath}`);
+    // dist/sitemap.xmlに書き込み（ビルド後のディレクトリ）
+    const distPath = path.join(process.cwd(), 'dist', 'sitemap.xml');
+
+    // distディレクトリが存在しない場合は作成
+    const distDir = path.join(process.cwd(), 'dist');
+    if (!fs.existsSync(distDir)) {
+      fs.mkdirSync(distDir, { recursive: true });
+    }
+
+    fs.writeFileSync(distPath, sitemap, 'utf-8');
+    console.log(`✓ Sitemap generated: ${distPath}`);
     console.log(`✓ Total URLs: ${(articles?.length || 0) + 26}`); // 26 = 固定ページ数
 
   } catch (error) {

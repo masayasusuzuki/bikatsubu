@@ -24,7 +24,10 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ slides }) => {
   };
 
   const handleSlideClick = (slide: HeroSlide) => {
-    if (slide.articleSlug) {
+    // 外部リンクが優先
+    if (slide.externalLink) {
+      window.open(slide.externalLink, '_blank', 'noopener,noreferrer');
+    } else if (slide.articleSlug) {
       window.location.href = `/article/${slide.articleSlug}`;
     } else if (slide.articleId) {
       window.location.href = `/article/${slide.articleId}`;
@@ -38,7 +41,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ slides }) => {
         {slides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`flex-shrink-0 relative ${slide.articleId ? 'cursor-pointer' : ''}`}
+            className={`flex-shrink-0 relative ${(slide.externalLink || slide.articleId) ? 'cursor-pointer' : ''}`}
             style={{
               width: '65vw',
               aspectRatio: '16/9',

@@ -7,6 +7,7 @@ interface HeroSlideUI {
   alt: string;
   order: number;
   articleId?: string;
+  externalLink?: string;
 }
 
 const HeroSectionManager: React.FC = () => {
@@ -32,7 +33,8 @@ const HeroSectionManager: React.FC = () => {
       imageUrl: dbSlide.image_url,
       alt: dbSlide.alt_text,
       order: dbSlide.order_position,
-      articleId: dbSlide.article_id || undefined
+      articleId: dbSlide.article_id || undefined,
+      externalLink: dbSlide.external_link || undefined
     };
   };
 
@@ -41,7 +43,8 @@ const HeroSectionManager: React.FC = () => {
       image_url: uiSlide.imageUrl,
       alt_text: uiSlide.alt,
       order_position: uiSlide.order,
-      article_id: uiSlide.articleId || null
+      article_id: uiSlide.articleId || null,
+      external_link: uiSlide.externalLink || null
     };
   };
 
@@ -71,7 +74,8 @@ const HeroSectionManager: React.FC = () => {
             imageUrl: '',
             alt: '',
             order: index + 1,
-            articleId: undefined
+            articleId: undefined,
+            externalLink: undefined
           };
         });
 
@@ -80,11 +84,11 @@ const HeroSectionManager: React.FC = () => {
         console.warn('Failed to load hero slides, using fallback:', slidesError);
         // フォールバック用データ（空のスライド）
         setSlides([
-          { id: 'temp-1', imageUrl: '', alt: '', order: 1, articleId: undefined },
-          { id: 'temp-2', imageUrl: '', alt: '', order: 2, articleId: undefined },
-          { id: 'temp-3', imageUrl: '', alt: '', order: 3, articleId: undefined },
-          { id: 'temp-4', imageUrl: '', alt: '', order: 4, articleId: undefined },
-          { id: 'temp-5', imageUrl: '', alt: '', order: 5, articleId: undefined },
+          { id: 'temp-1', imageUrl: '', alt: '', order: 1, articleId: undefined, externalLink: undefined },
+          { id: 'temp-2', imageUrl: '', alt: '', order: 2, articleId: undefined, externalLink: undefined },
+          { id: 'temp-3', imageUrl: '', alt: '', order: 3, articleId: undefined, externalLink: undefined },
+          { id: 'temp-4', imageUrl: '', alt: '', order: 4, articleId: undefined, externalLink: undefined },
+          { id: 'temp-5', imageUrl: '', alt: '', order: 5, articleId: undefined, externalLink: undefined },
         ]);
       }
     } catch (error) {
@@ -267,9 +271,14 @@ const HeroSectionManager: React.FC = () => {
               <p className="text-xs text-gray-500 mt-1 truncate">
                 画像URL: {slide.imageUrl ? slide.imageUrl.substring(0, 30) + '...' : '未設定'}
               </p>
-              {slide.articleId && (
+              {slide.externalLink && (
+                <p className="text-xs text-purple-600 mt-1 truncate">
+                  外部リンク: {slide.externalLink}
+                </p>
+              )}
+              {!slide.externalLink && slide.articleId && (
                 <p className="text-xs text-blue-600 mt-1 truncate">
-                  リンク先: {articles.find(a => a.id === slide.articleId)?.title || '記事が見つかりません'}
+                  リンク先記事: {articles.find(a => a.id === slide.articleId)?.title || '記事が見つかりません'}
                 </p>
               )}
             </div>
@@ -347,6 +356,27 @@ const HeroSectionManager: React.FC = () => {
                 />
               </div>
 
+              {/* 外部URL入力 */}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                  外部リンクURL（オプション）
+                </label>
+                <input
+                  type="url"
+                  value={editingSlide.externalLink || ''}
+                  onChange={(e) => setEditingSlide({
+                    ...editingSlide,
+                    externalLink: e.target.value || undefined,
+                    articleId: e.target.value ? undefined : editingSlide.articleId // 外部URLを入力したら記事選択をクリア
+                  })}
+                  placeholder="https://example.com"
+                  className="w-full px-3 py-2 border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  外部サイトのURLを指定できます（記事選択より優先されます）
+                </p>
+              </div>
+
               {/* 記事選択 */}
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
@@ -354,8 +384,13 @@ const HeroSectionManager: React.FC = () => {
                 </label>
                 <select
                   value={editingSlide.articleId || ''}
-                  onChange={(e) => setEditingSlide({ ...editingSlide, articleId: e.target.value || undefined })}
-                  className="w-full px-3 py-2 border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded"
+                  onChange={(e) => setEditingSlide({
+                    ...editingSlide,
+                    articleId: e.target.value || undefined,
+                    externalLink: e.target.value ? undefined : editingSlide.externalLink // 記事を選択したら外部URLをクリア
+                  })}
+                  disabled={!!editingSlide.externalLink}
+                  className="w-full px-3 py-2 border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-[#d11a68] focus:border-[#d11a68] rounded disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="">記事を選択（リンクなし）</option>
                   {articles.filter(article => article.status === 'published').map((article) => (
@@ -365,7 +400,9 @@ const HeroSectionManager: React.FC = () => {
                   ))}
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  選択した記事へのリンクがスライドに設定されます
+                  {editingSlide.externalLink
+                    ? '外部リンクが設定されているため無効です'
+                    : '選択した記事へのリンクがスライドに設定されます'}
                 </p>
               </div>
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import type { BeautyEvent } from '../types';
-import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 interface EventTimelineProps {
   events: BeautyEvent[];
@@ -13,9 +12,9 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ events, selectedDate }) =
 
   // 選択された月のイベントをフィルター
   const monthEvents = events.filter(event => {
-    const eventDate = new Date(event.date);
+    const eventDate = new Date(event.event_date);
     return eventDate.getMonth() === selectedMonth && eventDate.getFullYear() === selectedYear;
-  }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }).sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
 
   // カテゴリーごとの色
   const getCategoryColor = (category: string): string => {
@@ -67,22 +66,9 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ events, selectedDate }) =
       {monthEvents.map((event, index) => (
         <div
           key={event.id}
-          className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group"
+          className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 group p-6"
         >
-          <div className="flex flex-col md:flex-row">
-            {/* Image section */}
-            {event.image && (
-              <div className="md:w-48 h-48 md:h-auto flex-shrink-0">
-                <img
-                  src={optimizeAnyImageUrl(event.image, 320, 240)}
-                  alt={event.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            )}
-
-            {/* Content section */}
-            <div className="flex-1 p-6">
+          <div>
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -106,7 +92,7 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ events, selectedDate }) =
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span className="text-lg">{formatDateRange(event.date, event.endDate)}</span>
+                    <span className="text-lg">{formatDateRange(event.event_date, event.end_date)}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-500 text-sm">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,20 +108,19 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ events, selectedDate }) =
                 {event.description}
               </p>
 
-              {event.link && (
+              {event.external_link && (
                 <a
-                  href={event.link}
+                  href={event.external_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-rose-600 hover:text-rose-700 font-semibold transition-colors"
+                  className="inline-flex items-center gap-2 bg-rose-600 text-white px-5 py-2.5 rounded-lg hover:bg-rose-700 font-semibold transition-colors shadow-md hover:shadow-lg"
                 >
-                  詳細を見る
+                  公式サイトで詳細を見る
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
                 </a>
               )}
-            </div>
           </div>
         </div>
       ))}

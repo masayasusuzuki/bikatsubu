@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PageContentManager from './PageContentManager';
+import EventManagement from './EventManagement';
 import { articlesAPI, Article, supabase } from '../src/lib/supabase';
 import { loginHistoryService, LoginHistoryEntry } from '../services/loginHistoryService';
 import { activityLogService, ActivityLog } from '../services/activityLogService';
@@ -553,6 +554,16 @@ const AdminDashboard: React.FC = () => {
                 コンテンツ管理
               </button>
               <button
+                onClick={() => setActiveTab('events')}
+                className={`py-3 px-4 sm:py-4 sm:px-8 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
+                  activeTab === 'events'
+                    ? 'border-slate-800 text-slate-800 bg-slate-50'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                }`}
+              >
+                イベント管理
+              </button>
+              <button
                 onClick={() => setActiveTab('login-history')}
                 className={`py-3 px-4 sm:py-4 sm:px-8 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                   activeTab === 'login-history'
@@ -777,6 +788,10 @@ const AdminDashboard: React.FC = () => {
 
             {activeTab === 'content' && (
               <PageContentManager />
+            )}
+
+            {activeTab === 'events' && (
+              <EventManagement />
             )}
 
             {activeTab === 'login-history' && (

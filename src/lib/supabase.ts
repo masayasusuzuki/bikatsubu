@@ -499,6 +499,7 @@ export interface HeroSlide {
   alt_text: string
   order_position: number
   article_id?: string
+  external_link?: string
   created_at: string
   updated_at: string
   article?: Article
@@ -509,6 +510,7 @@ export interface CreateHeroSlide {
   alt_text: string
   order_position: number
   article_id?: string | null
+  external_link?: string | null
 }
 
 export const heroSlidesAPI = {
@@ -742,3 +744,115 @@ export const imageMetadataAPI = {
     if (error) throw error
   }
 }
+
+// Beauty Events API
+export const beautyEventsAPI = {
+  // すべてのイベントを取得（日付順）
+  async getAllEvents(): Promise<BeautyEvent[]> {
+    const { data, error } = await supabase
+      .from('beauty_events')
+      .select('*')
+      .order('event_date', { ascending: true })
+
+    if (error) throw error
+    return data as BeautyEvent[]
+  },
+
+  // 単一イベント取得
+  async getEventById(id: string): Promise<BeautyEvent | null> {
+    const { data, error } = await supabase
+      .from('beauty_events')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) throw error
+    return data as BeautyEvent
+  },
+
+  // イベント作成
+  async createEvent(event: CreateBeautyEvent): Promise<BeautyEvent> {
+    // 画像URLが空の場合、デフォルト画像を設定
+    const eventWithImage = {
+      ...event,
+      image_url: event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=250&fit=crop&auto=format'
+    }
+
+    const { data, error } = await supabase
+      .from('beauty_events')
+      .insert([eventWithImage])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as BeautyEvent
+  },
+
+  // イベント一括作成
+  async createEvents(events: CreateBeautyEvent[]): Promise<BeautyEvent[]> {
+    // 画像URLが空の場合、デフォルト画像を設定
+    const eventsWithImages = events.map(event => ({
+      ...event,
+      image_url: event.image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=250&fit=crop&auto=format'
+    }))
+
+    const { data, error } = await supabase
+      .from('beauty_events')
+      .insert(eventsWithImages)
+      .select()
+
+    if (error) throw error
+    return data as BeautyEvent[]
+  },
+
+  // イベント更新
+  async updateEvent(id: string, event: Partial<CreateBeautyEvent>): Promise<BeautyEvent> {
+    const { data, error } = await supabase
+      .from('beauty_events')
+      .update(event)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as BeautyEvent
+  },
+
+  // イベント削除
+  async deleteEvent(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('beauty_events')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+  },
+
+  // 期間指定でイベント取得
+  async getEventsByDateRange(startDate: string, endDate: string): Promise<BeautyEvent[]> {
+    const { data, error } = await supabase
+      .from('beauty_events')
+      .select('*')
+      .gte('event_date', startDate)
+      .lte('event_date', endDate)
+      .order('event_date', { ascending: true })
+
+    if (error) throw error
+    return data as BeautyEvent[]
+  },
+
+  // カテゴリー別イベント取得
+  async getEventsByCategory(category: string): Promise<BeautyEvent[]> {
+    const { data, error } = await supabase
+      .from('beauty_events')
+      .select('*')
+      .eq('category', category)
+      .order('event_date', { ascending: true })
+
+    if (error) throw error
+    return data as BeautyEvent[]
+  }
+}
+
+// BeautyEvent型をエクスポート
+import type { BeautyEvent, CreateBeautyEvent } from '../types'

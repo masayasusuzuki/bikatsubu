@@ -127,7 +127,8 @@ const App: React.FC = () => {
       imageUrl: dbSlide.image_url,
       alt: dbSlide.alt_text,
       articleId: dbSlide.article_id || undefined,
-      articleSlug: dbSlide.article?.slug || undefined
+      articleSlug: dbSlide.article?.slug || undefined,
+      externalLink: dbSlide.external_link || undefined
     };
   };
 

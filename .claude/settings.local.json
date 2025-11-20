@@ -27,7 +27,11 @@
       "Bash(mcp-claudepoint get-changes:*)",
       "Bash(rm:*)",
       "WebFetch(domain:bikatsubu-media.jp)",
-      "Bash(mcp-claudepoint create-claudepoint:*)"
+      "Bash(mcp-claudepoint create-claudepoint:*)",
+      "Bash(source:*)",
+      "Bash(export VITE_SUPABASE_URL)",
+      "Bash(export VITE_SUPABASE_ANON_KEY)",
+      "Bash(tsx:*)"
     ],
     "deny": [],
     "ask": []
