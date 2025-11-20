@@ -21,6 +21,7 @@ const ArticleDetail = lazy(() => import('./components/ArticleDetail'));
 const SkinDiagnosis = lazy(() => import('./components/SkinDiagnosis'));
 const MediaPage = lazy(() => import('./components/MediaPage'));
 const ArticlesListPage = lazy(() => import('./components/ArticlesListPage'));
+const EventsCalendarPage = lazy(() => import('./components/EventsCalendarPage'));
 const UserGuide = lazy(() => import('./components/UserGuide'));
 const FAQ = lazy(() => import('./components/FAQ'));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
@@ -392,7 +393,7 @@ const App: React.FC = () => {
   if (currentPath === '/articles/events') {
     return (
       <LazyLoadWrapper>
-        <ArticlesListPage sectionType="beauty_events" />
+        <EventsCalendarPage />
       </LazyLoadWrapper>
     );
   }

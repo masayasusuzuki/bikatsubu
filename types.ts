@@ -42,3 +42,16 @@ export interface Manufacturer {
     description: string;
     logoUrl: string;
 }
+
+export interface BeautyEvent {
+  id: string;
+  title: string;
+  date: string;
+  endDate?: string;
+  category: string;
+  brand?: string;
+  location: string;
+  description: string;
+  link?: string;
+  image?: string;
+}
