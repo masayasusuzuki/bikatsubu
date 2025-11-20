@@ -26,7 +26,8 @@
       "Bash(npx tsc:*)",
       "Bash(mcp-claudepoint get-changes:*)",
       "Bash(rm:*)",
-      "WebFetch(domain:bikatsubu-media.jp)"
+      "WebFetch(domain:bikatsubu-media.jp)",
+      "Bash(mcp-claudepoint create-claudepoint:*)"
     ],
     "deny": [],
     "ask": []
