@@ -855,4 +855,4 @@ export const beautyEventsAPI = {
 }
 
 // BeautyEvent型をエクスポート
-import type { BeautyEvent, CreateBeautyEvent } from '../types'
+import type { BeautyEvent, CreateBeautyEvent } from '../../types'
