@@ -189,7 +189,12 @@ const App: React.FC = () => {
 
       // 最新記事を取得（mostReadArticlesの代わり）
       const latestArticlesData = await articlesAPI.getLatestArticles(5);
-      const mostReadArticles = latestArticlesData;
+      // published_at または created_at で降順ソート
+      const mostReadArticles = latestArticlesData.sort((a, b) => {
+        const dateA = new Date(a.published_at || a.created_at).getTime();
+        const dateB = new Date(b.published_at || b.created_at).getTime();
+        return dateB - dateA; // 降順
+      });
 
       setPageData({
         hotCosmetics,
