@@ -13,6 +13,7 @@ interface RichTextEditorProps {
 
 export interface RichTextEditorRef {
   insertImage: (url: string) => void;
+  insertBanner: (imageUrl: string, linkUrl: string) => void;
 }
 
 interface SlashCommand {
@@ -246,6 +247,16 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({ con
     insertImage: (url: string) => {
       if (editor) {
         editor.chain().focus().setImage({ src: url }).run();
+      }
+    },
+    // バナーを挿入（リンク付き・中サイズ固定）
+    insertBanner: (imageUrl: string, linkUrl: string) => {
+      if (editor) {
+        editor.chain().focus().setImage({
+          src: imageUrl,
+          href: linkUrl,
+          width: '400px'
+        }).run();
       }
     }
   }));

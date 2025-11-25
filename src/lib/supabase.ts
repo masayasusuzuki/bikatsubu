@@ -856,3 +856,111 @@ export const beautyEventsAPI = {
 
 // BeautyEvent型をエクスポート
 import type { BeautyEvent, CreateBeautyEvent } from '../../types'
+
+// Banner型定義
+export interface Banner {
+  id: string
+  name: string
+  image_url: string
+  link_url: string
+  is_active: boolean
+  display_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateBanner {
+  name: string
+  image_url: string
+  link_url: string
+  is_active?: boolean
+  display_order?: number
+}
+
+// Banners API
+export const bannersAPI = {
+  // 全バナーを取得
+  async getAllBanners(): Promise<Banner[]> {
+    const { data, error } = await supabase
+      .from('banners')
+      .select('*')
+      .order('display_order', { ascending: true })
+
+    if (error) throw error
+    return data as Banner[]
+  },
+
+  // 有効なバナーのみ取得
+  async getActiveBanners(): Promise<Banner[]> {
+    const { data, error } = await supabase
+      .from('banners')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true })
+
+    if (error) throw error
+    return data as Banner[]
+  },
+
+  // バナーをIDで取得
+  async getBannerById(id: string): Promise<Banner> {
+    const { data, error } = await supabase
+      .from('banners')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) throw error
+    return data as Banner
+  },
+
+  // バナーを作成
+  async createBanner(banner: CreateBanner): Promise<Banner> {
+    const { data, error } = await supabase
+      .from('banners')
+      .insert([banner])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as Banner
+  },
+
+  // バナーを更新
+  async updateBanner(id: string, updates: Partial<CreateBanner>): Promise<Banner> {
+    const { data, error } = await supabase
+      .from('banners')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data as Banner
+  },
+
+  // バナーを削除
+  async deleteBanner(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('banners')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+  },
+
+  // バナーの表示順を一括更新
+  async updateBannersOrder(updates: { id: string; display_order: number }[]): Promise<void> {
+    const promises = updates.map(update =>
+      supabase
+        .from('banners')
+        .update({ display_order: update.display_order })
+        .eq('id', update.id)
+    )
+
+    const results = await Promise.all(promises)
+    const errors = results.filter(result => result.error).map(result => result.error)
+
+    if (errors.length > 0) throw errors[0]
+  }
+}
