@@ -253,10 +253,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
     const file = files[0];
     
-    // ファイルサイズチェック（5MB = 5 * 1024 * 1024 bytes）
-    // Cloudinaryが自動的に最適化（JPEG変換・圧縮）するため5MBまで許可
-    if (file.size > 5 * 1024 * 1024) {
-      alert('ファイルサイズが大きすぎます。5MB以下のファイルを選択してください。');
+    // ファイルサイズチェック（20MB = 20 * 1024 * 1024 bytes）
+    // Cloudinaryが自動的に最適化（JPEG変換・圧縮）するため20MBまで許可
+    if (file.size > 20 * 1024 * 1024) {
+      alert('ファイルサイズが大きすぎます。20MB以下のファイルを選択してください。');
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -331,10 +331,10 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({ articleId }) => {
 
     const file = files[0];
     
-    // ファイルサイズチェック（5MB = 5 * 1024 * 1024 bytes）
-    // Cloudinaryが自動的に最適化（JPEG変換・圧縮）するため5MBまで許可
-    if (file.size > 5 * 1024 * 1024) {
-      alert('ファイルサイズが大きすぎます。5MB以下のファイルを選択してください。');
+    // ファイルサイズチェック（20MB = 20 * 1024 * 1024 bytes）
+    // Cloudinaryが自動的に最適化（JPEG変換・圧縮）するため20MBまで許可
+    if (file.size > 20 * 1024 * 1024) {
+      alert('ファイルサイズが大きすぎます。20MB以下のファイルを選択してください。');
       if (featuredImageInputRef.current) featuredImageInputRef.current.value = '';
       return;
     }

@@ -40,8 +40,8 @@ const FeaturedImageModal: React.FC<FeaturedImageModalProps> = ({
     const file = e.target.files?.[0];
     if (!file || !onUpload) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('ファイルサイズが大きすぎます。5MB以下のファイルを選択してください。');
+    if (file.size > 20 * 1024 * 1024) {
+      alert('ファイルサイズが大きすぎます。20MB以下のファイルを選択してください。');
       return;
     }
 
