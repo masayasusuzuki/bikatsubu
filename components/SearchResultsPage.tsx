@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import SearchBar from './SearchBar';
-import { articlesAPI, Article as DBArticle } from '../src/lib/supabase';
-import type { Article } from '../types';
+import { articlesAPI, Article } from '../src/lib/supabase';
 import { optimizeAnyImageUrl } from '../src/utils/imageOptimizer';
 
 const SearchResultsPage: React.FC = () => {
@@ -24,25 +23,12 @@ const SearchResultsPage: React.FC = () => {
     }
   }, []);
 
-  const convertDBArticleToUIArticle = (dbArticle: DBArticle): Article => {
-    return {
-      id: dbArticle.id,
-      title: dbArticle.title,
-      imageUrl: dbArticle.featured_image || 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=250&fit=crop&auto=format',
-      date: new Date(dbArticle.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
-      category: dbArticle.category,
-      tag: dbArticle.keywords?.split(',')[0] || undefined,
-      slug: dbArticle.slug
-    };
-  };
-
   const searchArticles = async (query: string) => {
     setLoading(true);
     try {
       const searchResults = await articlesAPI.searchArticles(query);
-      const uiArticles = searchResults.map(convertDBArticleToUIArticle);
-      setResults(uiArticles);
-      setTotalResults(uiArticles.length);
+      setResults(searchResults);
+      setTotalResults(searchResults.length);
     } catch (error) {
       console.error('Search failed:', error);
       setResults([]);
@@ -50,6 +36,14 @@ const SearchResultsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).replace(/\//g, '.');
   };
 
   return (
@@ -143,7 +137,7 @@ const SearchResultsPage: React.FC = () => {
                     <h3 className="text-lg font-bold text-gray-800 group-hover:text-pink-600 transition-colors mb-2 line-clamp-2">
                       {article.title}
                     </h3>
-                    <p className="text-sm text-gray-500">{new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')}</p>
+                    <p className="text-sm text-gray-500">{formatDate(article.published_at || article.created_at)}</p>
                   </div>
                 </div>
               ))}
